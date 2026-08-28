@@ -1,7 +1,7 @@
 version = 1
-SPDX-PackageName = "base-archetype"
-SPDX-PackageSupplier = "2025 INDUSTRIA DE DISEÑO TEXTIL S.A. (INDITEX S.A.)"
-SPDX-PackageDownloadLocation = "https://github.com/InditexTech/base-archetype"
+SPDX-PackageName = "cerbia"
+SPDX-PackageSupplier = "2026 INDUSTRIA DE DISEÑO TEXTIL S.A. (INDITEX S.A.)"
+SPDX-PackageDownloadLocation = "https://github.com/InditexTech/cerbia"
 
 [[annotations]]
 path = [
@@ -9,6 +9,16 @@ path = [
     "NOTICE",
     ".gitignore",
     ".github/CODEOWNERS",
+    ".pre-commit-config.yaml",
+    ".python-version",
+    "Makefile",
+    "CHANGELOG.md",
+    "pyproject.toml",
+    "uv.lock",
+    "docs/**",
+    "examples/**",
+    "packages/**",
+    "scripts/**",
 ]
-SPDX-FileCopyrightText = "2025 INDUSTRIA DE DISEÑO TEXTIL S.A. (INDITEX S.A.)"
+SPDX-FileCopyrightText = "2026 INDUSTRIA DE DISEÑO TEXTIL S.A. (INDITEX S.A.)"
 SPDX-License-Identifier = "Apache-2.0"

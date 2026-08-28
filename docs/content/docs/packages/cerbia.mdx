@@ -1,0 +1,26 @@
+---
+title: "cerbia"
+description: "Install CerbIA's core package and select optional capabilities through package extras."
+---
+
+`cerbia` is the installation selector for CerbIA. It installs `cerbia-core` and
+offers extras for optional capabilities, but it intentionally contains no Python
+import namespace. Import the selected component package instead.
+
+## Installation choices
+
+| Install | Includes | Use when |
+| --- | --- | --- |
+| `pip install cerbia` | `cerbia-core` | Building a pipeline through the Python API. |
+| `pip install "cerbia[cli]"` | Core plus `cerbia-cli` | Running `cerbia scan` and `cerbia validate`. |
+| `pip install "cerbia[ml]"` | Core plus `cerbia-ml` | Building artifact or classifier integrations. |
+| `pip install "cerbia[presidio]"` | Core plus Presidio integration | Using NLP-backed English PII detection. |
+| `pip install "cerbia[protectai]"` | Core, ML, and ProtectAI integration | Using classifier-backed prompt-injection detection. |
+| `pip install "cerbia[all]"` | Every optional package | Evaluating all available integrations. |
+
+After installation, import `cerbia.core`, `cerbia.ml`, `cerbia.presidio`, or
+`cerbia.protectai` according to the selected capability. The executable name
+`cerbia` is provided by the CLI package, not by an importable top-level module.
+
+Continue with [Getting started](../getting-started.mdx) and the
+[package index](index.mdx).

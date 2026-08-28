@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2025 INDUSTRIA DE DISEÑO TEXTIL S.A. (INDITEX S.A.)
+SPDX-FileCopyrightText: 2026 INDUSTRIA DE DISEÑO TEXTIL S.A. (INDITEX S.A.)
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -31,7 +31,7 @@ To maintain a collaborative and respectful environment, please consider the foll
 
 ## Contribution Guidelines
 
-- All contributors are expected to follow the project's [code of conduct](CODE_of_CONDUCT.md). Please be respectful and
+- All contributors are expected to follow the project's [code of conduct](CODE_OF_CONDUCT.md). Please be respectful and
 considerate towards other contributors.
 - Before starting work on a new feature or fix, check existing [issues](../../issues) and [pull requests](../../pulls)
 to avoid duplications and unnecessary discussions.
@@ -46,3 +46,63 @@ and its purpose.
 - Remember to add license and copyright information following the [REUSE Specification](https://reuse.software/spec/#copyright-and-licensing-information).
 
 ## Development
+
+Bootstrap the locked development environment and install the commit hook:
+
+```bash
+make install
+```
+
+Use `make format` to apply Ruff formatting in place. `make lint` is
+non-mutating: it runs Ruff, ty, and a formatting check. `make verify` runs the
+non-mutating lint-and-test gate.
+
+```bash
+make format
+make lint
+make test
+make build
+make verify
+
+make test cerbia-ml
+make verify cerbia-ml
+make build cerbia-ml
+```
+
+Accepted package names are `cerbia`, `cerbia-core`, `cerbia-ml`,
+`cerbia-presidio`, and `cerbia-protectai`. `make install` synchronizes the
+complete locked workspace. The metadata-only `cerbia` package is handled
+automatically without source coverage.
+
+To prepare a release, use a canonical PEP 440 version:
+
+```bash
+make bump-version 1.2.3
+```
+
+This updates every package version and internal CerbIA dependency pin, then
+refreshes `uv.lock` and synchronizes the workspace environment.
+
+CI runs each package pipeline in parallel. The local hooks run Ruff and ty
+through uv, so no globally installed Python tooling is required.
+
+### Documentation
+
+Documentation development requires Node.js 22.13 or later and npm. From the repository
+root, install the locked dependencies, type-check and build the site, or start
+the local development server with:
+
+```bash
+make docs-install
+make docs-build
+make docs-serve
+```
+
+The equivalent commands from `docs/` are:
+
+```bash
+npm ci
+npm run typecheck
+npm run build
+npm run dev
+```

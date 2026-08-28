@@ -1,0 +1,19 @@
+{
+  "title": "CerbIA",
+  "root": true,
+  "pages": [
+    "---Overview---",
+    "index",
+    "architecture",
+    "---Getting started---",
+    "getting-started",
+    "configuration",
+    "cli",
+    "---Reference---",
+    "gate",
+    "components",
+    "packages",
+    "i18n",
+    "logging"
+  ]
+}

@@ -1,0 +1,29 @@
+---
+title: "cerbia-cli"
+description: "Install the package that provides the cerbia executable for validation and scanning commands."
+---
+
+`cerbia-cli` provides the `cerbia` executable for validating configurations and
+running configured pipelines.
+
+```bash
+pip install cerbia-cli
+cerbia validate config.yaml
+cerbia scan --config config.yaml --text "Text to scan"
+```
+
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `cerbia validate CONFIG.yaml` | Parse one YAML file and construct its pipeline without scanning entries. |
+| `cerbia scan --config CONFIG.yaml` | Run one configuration with configured loaders or `--text`/`--file` overrides. |
+
+`scan` exits `0` for a safe result, `1` for an unsafe result, and `2` for
+usage/configuration/handled execution errors. `validate` exits `0` when the
+pipeline can be constructed. Both commands support log-level and log-file
+options.
+
+Use the package when applications need a reproducible command-line entry point;
+use `cerbia-core` directly when they construct and run pipelines in Python. See
+the complete [CLI reference](../cli.mdx).

@@ -1,0 +1,25 @@
+---
+title: "Packages"
+description: "Choose the CerbIA distribution or optional package that provides the capability you need."
+---
+
+CerbIA is published as focused distributions. Install names and Python import
+names intentionally differ for most packages.
+
+| Distribution | Import namespace | Install selector | Purpose |
+| --- | --- | --- | --- |
+| `cerbia` | None | `cerbia` | Metadata-only selector; installs `cerbia-core`. |
+| `cerbia-core` | `cerbia.core` | `cerbia` or `cerbia-core` | Core pipeline, configuration, and built-in components. |
+| `cerbia-cli` | `cerbia.cli` | `cerbia[cli]` or `cerbia-cli` | The `cerbia` executable. |
+| `cerbia-ml` | `cerbia.ml` | `cerbia[ml]` or `cerbia-ml` | Local artifact and classifier infrastructure. |
+| `cerbia-presidio` | `cerbia.presidio` | `cerbia[presidio]` or `cerbia-presidio` | Optional Presidio PII scanner. |
+| `cerbia-protectai` | `cerbia.protectai` | `cerbia[protectai]` or `cerbia-protectai` | Optional local ProtectAI prompt-injection scanner. |
+
+The `all` extra installs every optional package: `pip install "cerbia[all]"`.
+
+- [cerbia](cerbia.mdx)
+- [cerbia-core](cerbia-core.mdx)
+- [cerbia-cli](cerbia-cli.mdx)
+- [cerbia-ml](cerbia-ml.mdx)
+- [cerbia-presidio](cerbia-presidio.mdx)
+- [cerbia-protectai](cerbia-protectai.mdx)

@@ -1,0 +1,14 @@
+---
+title: "Loaders"
+description: "Load inline text or local files into entries for the CerbIA processing pipeline."
+---
+
+Loaders produce `Entry` values for a `Runner`. A loader defines where text comes
+from; preprocessors and scanners operate on the resulting entries. CerbIA core
+exports `TextLoader` and `FileLoader`.
+
+- [TextLoader](text-loader.mdx) loads one string or a list of strings.
+- [FileLoader](file-loader.mdx) reads file paths or directories.
+
+Configure a loader using `loader: cerbia.core.loaders.<ClassName>` and optional
+`init_args`; see [Configuration](../../configuration.mdx).
