@@ -1,0 +1,28 @@
+.gitignore
+  h_d6d31939214ddd 23-24
+Makefile
+  h_d6d31939214ddd 90-91
+packages/cerbia-cli/pyproject.toml
+  h_d6d31939214ddd 7-8
+packages/cerbia-core/pyproject.toml
+  h_d6d31939214ddd 7-8
+packages/cerbia-ml/pyproject.toml
+  h_d6d31939214ddd 7-8
+packages/cerbia-presidio/pyproject.toml
+  h_d6d31939214ddd 7-8
+packages/cerbia-protectai/pyproject.toml
+  h_d6d31939214ddd 7-8
+packages/cerbia/pyproject.toml
+  h_d6d31939214ddd 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "a13dc19fa64f33a25b75a099c0c1098ad4672421",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
