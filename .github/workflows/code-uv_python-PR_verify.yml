@@ -1,104 +1,99 @@
 # SPDX-FileCopyrightText: 2026 INDUSTRIA DE DISEÑO TEXTIL S.A. (INDITEX S.A.)
 # SPDX-License-Identifier: Apache-2.0
 
-name: code-uv-PR-verify
+name: code-uv-python-PR-verify
 
-concurrency:
-  group: code-PR-verify-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
 
 permissions:
   contents: read
 
-on:
-  pull_request:
-  workflow_dispatch:
+concurrency:
+  group: code-uv-python-pr-verify-${{ github.repository }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  PROJECT_TYPE: ${{ vars.PROJECT_TYPE }}
+  WORKING_DIRECTORY: ${{ vars.WORKING_DIRECTORY }}
 
 jobs:
-  repo-linter:
-    name: Repo Linter
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: 'Run Repolinter'
-        uses: newrelic/repolinter-action@3f4448f855c351e9695b24524a4111c7847b84cb # v1.7.0
-
-  reuse-compliance:
-    name: REUSE Compliance
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: REUSE Compliance Check
-        uses: fsfe/reuse-action@bb774aa972c2a89ff34781233d275075cbddf542 # v5
-
-  conventional-commits:
-    name: Conventional Commits
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - uses: webiny/action-conventional-commits@8bc41ff4e7d423d56fa4905f6ff79209a78776c7 # v1.3.0
-
-  prepare:
-    name: Prepare
-    runs-on: ubuntu-24.04
-    outputs:
-      packages: ${{ steps.discover.outputs.packages }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
-      - name: Setup Python project
-        uses: ./.github/actions/setup-python-project
-        with:
-          check-lock: 'true'
-
-      - name: Discover packages
-        id: discover
-        run: |
-          uv run --locked scripts/list_packages.py --gh-output-key packages
-
   verify:
-    name: Verify - ${{ matrix.package }}
-    needs: prepare
+    name: Code / Verify
     runs-on: ubuntu-24.04
-    env:
-      PACKAGE: ${{ matrix.package }}
-    strategy:
-      fail-fast: false
-      matrix:
-        package: ${{ fromJSON(needs.prepare.outputs.packages) }}
+    timeout-minutes: 30
     steps:
-      - name: Checkout
+      - name: Check out pull request head
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
+          persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Setup Python project
-        uses: ./.github/actions/setup-python-project
+      - name: Read governed tool versions
+        id: tool-versions
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -Evq '^[a-zA-Z0-9_-]+ [a-zA-Z0-9._+-]+$' .tool-versions; then
+            echo "::error title=Invalid tool-versions::${WORKING_DIRECTORY}/.tool-versions is malformed."
+            exit 1
+          fi
+          {
+            echo "tool_versions<<EOF"
+            cat .tool-versions
+            echo
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Run lint
-        run: make lint "$PACKAGE"
+      - name: Set up asdf-managed Python
+        uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
+        with:
+          tool_versions: ${{ steps.tool-versions.outputs.tool_versions }}
 
-      - name: Run test
-        run: make test "$PACKAGE"
+      - name: Point uv at the asdf-managed interpreter
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "UV_PYTHON=$(asdf where python)/bin/python" >> "$GITHUB_ENV"
 
-      - name: Run build
-        run: make build "$PACKAGE"
+      - name: Set up UV
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: '0.9.7'
+          enable-cache: true
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+          cache-dependency-glob: ${{ env.WORKING_DIRECTORY }}/uv.lock
+
+      - name: Verify, test, and build
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          uv lock --check
+
+          case "$PROJECT_TYPE" in
+            single)
+              uv sync --frozen --all-extras --all-groups
+              uv run --no-sync ruff format --check .
+              uv run --no-sync ruff check .
+              uv run --no-sync ty check
+              uv run --no-sync pytest
+              uv build --out-dir dist
+              ;;
+            workspaces)
+              uv sync --frozen --all-extras --all-groups --all-packages
+              uv run --no-sync --all-packages ruff format --check .
+              uv run --no-sync --all-packages ruff check .
+              uv run --no-sync --all-packages ty check
+              uv run --no-sync --all-packages pytest
+              uv build --all-packages --out-dir dist
+              ;;
+            *)
+              echo "::error title=Invalid project type::PROJECT_TYPE must be single or workspaces."
+              exit 1
+              ;;
+          esac
