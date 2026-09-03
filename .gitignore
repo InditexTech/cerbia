@@ -20,8 +20,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-packages/*/LICENSE
-packages/*/NOTICE
 build/
 develop-eggs/
 dist/
