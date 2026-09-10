@@ -19,6 +19,7 @@ def test_workspace_packages_share_a_version_and_internal_pins() -> None:
     assert len(versions) == 1
 
     version = versions.pop()
+    internal_pin_version = version.partition(".dev")[0]
     for document in documents:
         project = document["project"]
         requirements = [*project.get("dependencies", [])]
@@ -30,7 +31,7 @@ def test_workspace_packages_share_a_version_and_internal_pins() -> None:
             match = INTERNAL_REQUIREMENT.fullmatch(requirement)
             if name == "cerbia" or name.startswith("cerbia-"):
                 assert match is not None
-                assert match["version"] == version
+                assert match["version"] == internal_pin_version
 
 
 def test_distribution_declares_supported_extras() -> None:

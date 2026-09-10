@@ -1,8 +1,6 @@
-import os
 import re
 import subprocess
 from pathlib import Path
-from typing import Literal
 
 import typer
 from list_packages import list_packages
