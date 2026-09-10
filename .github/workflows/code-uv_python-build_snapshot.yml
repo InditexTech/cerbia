@@ -22,6 +22,7 @@ concurrency:
 env:
   PROJECT_TYPE: ${{ vars.PROJECT_TYPE }}
   WORKING_DIRECTORY: ${{ vars.WORKING_DIRECTORY }}
+  ASDF_BRANCH_VERSION: '0.18.0'
 
 jobs:
   build-snapshot:
@@ -76,6 +77,7 @@ jobs:
         uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
         with:
           tool_versions: ${{ steps.tool-versions.outputs.tool_versions }}
+          asdf_version: ${{ env.ASDF_BRANCH_VERSION }}
 
       - name: Point uv at the asdf-managed interpreter
         working-directory: ${{ env.WORKING_DIRECTORY }}
@@ -109,10 +111,6 @@ jobs:
 
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
             if [[ "$PROJECT_TYPE" == "single" ]]; then
-              # Strip any existing pre-release suffix before stamping the snapshot.
-              # After a release, the next-dev bump leaves the develop base at
-              # X.Y.Z.dev0; appending a second .dev<run_id> yields X.Y.Z.dev0.dev<id>,
-              # which is invalid PEP 440 (uv rejects it). Replace the suffix, don't append.
               base="$(uv version --short)"
               uv version "${base%.dev*}.dev${GITHUB_RUN_ID}"
             else
@@ -121,7 +119,6 @@ jobs:
                 exit 1
               }
               while IFS= read -r package; do
-                # Same suffix-replace as the single-package case above.
                 base="$(uv version --package "$package" --short)"
                 uv version --package "$package" "${base%.dev*}.dev${GITHUB_RUN_ID}"
               done <<< "$packages"
