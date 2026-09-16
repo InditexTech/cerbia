@@ -24,7 +24,7 @@
   "creation_year": 2026,
   "integrity": {
     "algorithm": "hmac-sha256",
-    "signature": "5341450e662951677ed9444e86498d131c0e04d23fc131c66e48a926eca785b0"
+    "signature": "29f54d67323934c075558d5e5befd3fc3b830aa7fa11242678e39c87ebaa32ea"
   },
   "managed_by": "InditexTech CI governance",
   "managed_paths": {
@@ -41,7 +41,7 @@
     ".github/workflows/code-uv_python-release.yml": "36671f56ecf370dc7ff79d354ac88a366d6f932d7ab108170d566f2c67d3422f",
     ".github/workflows/code-uv_python-sonarcloud-analysis.yml": "6853bf695515c98226168a40f65d9c5c8d91ed20dc65c860d2bdc55c20b9589e",
     ".github/workflows/codeql.yml": "c8362cd28c2795f1fdf30ec44522701de09b5545c923f06d4db10a4cdf88414c",
-    ".github/workflows/pr-verify.yml": "b39240fd362fb004c3b47cd4189cb527d9e27a7c37645bbe6324d2a757e34f7f",
+    ".github/workflows/pr-verify.yml": "dfcff10f7b2ff38a112ea4051e79462f4f2c6ad1a82035db3145327e79a34fbb",
     ".github/workflows/push-verify.yml": "49e6e9c6a7015ea59a2bc831982b2fc4bfd1d5721302f6041170b4a15b7d56e1",
     ".github/workflows/scorecard-analysis.yml": "b45c2a0f87801796cefb4363d9f1414891b0734bc07de3f50d4a880e22faea10",
     ".tool-versions": "db1e600ba16443b943c545435bbde76267225c50a1c712a930f705b9272b73b0",
@@ -59,7 +59,7 @@
   "retained_paths": {},
   "schema_version": 2,
   "source_digests": {
-    "base": "58ef3295087804fb10463953cd5d81218a48b3e3a2d119da38018eca07213915",
+    "base": "a9960c613e9e9c1f756f5d0cf4f941ad39b7fe63bded0d77efd00969ee294872",
     "python": "7e5e32bf35038ece219061fdbac4b7f41d2ecbab985bd0e3c5def3d62f2bb866"
   }
 }
