@@ -49,6 +49,18 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Install Python build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          # asdf compiles CPython from source; without these dev libraries the
+          # interpreter lacks _bz2/readline/_lzma and Code/Verify fails at import
+          # time (observed live on pypi-ci-testing since 2026-09-17).
+          cd /tmp
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends \
+            libbz2-dev libreadline-dev liblzma-dev libsqlite3-dev \
+            libffi-dev libssl-dev zlib1g-dev uuid-dev 
       - name: Set up asdf-managed Python
         uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
         with:
