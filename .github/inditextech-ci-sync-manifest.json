@@ -24,7 +24,7 @@
   "creation_year": 2026,
   "integrity": {
     "algorithm": "hmac-sha256",
-    "signature": "5aae455d0783cbe98ece2214f066a16f6216f50b0b3dc93ee4ef61eebed08c4e"
+    "signature": "ba12891e927e18dd47087dc07a9dd73cbc1d450e459e9676a6abd2e3308f52de"
   },
   "managed_by": "InditexTech CI governance",
   "managed_paths": {
@@ -35,10 +35,10 @@
     ".github/PULL_REQUEST_TEMPLATE.md": "23a0b0ac79a9020ccac9c013582a01f86e2df2ae7f914673583b9a3368313041",
     ".github/inditextech-ci-python.json": "65bc6510d446c10115e689b580a1995b34b825e117ec041cb56baa87b9ab3ca2",
     ".github/workflows/code-release_preview.yml": "3ac917384c6e1169552acb76d1e199efdeb67091a6ef25463f1ea9a1029e9b05",
-    ".github/workflows/code-uv_python-PR_verify.yml": "92d4eb8b1441709da0207481493a50ad6084d0b2e1b17b31de58cc03e63564b4",
-    ".github/workflows/code-uv_python-build_snapshot.yml": "0207571c734a1a1b7b8d604a055be7be81dc7a203112fc9c5fc0a291dc7ee3d8",
+    ".github/workflows/code-uv_python-PR_verify.yml": "ecc91133cf0ca855147e92c32fe9964e1031c68ede689161c6b7eaab0a7b3eca",
+    ".github/workflows/code-uv_python-build_snapshot.yml": "eb69fd3fc7532ee3bd2232a7a405a887b27660ed25eb9d23a7b12003d121117f",
     ".github/workflows/code-uv_python-release-core.yml": "b7faa767f1db7425ef18a0d33952c3c1df3c257bfed9fde085e12cc5bfbb4ca5",
-    ".github/workflows/code-uv_python-release.yml": "71fc5808f6c23fd5f74a066654a4d3ab46f656d7e2f96535784876a5dce44d63",
+    ".github/workflows/code-uv_python-release.yml": "7327510be9efad249c8c123c9e41b9a96c4e4810f7af2b49998000b5619b889a",
     ".github/workflows/code-uv_python-sonarcloud-analysis.yml": "28eb3ada4f269b3e9aadd5224e43948f0f6275ecd4304f411b377fcbcd69b4c8",
     ".github/workflows/codeql.yml": "c8362cd28c2795f1fdf30ec44522701de09b5545c923f06d4db10a4cdf88414c",
     ".github/workflows/pr-verify.yml": "5628d1d93c09cb761602fcfc3857c325e2dc542cadc159a1edad58d1818d0de0",
@@ -60,6 +60,6 @@
   "schema_version": 2,
   "source_digests": {
     "base": "b5d5302dc47b88e363dd1b3adb1c043f85923a8480b8ce057928657fe049872c",
-    "python": "f75be0434af945f7d47b000140c02919b7f1d7ca0c5a7b359a9fc35b19971a50"
+    "python": "c19fe4c566c0e38d935549ec62e219a3381fcbc7ce3cbf0d6a2670d893aba006"
   }
 }

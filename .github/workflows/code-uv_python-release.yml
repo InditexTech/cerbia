@@ -58,7 +58,7 @@ jobs:
           merge-multiple: true
 
       - name: Validate trusted publishing boundary
-        uses: InditexTech/gh-actions/pypi@977030536dbdb52a7fe2fd5979510fd6a225d035 # v1.1.0
+        uses: InditexTech/gh-actions/pypi@8a719baa6e8d514ccdfe87cff2baae9007a8b168 # v1.1.5
         with:
           attestations: 'true'
           packages-dir: dist
