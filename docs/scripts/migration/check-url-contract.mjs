@@ -138,7 +138,8 @@ try {
   assert.equal(contract.publication.cancelInProgress, false);
   assert.equal(contract.publication.uploadAction, 'actions/upload-pages-artifact');
   assert.equal(contract.publication.deployAction, 'actions/deploy-pages');
-  assert.match(contract.fixtureBuildConfirmation, /deferred to task 4/);
+  assert.match(contract.fixtureBuildConfirmation, /task 4 isolated HEAD build confirmed/);
+  assert.match(contract.fixtureBuildConfirmation, /Stable paths remain intended pending a local stable-ref build in task 16/);
 
   console.log('URL_CONTRACT_OK aliases=38 deep=37 component=ROOT absent=prerelease present=stable');
 } catch (error) {

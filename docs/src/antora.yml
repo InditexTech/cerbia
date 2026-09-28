@@ -1,0 +1,13 @@
+name: ROOT
+title: CerbIA
+version: prerelease
+prerelease: true
+start_page: ROOT:index.adoc
+nav:
+  - modules/main/nav.adoc
+nav_modules:
+  - module: main
+    title: Documentation
+    description: CerbIA security gates for AI agents' inputs and outputs.
+    icon: grid-3x3
+not_found_module: main

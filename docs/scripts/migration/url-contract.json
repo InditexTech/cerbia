@@ -92,5 +92,5 @@
     "deployAction": "actions/deploy-pages",
     "noStableFallback": "publish prerelease only and target all 38 legacy aliases at prerelease; never fail because docs/stable is absent"
   },
-  "fixtureBuildConfirmation": "deferred to task 4: confirm generated output and adjust this expected table before generating aliases"
+  "fixtureBuildConfirmation": "task 4 isolated HEAD build confirmed index.html, prerelease/index.html, prerelease/main/about/index.html; disposable nested main and cerbia-core pages confirmed prerelease/main/components/scanners/keyword/index.html and prerelease/cerbia-core/index.html. Stable paths remain intended pending a local stable-ref build in task 16"
 }

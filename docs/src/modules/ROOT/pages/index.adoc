@@ -1,0 +1,34 @@
+= Home
+:page-layout: home-single
+:page-nav-module: main
+:description: Security gates for AI agents' inputs and outputs.
+:page-action: Explore the documentation
+:page-action-url: main:about.adoc
+
+CerbIA lets you evaluate agent inputs and outputs with reusable security gates.
+Run the same YAML-defined pipeline from a Python application, the command line,
+or CI/CD. Gates load and normalize content, scan it, and return a risk verdict.
+
+== Get started
+
+Install the CLI and evaluate text with a configuration from the repository:
+
+[source,console]
+----
+pip install "cerbia[cli]"
+cerbia validate examples/cli-usage/config.cerbia.yaml
+cerbia scan --config examples/cli-usage/config.cerbia.yaml --text "A short message"
+----
+
+Read xref:main:about.adoc[about CerbIA] for the gate model and its limitations.
+
+== Where it fits
+
+Define your own loaders, preprocessors, scanners, and score aggregators, or
+select optional local ML, Presidio, and ProtectAI integrations. Scanner
+findings are signals to assess, not a replacement for defense-in-depth.
+
+== Open source
+
+CerbIA is licensed under Apache-2.0. See the
+https://github.com/inditextech/cerbia[repository] for source and contributions.

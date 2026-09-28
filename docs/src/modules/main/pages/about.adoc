@@ -1,0 +1,22 @@
+= About CerbIA
+:description: Security gates for AI agents' inputs and outputs.
+
+CerbIA is a Python library and CLI for evaluating AI agents' inputs and outputs.
+It combines loaders, optional preprocessors, scanners, and score aggregators in
+configurable gates that return a risk verdict. Use it in applications, locally,
+or in CI/CD to inspect prompts, files, and other agent interactions.
+
+== How a gate works
+
+A loader extracts content, preprocessors normalize it when configured, scanners
+inspect it, and an aggregator combines the findings into a verdict. Gates are
+defined in YAML so the same configuration can be reviewed and reused.
+
+== Scope
+
+Scanner results are heuristic or model-based signals, not a security
+certification. Evaluate them for your threat model and retain defense-in-depth
+controls.
+
+The existing documentation remains available in the repository while its
+topics are moved to this site.

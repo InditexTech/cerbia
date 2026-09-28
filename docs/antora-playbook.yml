@@ -1,0 +1,37 @@
+site:
+  title: CerbIA
+  url: https://inditextech.github.io/cerbia
+  start_page: ROOT::index.adoc
+content:
+  sources:
+    - url: ..
+      start_path: docs/src
+      branches: [main]
+      tags: ['docs/stable']
+ui:
+  bundle:
+    url: ./node_modules/@inditextech/docouture-ui-bundle/build/ui-bundle.zip
+    snapshot: false
+output:
+  dir: build/site
+urls:
+  html_extension_style: indexify
+runtime:
+  log:
+    failure_level: warn
+    level: info
+asciidoc:
+  attributes:
+    experimental: ''
+    icons: font
+    sectanchors: ''
+    idprefix: ''
+    idseparator: '-'
+    source-highlighter: shiki
+    page-pagination: '@'
+  extensions:
+    - '@inditextech/docouture-asciidoc-extensions'
+antora:
+  extensions:
+    - require: '@inditextech/docouture-antora-extensions'
+      changelog_path: ../CHANGELOG.md
