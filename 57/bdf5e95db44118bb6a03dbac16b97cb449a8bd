@@ -1,0 +1,46 @@
+docs/scripts/migration/check-content-scanners.mjs
+  h_d6d31939214ddd 1-257
+docs/src/modules/main/pages/components/scanners.adoc
+  h_d6d31939214ddd 1-23
+docs/src/modules/main/pages/components/scanners/canary-leak.adoc
+  h_d6d31939214ddd 1-25
+docs/src/modules/main/pages/components/scanners/invisible-text.adoc
+  h_d6d31939214ddd 1-24
+docs/src/modules/main/pages/components/scanners/keyword.adoc
+  h_d6d31939214ddd 1-29
+docs/src/modules/main/pages/components/scanners/pii-presidio.adoc
+  h_d6d31939214ddd 1-22
+docs/src/modules/main/pages/components/scanners/pii.adoc
+  h_d6d31939214ddd 1-26
+docs/src/modules/main/pages/components/scanners/prompt-injection-protectai.adoc
+  h_d6d31939214ddd 1-36
+docs/src/modules/main/pages/components/scanners/prompt-injection.adoc
+  h_d6d31939214ddd 1-26
+docs/src/modules/main/pages/components/scanners/secrets.adoc
+  h_d6d31939214ddd 1-28
+docs/src/modules/main/pages/components/scanners/url-allowlist.adoc
+  h_d6d31939214ddd 1-30
+docs/src/modules/main/pages/components/scanners/url-malicious.adoc
+  h_d6d31939214ddd 1-28
+docs/src/modules/main/pages/components/scanners/xss.adoc
+  h_d6d31939214ddd 1-24
+docs/src/modules/main/pages/components/score-aggregators.adoc
+  h_d6d31939214ddd 1-21
+docs/src/modules/main/pages/components/score-aggregators/max-with-bonus.adoc
+  h_d6d31939214ddd 1-24
+docs/src/modules/main/pages/components/score-aggregators/max.adoc
+  h_d6d31939214ddd 1-18
+docs/src/modules/main/pages/components/score-aggregators/mean.adoc
+  h_d6d31939214ddd 1-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "57bdf5e95db44118bb6a03dbac16b97cb449a8bd",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
