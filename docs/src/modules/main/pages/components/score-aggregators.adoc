@@ -1,0 +1,21 @@
+= Score aggregators
+:description: Choose how severity-weighted blocking findings become the score compared with the gate threshold.
+:page-tags: Reference, Components
+
+The gate passes severity-weighted scores from blocking findings to one score aggregator. The selected aggregator returns a value in the `0.0`–`1.0` range, which the gate compares with `threshold`. Findings with other actions remain in the result but are not passed to an aggregator.
+
+Configure exactly one aggregator:
+
+[source,yaml]
+----
+score_aggregator:
+  score_aggregator: cerbia.core.score_aggregators.MaxScoreAggregator
+----
+
+| Aggregator | Best for | Behavior |
+| --- | --- | --- |
+| xref:components/score-aggregators/max.adoc[`MaxScoreAggregator`] | A single severe signal should dominate. | Returns the highest score. |
+| xref:components/score-aggregators/max-with-bonus.adoc[`MaxWithBonusScoreAggregator`] | Independent signals should raise confidence. | Adds a configurable bonus for every score after the first. |
+| xref:components/score-aggregators/mean.adoc[`MeanScoreAggregator`] | Average evidence should drive the verdict. | Returns the arithmetic mean. |
+
+All three return `0.0` for an empty input list.

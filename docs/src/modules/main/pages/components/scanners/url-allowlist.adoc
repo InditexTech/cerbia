@@ -1,0 +1,30 @@
+= URL allowlist scanner
+:description: Allow only URLs that match configured full-URL wildcard patterns.
+:page-tags: Reference, Scanner
+
+`cerbia.core.scanners.UrlAllowlistScanner` extracts URLs from text and compares each one with an approved full-URL wildcard pattern. It is intended to prevent unexpected destinations in generated or configured text.
+
+== Parameters
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `allowed_domains` | required | Full-URL wildcard patterns registered for this scanner. |
+| `severity` | `HIGH` | Finding severity. |
+| `action` | `BLOCK` | Finding action. |
+| `content_types` | `[TEXT, URL, CODE]` | Accepted content types. |
+
+Patterns match normalized complete URLs, including scheme and path. Use `https://example.com/` to allow only the normalized root URL, or `https://example.com/*` to allow descendant paths. Query strings and fragments do not form part of the normalized comparison.
+
+[source,yaml]
+----
+scanners:
+  - scanner: cerbia.core.scanners.UrlAllowlistScanner
+    init_args:
+      allowed_domains:
+        - "https://example.com/*"
+        - "https://docs.example.com/*"
+----
+
+When text contains no URL, the scanner returns risk `0.0`. When every extracted URL matches a pattern, it also returns risk `0.0`; otherwise it returns `0.95` and a rationale listing up to five non-allowlisted URLs.
+
+The runner shares a URL registry among configured scanners, so URL-aware components observe the same registered patterns during one run.
