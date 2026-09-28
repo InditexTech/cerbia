@@ -1,0 +1,18 @@
+docs/src/modules/main/pages/components/loaders/file-loader.adoc
+  h_d6d31939214ddd 1-47
+docs/src/modules/main/pages/components/loaders.adoc
+  h_d6d31939214ddd 1-19
+docs/src/modules/main/pages/components/loaders/text-loader.adoc
+  h_d6d31939214ddd 1-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7dc92737d7e136c5f217fd1131b90197afd53f1a",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
