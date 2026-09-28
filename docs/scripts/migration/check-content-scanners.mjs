@@ -3,12 +3,14 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, posix, resolve } from 'node:path';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const defaultManifest = join(repoRoot, 'docs/scripts/migration/legacy-routes.json');
 const defaultContentRoot = join(repoRoot, 'docs/src');
 const defaultSourceRoot = join(repoRoot, 'docs/content/docs/components');
+const asciidoctor = createRequire(join(repoRoot, 'docs/package.json'))('@asciidoctor/core')();
 
 const expected = {
   scanners: {
@@ -84,6 +86,48 @@ function read(path, label) {
   return readFileSync(path, 'utf8');
 }
 
+function normalizedCell(value) {
+  return value
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/&(?:amp|#38);/g, '&')
+    .replace(/&(?:lt|#60);/g, '<')
+    .replace(/&(?:gt|#62);/g, '>')
+    .replace(/&(?:quot|#34);/g, '"')
+    .replace(/&#(?:39|x27);/gi, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function sourceTables(source) {
+  const lines = source.split(/\r?\n/);
+  const tables = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    if (!/^\s*\|.*\|\s*$/.test(lines[index]) || !/^\s*\|\s*:?-{3,}/.test(lines[index + 1] ?? '')) continue;
+    const rows = [lines[index]];
+    index += 2;
+    while (index < lines.length && /^\s*\|.*\|\s*$/.test(lines[index])) {
+      rows.push(lines[index]);
+      index += 1;
+    }
+    index -= 1;
+    tables.push(rows.map((line) => line.trim().replace(/^\|\s*/, '').replace(/\s*\|$/, '').split(/\s*\|\s*/).map(normalizedCell)));
+  }
+  return tables;
+}
+
+function renderedTables(adoc) {
+  const html = asciidoctor.convert(adoc, { safe: 'safe' });
+  return [...html.matchAll(/<table\b[^>]*>([\s\S]*?)<\/table>/gi)].map(([, table]) => {
+    return [...table.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)].map(([, row]) => {
+      return [...row.matchAll(/<t[hd]\b[^>]*>([\s\S]*?)<\/t[hd]>/gi)]
+        .map(([, cell]) => normalizedCell(cell.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ')));
+    });
+  });
+}
+
 function pagePath(contentRoot, pageId) {
   const separator = pageId.indexOf(':');
   assert.ok(separator > 0, `invalid target page ID: ${pageId}`);
@@ -137,6 +181,9 @@ function checkGroup(name, group, manifest, options, nav) {
   const sourceClasses = [];
   let headingCount = 0;
   let snippetCount = 0;
+  let sourceTableCount = 0;
+  let renderedTableCount = 0;
+  let tableRowCount = 0;
   for (const page of group.pages) {
     const sourceRelative = `docs/content/docs/components/${group.directory}/${page}.mdx`;
     const sourcePath = join(repoRoot, sourceRelative);
@@ -149,6 +196,21 @@ function checkGroup(name, group, manifest, options, nav) {
     const targetText = read(targetPath, `mapped AsciiDoc target ${target}`);
     const navTarget = `xref:components/${group.directory}${page === 'index' ? '' : `/${page}`}.adoc[`;
     assert.ok(nav.includes(navTarget), `target absent from main nav: ${target}`);
+
+    const expectedTables = sourceTables(source);
+    const actualTables = renderedTables(targetText);
+    assert.equal(actualTables.length, expectedTables.length, `rendered table count mismatch in ${target}: source=${expectedTables.length}, target=${actualTables.length}`);
+    for (let tableIndex = 0; tableIndex < expectedTables.length; tableIndex += 1) {
+      const expectedRows = expectedTables[tableIndex];
+      const actualRows = actualTables[tableIndex];
+      for (const expectedRow of expectedRows) {
+        const matchingRow = actualRows.find((actualRow) => expectedRow.length === actualRow.length && expectedRow.every((cell, cellIndex) => cell === actualRow[cellIndex]));
+        assert.ok(matchingRow, `source table row missing or changed in ${target}: ${expectedRow.join(' | ')}`);
+        tableRowCount += 1;
+      }
+    }
+    sourceTableCount += expectedTables.length;
+    renderedTableCount += actualTables.length;
 
     const sourceTitle = source.match(/^title:\s*["']?([^"'\n]+)["']?\s*$/m)?.[1];
     assert.ok(sourceTitle, `missing source title: ${sourceRelative}`);
@@ -229,7 +291,7 @@ function checkGroup(name, group, manifest, options, nav) {
     }
   }
 
-  return { name, sourceCount: sources.length, targetCount: rows.length, headingCoverage: headingCount, snippetCoverage: snippetCount, sourceClasses };
+  return { name, sourceCount: sources.length, targetCount: rows.length, headingCoverage: headingCount, snippetCoverage: snippetCount, sourceTables: sourceTableCount, renderedTables: renderedTableCount, tableRows: tableRowCount, sourceClasses };
 }
 
 try {
