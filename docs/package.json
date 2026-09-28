@@ -9,6 +9,12 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "build:site": "antora --fetch --log-failure-level warn antora-playbook.yml",
+    "build:site:local": "antora --fetch --log-failure-level warn antora-playbook.local.yml",
+    "build:site:strict": "node scripts/migration/build-and-check-diagrams.mjs --mode full --playbook antora-playbook.local.yml --version prerelease",
+    "build:site:strict:stable": "node scripts/migration/build-and-check-diagrams.mjs --mode full --playbook antora-playbook.yml --version stable",
+    "build:site:sample": "node scripts/migration/build-and-check-diagrams.mjs --mode sample --playbook antora-playbook.local.yml --version prerelease",
+    "check:diagrams:sample": "node scripts/migration/check-diagrams.mjs --mode sample",
+    "check:diagrams:full": "node scripts/migration/check-diagrams.mjs --mode full",
     "dev:site": "docouture dev",
     "typecheck": "fumadocs-mdx && tsc --noEmit",
     "verify": "npm ci && npm run typecheck && npm run build"
