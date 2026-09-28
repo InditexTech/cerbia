@@ -1,11 +1,35 @@
 {
   "schemaVersion": 1,
-  "scope": "local Fumadocs authored MDX baseline; targets intentionally pending task 2",
+  "scope": "local Fumadocs authored MDX baseline with explicit Docouture targets",
+  "navigation": {
+    "mainSections": [
+      { "name": "Overview", "order": 1, "entryPageId": "main:about" },
+      { "name": "Getting started", "order": 2, "entryPageId": "main:prerequisites" },
+      { "name": "Guides", "order": 3, "entryPageId": "main:guides-overview" },
+      { "name": "Reference", "order": 4, "entryPageId": "main:reference-overview" },
+      { "name": "Additional information", "order": 5, "entryPageId": "main:additional-information" },
+      { "name": "Contributing", "order": 6, "entryPageId": "main:contributing" }
+    ],
+    "packageModules": [
+      "cerbia",
+      "cerbia-core",
+      "cerbia-cli",
+      "cerbia-ml",
+      "cerbia-presidio",
+      "cerbia-protectai"
+    ],
+    "mainReferencePolicy": "Gateway to package modules; package API details are not duplicated in main."
+  },
   "marketingHome": {
     "source": "docs/app/page.tsx",
     "sha256": "424b7414752f3f712a14dbd58b98de92c36315bb328a0629cb2ba9c5df813785",
     "oldUrl": "/cerbia/",
-    "targetPageId": null
+    "targetPageId": "ROOT:index",
+    "targetModule": "ROOT",
+    "nav": { "group": "Home", "order": 1 },
+    "redirectTarget": "ROOT:index",
+    "pageFamily": "marketing-home",
+    "order": 1
   },
   "routes": [
     {
@@ -17,10 +41,12 @@
         "/cerbia/docs/architecture",
         "/cerbia/docs/architecture/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:architecture",
+      "targetModule": "main",
+      "nav": { "group": "Overview", "order": 2 },
+      "redirectTarget": "main:architecture",
+      "pageFamily": "architecture",
+      "order": 2
     },
     {
       "source": "docs/content/docs/cli.mdx",
@@ -31,10 +57,12 @@
         "/cerbia/docs/cli",
         "/cerbia/docs/cli/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:cli",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 5 },
+      "redirectTarget": "main:cli",
+      "pageFamily": "reference",
+      "order": 5
     },
     {
       "source": "docs/content/docs/components/custom-components/index.mdx",
@@ -45,10 +73,12 @@
         "/cerbia/docs/components/custom-components",
         "/cerbia/docs/components/custom-components/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/custom-components",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 8 },
+      "redirectTarget": "main:components/custom-components",
+      "pageFamily": "component-catalog",
+      "order": 8
     },
     {
       "source": "docs/content/docs/components/loaders/file-loader.mdx",
@@ -59,10 +89,12 @@
         "/cerbia/docs/components/loaders/file-loader",
         "/cerbia/docs/components/loaders/file-loader/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/loaders/file-loader",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 11 },
+      "redirectTarget": "main:components/loaders/file-loader",
+      "pageFamily": "component-reference",
+      "order": 11
     },
     {
       "source": "docs/content/docs/components/loaders/index.mdx",
@@ -73,10 +105,12 @@
         "/cerbia/docs/components/loaders",
         "/cerbia/docs/components/loaders/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/loaders",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 9 },
+      "redirectTarget": "main:components/loaders",
+      "pageFamily": "component-catalog",
+      "order": 9
     },
     {
       "source": "docs/content/docs/components/loaders/text-loader.mdx",
@@ -87,10 +121,12 @@
         "/cerbia/docs/components/loaders/text-loader",
         "/cerbia/docs/components/loaders/text-loader/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/loaders/text-loader",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 10 },
+      "redirectTarget": "main:components/loaders/text-loader",
+      "pageFamily": "component-reference",
+      "order": 10
     },
     {
       "source": "docs/content/docs/components/preprocessors/index.mdx",
@@ -101,10 +137,12 @@
         "/cerbia/docs/components/preprocessors",
         "/cerbia/docs/components/preprocessors/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/preprocessors",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 12 },
+      "redirectTarget": "main:components/preprocessors",
+      "pageFamily": "component-catalog",
+      "order": 12
     },
     {
       "source": "docs/content/docs/components/preprocessors/speculative-decoding.mdx",
@@ -115,10 +153,12 @@
         "/cerbia/docs/components/preprocessors/speculative-decoding",
         "/cerbia/docs/components/preprocessors/speculative-decoding/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/preprocessors/speculative-decoding",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 13 },
+      "redirectTarget": "main:components/preprocessors/speculative-decoding",
+      "pageFamily": "component-reference",
+      "order": 13
     },
     {
       "source": "docs/content/docs/components/preprocessors/whitespace-normalization.mdx",
@@ -129,10 +169,12 @@
         "/cerbia/docs/components/preprocessors/whitespace-normalization",
         "/cerbia/docs/components/preprocessors/whitespace-normalization/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/preprocessors/whitespace-normalization",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 14 },
+      "redirectTarget": "main:components/preprocessors/whitespace-normalization",
+      "pageFamily": "component-reference",
+      "order": 14
     },
     {
       "source": "docs/content/docs/components/scanners/canary-leak.mdx",
@@ -143,10 +185,12 @@
         "/cerbia/docs/components/scanners/canary-leak",
         "/cerbia/docs/components/scanners/canary-leak/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/scanners/canary-leak",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 16 },
+      "redirectTarget": "main:components/scanners/canary-leak",
+      "pageFamily": "component-reference",
+      "order": 16
     },
     {
       "source": "docs/content/docs/components/scanners/index.mdx",
@@ -157,10 +201,12 @@
         "/cerbia/docs/components/scanners",
         "/cerbia/docs/components/scanners/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/scanners",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 15 },
+      "redirectTarget": "main:components/scanners",
+      "pageFamily": "component-catalog",
+      "order": 15
     },
     {
       "source": "docs/content/docs/components/scanners/invisible-text.mdx",
@@ -171,10 +217,12 @@
         "/cerbia/docs/components/scanners/invisible-text",
         "/cerbia/docs/components/scanners/invisible-text/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/scanners/invisible-text",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 17 },
+      "redirectTarget": "main:components/scanners/invisible-text",
+      "pageFamily": "component-reference",
+      "order": 17
     },
     {
       "source": "docs/content/docs/components/scanners/keyword.mdx",
@@ -185,10 +233,12 @@
         "/cerbia/docs/components/scanners/keyword",
         "/cerbia/docs/components/scanners/keyword/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/scanners/keyword",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 18 },
+      "redirectTarget": "main:components/scanners/keyword",
+      "pageFamily": "component-reference",
+      "order": 18
     },
     {
       "source": "docs/content/docs/components/scanners/pii-presidio.mdx",
@@ -199,10 +249,12 @@
         "/cerbia/docs/components/scanners/pii-presidio",
         "/cerbia/docs/components/scanners/pii-presidio/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/scanners/pii-presidio",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 20 },
+      "redirectTarget": "main:components/scanners/pii-presidio",
+      "pageFamily": "component-reference",
+      "order": 20
     },
     {
       "source": "docs/content/docs/components/scanners/pii.mdx",
@@ -213,10 +265,12 @@
         "/cerbia/docs/components/scanners/pii",
         "/cerbia/docs/components/scanners/pii/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/scanners/pii",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 19 },
+      "redirectTarget": "main:components/scanners/pii",
+      "pageFamily": "component-reference",
+      "order": 19
     },
     {
       "source": "docs/content/docs/components/scanners/prompt-injection-protectai.mdx",
@@ -227,10 +281,12 @@
         "/cerbia/docs/components/scanners/prompt-injection-protectai",
         "/cerbia/docs/components/scanners/prompt-injection-protectai/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/scanners/prompt-injection-protectai",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 22 },
+      "redirectTarget": "main:components/scanners/prompt-injection-protectai",
+      "pageFamily": "component-reference",
+      "order": 22
     },
     {
       "source": "docs/content/docs/components/scanners/prompt-injection.mdx",
@@ -241,10 +297,12 @@
         "/cerbia/docs/components/scanners/prompt-injection",
         "/cerbia/docs/components/scanners/prompt-injection/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/scanners/prompt-injection",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 21 },
+      "redirectTarget": "main:components/scanners/prompt-injection",
+      "pageFamily": "component-reference",
+      "order": 21
     },
     {
       "source": "docs/content/docs/components/scanners/secrets.mdx",
@@ -255,10 +313,12 @@
         "/cerbia/docs/components/scanners/secrets",
         "/cerbia/docs/components/scanners/secrets/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/scanners/secrets",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 23 },
+      "redirectTarget": "main:components/scanners/secrets",
+      "pageFamily": "component-reference",
+      "order": 23
     },
     {
       "source": "docs/content/docs/components/scanners/url-allowlist.mdx",
@@ -269,10 +329,12 @@
         "/cerbia/docs/components/scanners/url-allowlist",
         "/cerbia/docs/components/scanners/url-allowlist/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/scanners/url-allowlist",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 25 },
+      "redirectTarget": "main:components/scanners/url-allowlist",
+      "pageFamily": "component-reference",
+      "order": 25
     },
     {
       "source": "docs/content/docs/components/scanners/url-malicious.mdx",
@@ -283,10 +345,12 @@
         "/cerbia/docs/components/scanners/url-malicious",
         "/cerbia/docs/components/scanners/url-malicious/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/scanners/url-malicious",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 24 },
+      "redirectTarget": "main:components/scanners/url-malicious",
+      "pageFamily": "component-reference",
+      "order": 24
     },
     {
       "source": "docs/content/docs/components/scanners/xss.mdx",
@@ -297,10 +361,12 @@
         "/cerbia/docs/components/scanners/xss",
         "/cerbia/docs/components/scanners/xss/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/scanners/xss",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 26 },
+      "redirectTarget": "main:components/scanners/xss",
+      "pageFamily": "component-reference",
+      "order": 26
     },
     {
       "source": "docs/content/docs/components/score-aggregators/index.mdx",
@@ -311,10 +377,12 @@
         "/cerbia/docs/components/score-aggregators",
         "/cerbia/docs/components/score-aggregators/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/score-aggregators",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 27 },
+      "redirectTarget": "main:components/score-aggregators",
+      "pageFamily": "component-catalog",
+      "order": 27
     },
     {
       "source": "docs/content/docs/components/score-aggregators/max-with-bonus.mdx",
@@ -325,10 +393,12 @@
         "/cerbia/docs/components/score-aggregators/max-with-bonus",
         "/cerbia/docs/components/score-aggregators/max-with-bonus/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/score-aggregators/max-with-bonus",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 29 },
+      "redirectTarget": "main:components/score-aggregators/max-with-bonus",
+      "pageFamily": "component-reference",
+      "order": 29
     },
     {
       "source": "docs/content/docs/components/score-aggregators/max.mdx",
@@ -339,10 +409,12 @@
         "/cerbia/docs/components/score-aggregators/max",
         "/cerbia/docs/components/score-aggregators/max/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/score-aggregators/max",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 28 },
+      "redirectTarget": "main:components/score-aggregators/max",
+      "pageFamily": "component-reference",
+      "order": 28
     },
     {
       "source": "docs/content/docs/components/score-aggregators/mean.mdx",
@@ -353,10 +425,12 @@
         "/cerbia/docs/components/score-aggregators/mean",
         "/cerbia/docs/components/score-aggregators/mean/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:components/score-aggregators/mean",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 30 },
+      "redirectTarget": "main:components/score-aggregators/mean",
+      "pageFamily": "component-reference",
+      "order": 30
     },
     {
       "source": "docs/content/docs/configuration.mdx",
@@ -367,10 +441,12 @@
         "/cerbia/docs/configuration",
         "/cerbia/docs/configuration/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:configuration",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 2 },
+      "redirectTarget": "main:configuration",
+      "pageFamily": "reference",
+      "order": 2
     },
     {
       "source": "docs/content/docs/gate.mdx",
@@ -381,10 +457,12 @@
         "/cerbia/docs/gate",
         "/cerbia/docs/gate/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:gate",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 6 },
+      "redirectTarget": "main:gate",
+      "pageFamily": "reference",
+      "order": 6
     },
     {
       "source": "docs/content/docs/getting-started.mdx",
@@ -395,10 +473,12 @@
         "/cerbia/docs/getting-started",
         "/cerbia/docs/getting-started/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:quickstart",
+      "targetModule": "main",
+      "nav": { "group": "Getting started", "order": 2 },
+      "redirectTarget": "main:quickstart",
+      "pageFamily": "quickstart",
+      "order": 2
     },
     {
       "source": "docs/content/docs/i18n.mdx",
@@ -409,10 +489,12 @@
         "/cerbia/docs/i18n",
         "/cerbia/docs/i18n/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:i18n",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 3 },
+      "redirectTarget": "main:i18n",
+      "pageFamily": "reference",
+      "order": 3
     },
     {
       "source": "docs/content/docs/index.mdx",
@@ -423,10 +505,12 @@
         "/cerbia/docs",
         "/cerbia/docs/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:about",
+      "targetModule": "main",
+      "nav": { "group": "Overview", "order": 1 },
+      "redirectTarget": "main:about",
+      "pageFamily": "overview",
+      "order": 1
     },
     {
       "source": "docs/content/docs/logging.mdx",
@@ -437,10 +521,12 @@
         "/cerbia/docs/logging",
         "/cerbia/docs/logging/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:logging",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 4 },
+      "redirectTarget": "main:logging",
+      "pageFamily": "reference",
+      "order": 4
     },
     {
       "source": "docs/content/docs/packages/cerbia-cli.mdx",
@@ -451,10 +537,12 @@
         "/cerbia/docs/packages/cerbia-cli",
         "/cerbia/docs/packages/cerbia-cli/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "cerbia-cli:index",
+      "targetModule": "cerbia-cli",
+      "nav": { "group": "cerbia-cli", "order": 1 },
+      "redirectTarget": "cerbia-cli:index",
+      "pageFamily": "package-landing",
+      "order": 1
     },
     {
       "source": "docs/content/docs/packages/cerbia-core.mdx",
@@ -465,10 +553,12 @@
         "/cerbia/docs/packages/cerbia-core",
         "/cerbia/docs/packages/cerbia-core/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "cerbia-core:index",
+      "targetModule": "cerbia-core",
+      "nav": { "group": "cerbia-core", "order": 1 },
+      "redirectTarget": "cerbia-core:index",
+      "pageFamily": "package-landing",
+      "order": 1
     },
     {
       "source": "docs/content/docs/packages/cerbia-ml.mdx",
@@ -479,10 +569,12 @@
         "/cerbia/docs/packages/cerbia-ml",
         "/cerbia/docs/packages/cerbia-ml/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "cerbia-ml:index",
+      "targetModule": "cerbia-ml",
+      "nav": { "group": "cerbia-ml", "order": 1 },
+      "redirectTarget": "cerbia-ml:index",
+      "pageFamily": "package-landing",
+      "order": 1
     },
     {
       "source": "docs/content/docs/packages/cerbia-presidio.mdx",
@@ -493,10 +585,12 @@
         "/cerbia/docs/packages/cerbia-presidio",
         "/cerbia/docs/packages/cerbia-presidio/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "cerbia-presidio:index",
+      "targetModule": "cerbia-presidio",
+      "nav": { "group": "cerbia-presidio", "order": 1 },
+      "redirectTarget": "cerbia-presidio:index",
+      "pageFamily": "package-landing",
+      "order": 1
     },
     {
       "source": "docs/content/docs/packages/cerbia-protectai.mdx",
@@ -507,10 +601,12 @@
         "/cerbia/docs/packages/cerbia-protectai",
         "/cerbia/docs/packages/cerbia-protectai/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "cerbia-protectai:index",
+      "targetModule": "cerbia-protectai",
+      "nav": { "group": "cerbia-protectai", "order": 1 },
+      "redirectTarget": "cerbia-protectai:index",
+      "pageFamily": "package-landing",
+      "order": 1
     },
     {
       "source": "docs/content/docs/packages/cerbia.mdx",
@@ -521,10 +617,12 @@
         "/cerbia/docs/packages/cerbia",
         "/cerbia/docs/packages/cerbia/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "cerbia:index",
+      "targetModule": "cerbia",
+      "nav": { "group": "cerbia", "order": 1 },
+      "redirectTarget": "cerbia:index",
+      "pageFamily": "package-landing",
+      "order": 1
     },
     {
       "source": "docs/content/docs/packages/index.mdx",
@@ -535,10 +633,12 @@
         "/cerbia/docs/packages",
         "/cerbia/docs/packages/index.html"
       ],
-      "targetPageId": null,
-      "targetModule": null,
-      "nav": null,
-      "redirectTarget": null
+      "targetPageId": "main:packages",
+      "targetModule": "main",
+      "nav": { "group": "Reference", "order": 7 },
+      "redirectTarget": "main:packages",
+      "pageFamily": "package-gateway",
+      "order": 7
     }
   ],
   "mermaidFences": [
