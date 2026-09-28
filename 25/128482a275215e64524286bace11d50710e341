@@ -1,0 +1,18 @@
+docs/scripts/migration/architecture.md
+  h_d6d31939214ddd 1-102
+docs/scripts/migration/check-legacy-map.mjs
+  h_d6d31939214ddd 11-12,33-149,151-153,155-161,205
+docs/scripts/migration/legacy-routes.json
+  h_d6d31939214ddd 3-22,27-32,44-49,60-65,76-81,92-97,108-113,124-129,140-145,156-161,172-177,188-193,204-209,220-225,236-241,252-257,268-273,284-289,300-305,316-321,332-337,348-353,364-369,380-385,396-401,412-417,428-433,444-449,460-465,476-481,492-497,508-513,524-529,540-545,556-561,572-577,588-593,604-609,620-625,636-641
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "25128482a275215e64524286bace11d50710e341",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
