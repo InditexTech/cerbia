@@ -22,6 +22,7 @@ concurrency:
 env:
   PROJECT_TYPE: ${{ vars.PROJECT_TYPE }}
   WORKING_DIRECTORY: ${{ vars.WORKING_DIRECTORY }}
+  ASDF_BRANCH_VERSION: '0.18.0'
 
 jobs:
   build-snapshot:
@@ -55,6 +56,40 @@ jobs:
           persist-credentials: false
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
+      - name: Resolve governed project type
+        shell: bash
+        run: |
+          set -euo pipefail
+          descriptor="$GITHUB_WORKSPACE/.github/inditextech-ci-python.json"
+          if [[ ! -f "$descriptor" ]]; then
+            echo "::error title=Missing descriptor::.github/inditextech-ci-python.json not found."
+            exit 1
+          fi
+          project_type="$(jq -r '.project_type // empty' "$descriptor")"
+          case "$project_type" in
+            single|monorepo|workspaces) ;;
+            *)
+              echo "::error title=Invalid project type::Descriptor .project_type must be single, monorepo, or workspaces."
+              exit 1
+              ;;
+          esac
+          if [[ "$project_type" == "monorepo" ]]; then
+            project_type="workspaces"
+          fi
+          workdir="${WORKING_DIRECTORY:-$(jq -r '.working_directory // empty' "$descriptor")}"
+          case "$workdir" in
+            ""|/*|..|../*|*/..|*/../*)
+              echo "::error title=Invalid working directory::WORKING_DIRECTORY must be a non-empty relative repository path." >&2
+              exit 1
+              ;;
+          esac
+          if [[ ! -d "$workdir" ]]; then
+            echo "::error title=Missing working directory::'${workdir}' is not a directory in this checkout." >&2
+            exit 1
+          fi
+          echo "PROJECT_TYPE=$project_type" >> "$GITHUB_ENV"
+          echo "WORKING_DIRECTORY=${workdir}" >> "$GITHUB_ENV"
+
       - name: Read governed tool versions
         id: tool-versions
         working-directory: ${{ env.WORKING_DIRECTORY }}
@@ -72,10 +107,23 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Install Python build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          # asdf compiles CPython from source; without these dev libraries the
+          # interpreter lacks _bz2/readline/_lzma and Code/Verify fails at import
+          # time (observed live on pypi-ci-testing since 2026-09-17).
+          cd /tmp
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends \
+            libbz2-dev libreadline-dev liblzma-dev libsqlite3-dev \
+            libffi-dev libssl-dev zlib1g-dev uuid-dev 
       - name: Set up asdf-managed Python
         uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
         with:
           tool_versions: ${{ steps.tool-versions.outputs.tool_versions }}
+          asdf_version: ${{ env.ASDF_BRANCH_VERSION }}
 
       - name: Point uv at the asdf-managed interpreter
         working-directory: ${{ env.WORKING_DIRECTORY }}
@@ -109,10 +157,6 @@ jobs:
 
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
             if [[ "$PROJECT_TYPE" == "single" ]]; then
-              # Strip any existing pre-release suffix before stamping the snapshot.
-              # After a release, the next-dev bump leaves the develop base at
-              # X.Y.Z.dev0; appending a second .dev<run_id> yields X.Y.Z.dev0.dev<id>,
-              # which is invalid PEP 440 (uv rejects it). Replace the suffix, don't append.
               base="$(uv version --short)"
               uv version "${base%.dev*}.dev${GITHUB_RUN_ID}"
             else
@@ -121,7 +165,6 @@ jobs:
                 exit 1
               }
               while IFS= read -r package; do
-                # Same suffix-replace as the single-package case above.
                 base="$(uv version --package "$package" --short)"
                 uv version --package "$package" "${base%.dev*}.dev${GITHUB_RUN_ID}"
               done <<< "$packages"
@@ -179,7 +222,7 @@ jobs:
           merge-multiple: true
 
       - name: Validate trusted publishing boundary
-        uses: InditexTech/gh-actions/pypi@977030536dbdb52a7fe2fd5979510fd6a225d035 # v1.1.0
+        uses: InditexTech/gh-actions/pypi@8a719baa6e8d514ccdfe87cff2baae9007a8b168 # v1.1.5
         with:
           packages-dir: dist
           repository-url: 'https://test.pypi.org/legacy/'

@@ -18,13 +18,18 @@ on:
       releases:
         description: JSON array of release tags, versions, and package names.
         value: ${{ jobs.prepare-release.outputs.releases }}
+    secrets:
+      APP_PRIVATE_KEY:
+        required: true
 
 permissions:
   contents: read
 
 env:
+  CI_GOVERNANCE_RELEASE_STAGING_REF: refs/ci-governance/release/${{ github.run_id }}-${{ github.run_attempt }}
   PROJECT_TYPE: ${{ vars.PROJECT_TYPE }}
   WORKING_DIRECTORY: ${{ vars.WORKING_DIRECTORY }}
+  ASDF_BRANCH_VERSION: '0.18.0'
 
 jobs:
   prepare-release:
@@ -40,6 +45,8 @@ jobs:
       (
         github.event_name == 'pull_request' &&
         github.event.pull_request.merged &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        github.event.pull_request.head.ref != 'automated/ci-governance-sync' &&
         !contains(join(github.event.pull_request.labels.*.name, ','), 'skip-release') &&
         (
           (vars.DEVELOPMENT_FLOW == 'trunk-based-development' && (github.event.pull_request.base.ref == 'main' || startsWith(github.event.pull_request.base.ref, 'main-'))) ||
@@ -53,8 +60,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     outputs:
+      expected_ref: ${{ steps.release-plan.outputs.expected_ref }}
       release_commit: ${{ steps.release-metadata.outputs.release_commit }}
       releases: ${{ steps.release-metadata.outputs.releases }}
+      staging_ref: ${{ steps.release-metadata.outputs.staging_ref }}
     steps:
       - name: Resolve release context
         id: release-context
@@ -88,6 +97,19 @@ jobs:
             echo "release_labels=$release_labels"
             echo "release_ref=$release_ref"
           } >> "$GITHUB_OUTPUT"
+
+      - name: Enforce protected release branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASELINE_BRANCH: ${{ steps.release-context.outputs.baseline_branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          protected="$(gh api "repos/${GITHUB_REPOSITORY}/branches/${BASELINE_BRANCH}" --jq '.protected')"
+          if [[ "$protected" != "true" ]]; then
+            echo "::error title=Unprotected release branch::Releases require a protected baseline branch; '${BASELINE_BRANCH}' is not protected." >&2
+            exit 1
+          fi
 
       - name: Create GitHub App token
         id: app-token
@@ -123,10 +145,23 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Install Python build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          # asdf compiles CPython from source; without these dev libraries the
+          # interpreter lacks _bz2/readline/_lzma and Code/Verify fails at import
+          # time (observed live on pypi-ci-testing since 2026-09-17).
+          cd /tmp
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends \
+            libbz2-dev libreadline-dev liblzma-dev libsqlite3-dev \
+            libffi-dev libssl-dev zlib1g-dev uuid-dev 
       - name: Set up asdf-managed Python
         uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
         with:
           tool_versions: ${{ steps.tool-versions.outputs.tool_versions }}
+          asdf_version: ${{ env.ASDF_BRANCH_VERSION }}
 
       - name: Point uv at the asdf-managed interpreter
         working-directory: ${{ env.WORKING_DIRECTORY }}
@@ -251,6 +286,78 @@ jobs:
             exit 1
           fi
 
+          reconcile_internal_pins() {
+            versions_file="$RUNNER_TEMP/python-release-versions.tsv"
+            : > "$versions_file"
+            while IFS= read -r package; do
+              printf '%s\t%s\n' "$package" "$(uv version --package "$package" --short)" >> "$versions_file"
+            done < "$packages_file"
+            python3 - "$versions_file" <<'PY'
+          import re
+          import sys
+          import tomllib
+          from pathlib import Path
+
+          PIN = re.compile(
+              r"^\s*(?P<name>[A-Za-z0-9][A-Za-z0-9._-]*)(?P<extras>\[[^\]]*\])?"
+              r"\s*==\s*(?P<version>[^\s,;]+)(?P<rest>.*)$"
+          )
+          SKIP = {".venv", "venv", "build", "dist", "node_modules"}
+
+
+          def normalize(name):
+              return re.sub(r"[-_.]+", "-", name).lower()
+
+
+          def requirements(document):
+              project = document.get("project", {})
+              yield from project.get("dependencies", [])
+              for group in project.get("optional-dependencies", {}).values():
+                  yield from group
+              for group in document.get("dependency-groups", {}).values():
+                  yield from group
+              uv = document.get("tool", {}).get("uv", {})
+              for key in ("constraint-dependencies", "override-dependencies"):
+                  yield from uv.get(key, [])
+
+
+          versions = {}
+          for line in Path(sys.argv[1]).read_text(encoding="utf-8").splitlines():
+              if line.strip():
+                  name, version = line.split("\t")
+                  versions[normalize(name)] = version
+
+          for path in sorted(Path(".").rglob("pyproject.toml")):
+              if SKIP.intersection(path.parts):
+                  continue
+              text = path.read_text(encoding="utf-8")
+              document = tomllib.loads(text)
+              declared = [item for item in requirements(document) if isinstance(item, str)]
+              for requirement in dict.fromkeys(declared):
+                  match = PIN.match(requirement)
+                  if match is None:
+                      continue
+                  target = versions.get(normalize(match.group("name")))
+                  if target is None or target == match.group("version"):
+                      continue
+                  updated = "{}{}=={}{}".format(
+                      match.group("name"), match.group("extras") or "", target, match.group("rest")
+                  )
+                  rewritten = text
+                  for quote in ('"', "'"):
+                      rewritten = rewritten.replace(
+                          quote + requirement + quote, quote + updated + quote
+                      )
+                  if rewritten == text:
+                      raise SystemExit(
+                          "::error title=Unreconciled internal pin::{} declares {} and it could not be rewritten.".format(path, requirement)
+                      )
+                  text = rewritten
+                  print("{}: {} -> {}".format(path, requirement, updated))
+              path.write_text(text, encoding="utf-8")
+          PY
+          }
+
           write_records() {
             : > "$records_file"
             if [[ "$release_strategy" == "single" ]]; then
@@ -303,6 +410,7 @@ jobs:
               while IFS= read -r package; do
                 uv version --package "$package" --bump "$release_bump"
               done < "$packages_file"
+              reconcile_internal_pins
             fi
             uv lock
             uv lock --check
@@ -350,10 +458,6 @@ jobs:
         uses: release-flow/keep-a-changelog-action@74931dec7ecdbfc8e38ac9ae7e8dd84c08db2f32 # v3.0.0
         with:
           command: bump
-          # keep-a-changelog's `bump` accepts a semver-inc keyword (major/minor/
-          # patch/...), NOT a concrete version. Passing a concrete number here
-          # aborts every release before the tag/push. Use the same keyword that
-          # drove `uv version --bump` so the changelog and package stay in lockstep.
           version: ${{ env.RELEASE_BUMP }}
           changelog: ${{ env.WORKING_DIRECTORY }}/CHANGELOG.md
           fail-on-empty-release-notes: false
@@ -368,15 +472,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # keep-a-changelog derives the new release number from the CHANGELOG's
-          # own history (a semver-keyword increment), but `uv` is the authoritative
-          # version source and the two can drift: a skipped/resumed release, or a
-          # greenfield changelog that starts one bump behind, leaves the changelog
-          # heading and compare links pointing at a version that never gets tagged
-          # or published. Re-anchor the entry the bump step just wrote to uv's
-          # RELEASE_VERSION so the CHANGELOG, git tag, and package version stay in
-          # lockstep. In steady state (they already agree) this is a no-op, and
-          # after one release the keyword increment lines back up on its own.
           cl="CHANGELOG.md"
           cl_ver="$(grep -m1 -E '^## \[[0-9]' "$cl" | sed -E 's/^## \[([^]]+)\].*/\1/')"
           if [[ -z "$cl_ver" ]]; then
@@ -386,16 +481,12 @@ jobs:
           if [[ "$cl_ver" != "$RELEASE_VERSION" ]]; then
             echo "::notice title=CHANGELOG version reconciled::keep-a-changelog wrote ${cl_ver}; re-anchoring to uv release ${RELEASE_VERSION}."
             cl_ver_re="${cl_ver//./\\.}"
-            # 1) the release heading: "## [<cl_ver>] - <date>"
             sed -i -E "s@^## \[${cl_ver_re}\]( - )@## [${RELEASE_VERSION}]\1@" "$cl"
-            # 2) the Unreleased compare base: "[Unreleased]: .../compare/<cl_ver>...HEAD"
             sed -i -E "s@^(\[Unreleased\]: .*/compare/)${cl_ver_re}(\.\.\.HEAD)@\1${RELEASE_VERSION}\2@" "$cl"
-            # 3) the new version's own link definition (label + trailing version),
-            #    in either compare (subsequent release) or releases/tag (first) form
             sed -i -E "s@^\[${cl_ver_re}\]: (.*/)(compare/[^ ]*\.\.\.|releases/tag/)${cl_ver_re}@[${RELEASE_VERSION}]: \1\2${RELEASE_VERSION}@" "$cl"
           fi
 
-      - name: Commit, tag and push release
+      - name: Commit and stage release
         if: steps.release-plan.outputs.resume != 'true'
         id: release-commit
         env:
@@ -417,16 +508,12 @@ jobs:
           git config user.email "${APP_SLUG}[bot]@users.noreply.github.com"
           git commit -m "[python-release] Prepare release"
 
-          tag_refs=()
           while IFS= read -r record; do
             tag="$(jq -r '.tag' <<< "$record")"
-            version="$(jq -r '.version' <<< "$record")"
             git check-ref-format --allow-onelevel "refs/tags/$tag"
-            git tag -a "$tag" -m "Release $version"
-            tag_refs+=("refs/tags/$tag")
           done < <(jq -c '.[]' <<< "$RELEASES")
 
-          git push --atomic origin "HEAD:$EXPECTED_REF" "${tag_refs[@]}"
+          git push --atomic --force origin "HEAD:$CI_GOVERNANCE_RELEASE_STAGING_REF"
 
       - name: Publish release metadata
         id: release-metadata
@@ -438,6 +525,7 @@ jobs:
           set -euo pipefail
           {
             echo "release_commit=$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD)"
+            echo "staging_ref=$CI_GOVERNANCE_RELEASE_STAGING_REF"
             echo "releases<<EOF"
             printf '%s\n' "$RELEASES"
             echo "EOF"
@@ -476,10 +564,23 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Install Python build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          # asdf compiles CPython from source; without these dev libraries the
+          # interpreter lacks _bz2/readline/_lzma and Code/Verify fails at import
+          # time (observed live on pypi-ci-testing since 2026-09-17).
+          cd /tmp
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends \
+            libbz2-dev libreadline-dev liblzma-dev libsqlite3-dev \
+            libffi-dev libssl-dev zlib1g-dev uuid-dev 
       - name: Set up asdf-managed Python
         uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
         with:
           tool_versions: ${{ steps.tool-versions.outputs.tool_versions }}
+          asdf_version: ${{ env.ASDF_BRANCH_VERSION }}
 
       - name: Point uv at the asdf-managed interpreter
         working-directory: ${{ env.WORKING_DIRECTORY }}
@@ -523,9 +624,9 @@ jobs:
           retention-days: 14
 
   finalize-release:
-    name: Finalize release (next dev + sync PR)
+    name: Finalize release (promote + next dev)
     needs: [prepare-release, build-distributions]
-    if: vars.DEVELOPMENT_FLOW == 'git-flow'
+    if: '!cancelled() && needs.prepare-release.result == ''success'''
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -565,10 +666,23 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Install Python build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          # asdf compiles CPython from source; without these dev libraries the
+          # interpreter lacks _bz2/readline/_lzma and Code/Verify fails at import
+          # time (observed live on pypi-ci-testing since 2026-09-17).
+          cd /tmp
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends \
+            libbz2-dev libreadline-dev liblzma-dev libsqlite3-dev \
+            libffi-dev libssl-dev zlib1g-dev uuid-dev 
       - name: Set up asdf-managed Python
         uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
         with:
           tool_versions: ${{ steps.tool-versions.outputs.tool_versions }}
+          asdf_version: ${{ env.ASDF_BRANCH_VERSION }}
 
       - name: Point uv at the asdf-managed interpreter
         working-directory: ${{ env.WORKING_DIRECTORY }}
@@ -585,7 +699,54 @@ jobs:
           working-directory: ${{ env.WORKING_DIRECTORY }}
           cache-dependency-glob: ${{ env.WORKING_DIRECTORY }}/uv.lock
 
+      - name: Promote the release to the default branch
+        id: promote
+        if: needs.build-distributions.result == 'success' || needs.build-distributions.result == 'skipped'
+        env:
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          EXPECTED_REF: ${{ needs.prepare-release.outputs.expected_ref }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASES: ${{ needs.prepare-release.outputs.releases }}
+          RELEASE_COMMIT: ${{ needs.prepare-release.outputs.release_commit }}
+          STAGING_REF: ${{ needs.prepare-release.outputs.staging_ref }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh auth setup-git
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${APP_SLUG}[bot]@users.noreply.github.com"
+
+          git fetch --no-tags origin "+${STAGING_REF}:refs/ci-governance/staged" 2>/dev/null || true
+          if [[ "$(git ls-remote origin "$EXPECTED_REF" | cut -f1)" == "$RELEASE_COMMIT" ]]; then
+            echo "::notice title=Promotion skipped::$EXPECTED_REF already points at the release commit."
+            git checkout --force --detach "$RELEASE_COMMIT"
+            exit 0
+          fi
+
+          if [[ "$(git rev-parse --verify --quiet refs/ci-governance/staged || true)" != "$RELEASE_COMMIT" ]]; then
+            echo "::error title=Release staging mismatch::$STAGING_REF does not point at the release commit."
+            exit 1
+          fi
+          git checkout --force --detach "$RELEASE_COMMIT"
+
+          tag_refs=()
+          while IFS= read -r record; do
+            tag="$(jq -r '.tag' <<< "$record")"
+            version="$(jq -r '.version' <<< "$record")"
+            git check-ref-format --allow-onelevel "refs/tags/$tag"
+            if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+              echo "::error title=Tag conflict::$tag already exists."
+              exit 1
+            fi
+            git tag -a "$tag" -m "Release $version"
+            tag_refs+=("refs/tags/$tag")
+          done < <(jq -c '.[]' <<< "$RELEASES")
+
+          git push --atomic origin "${RELEASE_COMMIT}:${EXPECTED_REF}" "${tag_refs[@]}"
+
       - name: Next development iteration and sync PR
+        if: steps.promote.outcome == 'success' && vars.DEVELOPMENT_FLOW == 'git-flow'
         env:
           APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
           BASELINE_BRANCH: ${{ github.event.pull_request.base.ref || github.ref_name }}
@@ -639,3 +800,18 @@ jobs:
               --title "Sync release $version to $develop_branch" \
               --body "**Automated pull request** syncing the release cut on \`$BASELINE_BRANCH\` back into \`$develop_branch\`."
           fi
+
+      - name: Discard the release staging ref
+        if: always()
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          STAGING_REF: ${{ needs.prepare-release.outputs.staging_ref }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${STAGING_REF:-}" ]]; then
+            exit 0
+          fi
+          gh auth setup-git
+          git push origin ":${STAGING_REF}" || true

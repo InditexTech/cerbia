@@ -17,6 +17,7 @@ concurrency:
 env:
   PROJECT_TYPE: ${{ vars.PROJECT_TYPE }}
   WORKING_DIRECTORY: ${{ vars.WORKING_DIRECTORY }}
+  ASDF_BRANCH_VERSION: '0.18.0'
 
 jobs:
   verify:
@@ -30,6 +31,43 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Resolve governed project type
+        shell: bash
+        run: |
+          set -euo pipefail
+          descriptor="$GITHUB_WORKSPACE/.github/inditextech-ci-python.json"
+          if [[ ! -f "$descriptor" ]]; then
+            echo "::error title=Missing descriptor::.github/inditextech-ci-python.json not found."
+            exit 1
+          fi
+          project_type="$(jq -r '.project_type // empty' "$descriptor")"
+          case "$project_type" in
+            single|monorepo|workspaces) ;;
+            *)
+              echo "::error title=Invalid project type::Descriptor .project_type must be single, monorepo, or workspaces."
+              exit 1
+              ;;
+          esac
+          # The descriptor's vocabulary is the adapter's: `monorepo` and
+          # `workspaces` are the same shape, and the runtime contract names it
+          # `workspaces` while the governance contract calls `monorepo`.
+          if [[ "$project_type" == "monorepo" ]]; then
+            project_type="workspaces"
+          fi
+          workdir="${WORKING_DIRECTORY:-$(jq -r '.working_directory // empty' "$descriptor")}"
+          case "$workdir" in
+            ""|/*|..|../*|*/..|*/../*)
+              echo "::error title=Invalid working directory::WORKING_DIRECTORY must be a non-empty relative repository path." >&2
+              exit 1
+              ;;
+          esac
+          if [[ ! -d "$workdir" ]]; then
+            echo "::error title=Missing working directory::'${workdir}' is not a directory in this checkout." >&2
+            exit 1
+          fi
+          echo "PROJECT_TYPE=$project_type" >> "$GITHUB_ENV"
+          echo "WORKING_DIRECTORY=${workdir}" >> "$GITHUB_ENV"
 
       - name: Read governed tool versions
         id: tool-versions
@@ -48,10 +86,23 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Install Python build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          # asdf compiles CPython from source; without these dev libraries the
+          # interpreter lacks _bz2/readline/_lzma and Code/Verify fails at import
+          # time (observed live on pypi-ci-testing since 2026-09-17).
+          cd /tmp
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends \
+            libbz2-dev libreadline-dev liblzma-dev libsqlite3-dev \
+            libffi-dev libssl-dev zlib1g-dev uuid-dev 
       - name: Set up asdf-managed Python
         uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
         with:
           tool_versions: ${{ steps.tool-versions.outputs.tool_versions }}
+          asdf_version: ${{ env.ASDF_BRANCH_VERSION }}
 
       - name: Point uv at the asdf-managed interpreter
         working-directory: ${{ env.WORKING_DIRECTORY }}
