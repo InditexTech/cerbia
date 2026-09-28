@@ -67,12 +67,15 @@ jobs:
           fi
           project_type="$(jq -r '.project_type // empty' "$descriptor")"
           case "$project_type" in
-            single|workspaces) ;;
+            single|monorepo|workspaces) ;;
             *)
-              echo "::error title=Invalid project type::Descriptor .project_type must be single or workspaces."
+              echo "::error title=Invalid project type::Descriptor .project_type must be single, monorepo, or workspaces."
               exit 1
               ;;
           esac
+          if [[ "$project_type" == "monorepo" ]]; then
+            project_type="workspaces"
+          fi
           workdir="${WORKING_DIRECTORY:-$(jq -r '.working_directory // empty' "$descriptor")}"
           case "$workdir" in
             ""|/*|..|../*|*/..|*/../*)
