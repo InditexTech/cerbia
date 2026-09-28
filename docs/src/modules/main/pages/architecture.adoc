@@ -1,0 +1,181 @@
+= Architecture
+:description: Trace an entry through loading, preprocessing, scanning, aggregation, and result construction.
+:page-tags: architecture, pipeline, overview
+:repo-url: https://github.com/InditexTech/cerbia
+:example-config-url: {repo-url}/blob/main/examples/cli-usage/config.cerbia.yaml
+
+// Source: docs/content/docs/architecture.mdx (local MDX; source SHA-256 recorded in legacy-routes.json).
+
+CerbIA evaluates loaded entries through a pipeline assembled by `Runner`. The
+runner constructs configured components, applies preprocessors to the combined
+loader output, sends each post-preprocessing entry through one `SecurityGate`,
+and returns a `ScanResult`.
+
+== Pipeline overview
+
+[mermaid]
+----
+accTitle: CerbIA pipeline overview
+accDescr: Configured loaders produce entries for ordered preprocessing. Each entry is evaluated by a SecurityGate, which routes compatible scanners, aggregates blocking findings, and returns a verdict that the runner collects into a scan result.
+flowchart LR
+    A[Configured loaders] --> B[Loaded entries]
+    B --> C[Ordered preprocessors]
+    C --> D[Post-preprocessing entries]
+    D --> E
+
+    subgraph E[SecurityGate evaluation for each entry]
+        F[Content-type routing]
+        G[Compatible scanners]
+        H[Scan outcomes]
+        I[Findings]
+        J[Positive BLOCK findings → weighted scores]
+        K[Score aggregator]
+        L[SkippedScanner]
+        M[GateVerdict]
+
+        F -->|Compatible| G
+        F -->|Incompatible| L
+        G --> H
+        H --> I
+        I --> J
+        J --> K
+        K --> M
+        L --> M
+    end
+
+    M --> N[Runner maps verdict and entry to EntryResult]
+    N --> O[ScanResult]
+----
+
+== Construction and ownership
+
+`Runner(CerbIAConfig)` owns pipeline assembly. It requires at least one loader
+and scanner, builds component instances with `LoaderFactory`,
+`PreprocessorFactory`, `ScannerFactory`, and `ScoreAggregatorFactory`, then
+creates one `SecurityGate` from the configured scanners, score aggregator, and
+gate settings.
+
+Each component record supplies a fully-qualified class path and optional
+`init_args`. Its factory imports the class, constructs it, and verifies that the
+result satisfies the corresponding component contract. Factories construct
+components; `Runner` owns their composition and execution order; `SecurityGate`
+owns evaluation of one entry. See xref:configuration.adoc[Configuration] for the
+record format.
+
+== Entry lifecycle
+
+During a scan, loaders run in configuration order and their returned entry lists
+are combined. Each preprocessor receives the complete current list, and its
+returned list becomes the input to the next preprocessor. `Runner` calls
+`SecurityGate.scan()` once for every final, post-preprocessing entry.
+
+[mermaid]
+----
+accTitle: Entry lifecycle
+accDescr: Loader outputs are combined, passed through optional ordered preprocessors, and each resulting entry is scanned by SecurityGate. The runner maps each verdict and entry to an EntryResult and collects the results in a ScanResult.
+flowchart TD
+    A[Loader outputs] --> B[Combined Entry list]
+    B --> C[Optional ordered preprocessors]
+    C --> D[Post-preprocessing Entry list]
+    D --> E{For each Entry}
+    E --> F[SecurityGate.scan]
+    F --> G[GateVerdict]
+    G --> H[Runner maps verdict and Entry to EntryResult]
+    H --> I[ScanResult]
+----
+
+=== Entry derivation and cardinality
+
+An `Entry` contains text, source, an optional field path, metadata, and a
+content type. `Entry.derive()` preserves source, field path, content type, and
+copied metadata; it records the original text once and appends the preprocessor
+identifier to the derivation lineage.
+
+Current built-in preprocessors preserve one output entry per input entry. The
+preprocessor extension contract does not guarantee that cardinality: extensions
+may transform, remove, reorder, or expand entries. Results therefore correspond
+to post-preprocessing entries, not necessarily to the original loaded entries.
+See xref:components/loaders.adoc[Loaders] and
+xref:components/preprocessors.adoc[Preprocessors] for component-specific behavior.
+
+== SecurityGate boundary
+
+`SecurityGate` owns routing, scanner execution, finding creation, aggregation,
+and one `GateVerdict`.
+
+=== Routing
+
+Before invoking a scanner, the gate checks its accepted content types. A scanner
+without a content-type restriction accepts every entry, and an entry with an
+`unknown` content type is accepted by every scanner. A known incompatible type
+does not invoke the scanner; the gate records a `SkippedScanner` instead.
+
+=== Scanning and findings
+
+Compatible scanners run sequentially and return `ScanOutcome` values. The gate
+enriches each outcome with scanner identity, severity, and action to create a
+`Finding`. Scanner failures are a separate execution path rather than findings.
+
+=== Aggregation and verdicts
+
+After scanning, the gate selects findings eligible for scoring, passes their
+weighted scores to the configured score aggregator, and constructs a
+`GateVerdict`. See xref:gate.adoc[Gate behavior] for action, threshold, fail-fast,
+and scanner-error policy rules, and
+xref:components/score-aggregators.adoc[Score aggregators] for aggregation strategies.
+
+== Result hierarchy
+
+[mermaid]
+----
+accTitle: CerbIA result hierarchy
+accDescr: Scanners produce scan outcomes that become findings. Routing and skip policy can produce skipped scanners. Findings and skipped scanners belong to a SecurityGate verdict, which is associated with an entry in EntryResult and collected into ScanResult.
+flowchart TD
+    A[Scanner] --> B[ScanOutcome]
+    B --> C[Finding]
+    D[Routing or skip policy] --> E[SkippedScanner]
+
+    subgraph F[SecurityGate result]
+        G[GateVerdict]
+    end
+
+    C --> G
+    E --> G
+    G --> H[EntryResult plus Entry]
+    H --> I[ScanResult]
+----
+
+|===
+|Layer |Cardinality |Responsibility
+
+|`GateVerdict` |One per scanned entry |Gate safety, score, rationale, findings, and skipped scanners.
+|`EntryResult` |One per post-preprocessing entry |Associates the entry with its gate result.
+|`ScanResult` |One per runner scan |Collects entry results and computes summary fields.
+|===
+
+`ScanResult.is_safe` is true only when every entry result is safe.
+`total_findings` and `unsafe_entries` summarize all entry results. A configured
+loader can return no entries; in that case the gate is not called and the empty
+`ScanResult` is safe with zero findings and unsafe entries. This does not relax
+construction requirements for configured loaders and scanners.
+
+== Shared URL registry
+
+While constructing scanners, `Runner` creates one `UrlRegistry` for that runner
+instance and offers it to scanner factories. A factory forwards it only when the
+scanner constructor accepts `url_registry`. `UrlAllowlistScanner` registers its
+configured allowlist patterns there, and URL-aware scanners can consult the
+same live registry for the lifetime of that runner. Separate runners use separate registries;
+this is neither global state nor a general dependency container.
+
+See xref:components/scanners.adoc[Scanners] for scanner-specific URL behavior.
+
+== Related documentation
+
+* xref:configuration.adoc[Configuration]
+* xref:gate.adoc[Gate behavior]
+* xref:components/loaders.adoc[Loaders]
+* xref:components/preprocessors.adoc[Preprocessors]
+* xref:components/scanners.adoc[Scanners]
+* xref:components/score-aggregators.adoc[Score aggregators]
+* xref:components/custom-components.adoc[Custom components]
