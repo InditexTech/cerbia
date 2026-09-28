@@ -6,17 +6,46 @@
 
 == Parameters
 
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `model_ref`, `model_revision`, `model_subfolder`, `model_filename` | package defaults | Model artifact coordinates. |
-| `tokenizer_ref`, `tokenizer_revision`, `tokenizer_subfolder`, `tokenizer_filename` | package defaults | Tokenizer artifact coordinates. |
-| `local_files_only` | `true` | Restrict artifact loading to the local cache. Set `false` to permit Hub downloads. |
-| `match_type` | `full` | `full` classifies the complete text; `chunks` uses overlapping windows. |
-| `chunk_size` | `256` | Window size when `match_type: chunks`. |
-| `chunk_overlap` | `25` | Overlap between consecutive windows. |
-| `severity` | `CRITICAL` | Finding severity. |
-| `action` | `BLOCK` | Finding action. |
-| `content_types` | `[TEXT]` | Accepted content types. |
+[options="header"]
+|===
+|Parameter |Default |Meaning
+
+|`model_ref`, `model_revision`, `model_subfolder`, `model_filename`
+|package defaults
+|Model artifact coordinates.
+
+|`tokenizer_ref`, `tokenizer_revision`, `tokenizer_subfolder`, `tokenizer_filename`
+|package defaults
+|Tokenizer artifact coordinates.
+
+|`local_files_only`
+|`true`
+|Restrict artifact loading to the local cache. Set `false` to permit Hub downloads.
+
+|`match_type`
+|`full`
+|`full` classifies the complete text; `chunks` uses overlapping windows.
+
+|`chunk_size`
+|`256`
+|Window size when `match_type: chunks`.
+
+|`chunk_overlap`
+|`25`
+|Overlap between consecutive windows.
+
+|`severity`
+|`CRITICAL`
+|Finding severity.
+
+|`action`
+|`BLOCK`
+|Finding action.
+
+|`content_types`
+|`[TEXT]`
+|Accepted content types.
+|===
 
 For chunked input, the scanner evaluates every window and returns the highest injection probability. Empty or whitespace-only input returns risk `0.0`.
 

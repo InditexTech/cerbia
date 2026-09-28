@@ -9,9 +9,16 @@
 aggregate = min(1.0, max(scores) + bonus × (len(scores) - 1))
 ----
 
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `bonus` | `0.05` | Increment added for each score after the first. |
+[options="header"]
+|===
+|Parameter |Default |Meaning
+
+|`bonus`
+|`0.05`
+|Increment added for each score after the first.
+|===
+
+Negative values are accepted and can lower the result below zero; the implementation only caps the upper bound.
 
 For `[0.80, 0.60, 0.40]` and `bonus: 0.05`, the aggregate is `0.90`. An empty list produces `0.0`.
 

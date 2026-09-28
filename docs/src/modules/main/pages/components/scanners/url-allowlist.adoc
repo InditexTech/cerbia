@@ -6,12 +6,26 @@
 
 == Parameters
 
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `allowed_domains` | required | Full-URL wildcard patterns registered for this scanner. |
-| `severity` | `HIGH` | Finding severity. |
-| `action` | `BLOCK` | Finding action. |
-| `content_types` | `[TEXT, URL, CODE]` | Accepted content types. |
+[options="header"]
+|===
+|Parameter |Default |Meaning
+
+|`allowed_domains`
+|required
+|Full-URL wildcard patterns registered for this scanner.
+
+|`severity`
+|`HIGH`
+|Finding severity.
+
+|`action`
+|`BLOCK`
+|Finding action.
+
+|`content_types`
+|`[TEXT, URL, CODE]`
+|Accepted content types.
+|===
 
 Patterns match normalized complete URLs, including scheme and path. Use `https://example.com/` to allow only the normalized root URL, or `https://example.com/*` to allow descendant paths. Query strings and fragments do not form part of the normalized comparison.
 

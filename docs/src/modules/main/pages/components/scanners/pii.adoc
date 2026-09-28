@@ -4,12 +4,26 @@
 
 `cerbia.core.scanners.PiiScanner` uses built-in regular expressions to locate common personally identifiable information. It reports match spans and uses the highest matching pattern score as its risk score.
 
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `extra_patterns` | `null` | Additional `(name, regex)` pairs. Extra patterns use risk `0.80`. |
-| `severity` | `HIGH` | Finding severity. |
-| `action` | `WARN` | Findings are visible but do not contribute to blocking aggregation unless changed. |
-| `content_types` | `[TEXT]` | Accepted content types. |
+[options="header"]
+|===
+|Parameter |Default |Meaning
+
+|`extra_patterns`
+|`null`
+|Additional `(name, regex)` pairs. Extra patterns use risk `0.80`.
+
+|`severity`
+|`HIGH`
+|Finding severity.
+
+|`action`
+|`WARN`
+|Findings are visible but do not contribute to blocking aggregation unless changed.
+
+|`content_types`
+|`[TEXT]`
+|Accepted content types.
+|===
 
 [source,yaml]
 ----

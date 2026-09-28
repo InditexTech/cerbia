@@ -4,12 +4,26 @@
 
 `cerbia.core.scanners.PromptInjectionScanner` applies multilingual patterns for instruction override, exfiltration, role hijacking, false authority, task deflection, and context manipulation.
 
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `languages` | all registered | Language packs to load. |
-| `severity` | `CRITICAL` | Finding severity. |
-| `action` | `BLOCK` | Finding action. |
-| `content_types` | `[TEXT]` | Accepted content types. |
+[options="header"]
+|===
+|Parameter |Default |Meaning
+
+|`languages`
+|all registered
+|Language packs to load.
+
+|`severity`
+|`CRITICAL`
+|Finding severity.
+
+|`action`
+|`BLOCK`
+|Finding action.
+
+|`content_types`
+|`[TEXT]`
+|Accepted content types.
+|===
 
 The scanner reports matching spans and a cumulative score derived from its matched patterns. Configure it after preprocessors so encoded instructions are visible to the pattern engine.
 

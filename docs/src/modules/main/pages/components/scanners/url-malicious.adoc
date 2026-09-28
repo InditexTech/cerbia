@@ -4,14 +4,34 @@
 
 `cerbia.core.scanners.MaliciousUrlScanner` applies local URL heuristics to extracted links. It is designed to identify suspicious structures such as risky domains, shorteners, and lookalike patterns before a user or downstream system uses the URL.
 
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `suspicious_tlds` | built-in set | Optional replacement list of top-level domains to flag. |
-| `shortener_domains` | built-in set | Optional replacement list of URL shorteners. |
-| `popular_domains` | built-in set | Optional replacement domains used for lookalike detection. |
-| `severity` | `HIGH` | Finding severity. |
-| `action` | `BLOCK` | Finding action. |
-| `content_types` | `[TEXT, URL, CODE]` | Accepted content types. |
+[options="header"]
+|===
+|Parameter |Default |Meaning
+
+|`suspicious_tlds`
+|built-in set
+|Optional replacement list of top-level domains to flag.
+
+|`shortener_domains`
+|built-in set
+|Optional replacement list of URL shorteners.
+
+|`popular_domains`
+|built-in set
+|Optional replacement domains used for lookalike detection.
+
+|`severity`
+|`HIGH`
+|Finding severity.
+
+|`action`
+|`BLOCK`
+|Finding action.
+
+|`content_types`
+|`[TEXT, URL, CODE]`
+|Accepted content types.
+|===
 
 The scanner extracts supported URL forms, evaluates its heuristics, and returns the highest observed risk with a rationale describing the detected signals. It returns risk `0.0` when no URL is found or no heuristic is triggered.
 
