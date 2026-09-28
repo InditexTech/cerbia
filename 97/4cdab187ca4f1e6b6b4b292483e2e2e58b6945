@@ -1,0 +1,14 @@
+docs/scripts/migration/check-content-root.mjs
+  h_d6d31939214ddd 1-238
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "974cdab187ca4f1e6b6b4b292483e2e2e58b6945",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
