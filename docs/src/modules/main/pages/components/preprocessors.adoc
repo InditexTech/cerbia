@@ -7,8 +7,9 @@
 
 Preprocessors transform loaded entries before scanners run. CerbIA Core exports
 `SpeculativeDecodingPreprocessor` and
-`WhitespaceNormalizationPreprocessor`. Configure preprocessors in order: each
-preprocessor's output becomes the next one's input.
+`WhitespaceNormalizationPreprocessor`. Both preserve input-entry cardinality
+and order, and retain preprocessing lineage metadata. Configure preprocessors
+in order: each preprocessor's output becomes the next one's input.
 
 * xref:components/preprocessors/speculative-decoding.adoc[Speculative decoding]
   searches for plausible encoded or obfuscated text.
@@ -16,7 +17,8 @@ preprocessor's output becomes the next one's input.
   normalization] reduces whitespace patterns that can split or hide text.
 
 Preprocessing is conservative. An entry that needs no change is passed through
-unchanged. A changed entry retains its source and content type and records the
-original text and transformation metadata. See xref:architecture.adoc[Architecture]
-for its position in the full pipeline and xref:configuration.adoc[Configuration]
-for the order of component records.
+unchanged as the original entry object. A changed entry retains its source,
+content type, and lineage; it records the original text and transformation
+metadata. See xref:architecture.adoc[Architecture] for its position in the full
+pipeline and xref:configuration.adoc[Configuration] for the order of component
+records.

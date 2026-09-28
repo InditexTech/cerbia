@@ -138,7 +138,80 @@ function assertSourceParity(source, target, sourcePath, targetId) {
       `missing source table row in ${targetId}: ${row.join(' | ')}`);
   }
   assert.ok(target.includes(`Source: ${sourcePath}`), `missing source traceability comment in ${targetId}`);
-  return { sourceParts, sourceCodeCount: sourceCode.length, sourceTableRows: sourceParts.tableRows.length, diagramCount: diagrams.length };
+  const proseCoverage = assertProseCoverage(source, target, sourcePath, targetId);
+  return { sourceParts, sourceCodeCount: sourceCode.length, sourceTableRows: sourceParts.tableRows.length, diagramCount: diagrams.length, proseCoverage };
+}
+
+const proseStopWords = new Set([
+  'about', 'after', 'again', 'also', 'and', 'are', 'because', 'before', 'being', 'both', 'can', 'does',
+  'each', 'every', 'from', 'have', 'into', 'just', 'more', 'most', 'only', 'other', 'over', 'same',
+  'some', 'such', 'than', 'that', 'their', 'them', 'then', 'there', 'these', 'they', 'this', 'those',
+  'through', 'under', 'until', 'very', 'when', 'where', 'which', 'while', 'with', 'would', 'your',
+]);
+
+function proseTokens(value) {
+  return new Set((value.toLowerCase().match(/[a-z][a-z0-9_-]{2,}/g) ?? [])
+    .filter((token) => !proseStopWords.has(token)));
+}
+
+function sourceProse(source) {
+  return source
+    .replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '')
+    .replace(/^```[\w+-]*\s*\r?\n[\s\S]*?^```\s*$/gm, '')
+    .replace(/^\s*\|.*$/gm, '')
+    .replace(/^#{1,6}\s+.*$/gm, '')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/https?:\/\/\S+/g, ' ')
+    .replace(/`([^`]+)`/g, '$1');
+}
+
+function targetProse(target) {
+  return target
+    .replace(/^:[\w-]+:.*$/gm, '')
+    .replace(/^\/\/.*$/gm, '')
+    .replace(/^={1,6}\s+.*$/gm, '')
+    .replace(/^\[source(?:,[^\]]+)?\]\s*\r?\n-{4,}\r?\n[\s\S]*?\r?\n-{4,}\s*$/gm, '')
+    .replace(/^\[mermaid\]\s*\r?\n-{4,}\r?\n[\s\S]*?\r?\n-{4,}\s*$/gm, '')
+    .replace(/^\|===\s*\r?\n[\s\S]*?^\|===\s*$/gm, '')
+    .replace(/^\s*\|.*$/gm, '')
+    .replace(/xref:[^[]+\[([^\]]*)\]/g, '$1')
+    .replace(/link:[^[]+\[([^\]]*)\]/g, '$1')
+    .replace(/https?:\/\/\S+/g, ' ')
+    .replace(/`([^`]+)`/g, '$1');
+}
+
+function assertProseCoverage(source, target, sourcePath, targetId) {
+  const prose = sourceProse(source);
+  const expected = proseTokens(prose);
+  const actual = proseTokens(targetProse(target));
+  const missing = [...expected].filter((token) => !actual.has(token));
+  const coverage = expected.size === 0 ? 1 : (expected.size - missing.length) / expected.size;
+  const minimumCoverage = 0.72;
+  assert.ok(coverage >= minimumCoverage,
+    `source prose coverage below ${minimumCoverage} for ${targetId} (${sourcePath}): ${(coverage * 100).toFixed(1)}%; missing ${missing.slice(0, 12).join(', ')}`);
+  const proseBlocks = prose.split(/\r?\n\s*\r?\n+/).map(proseTokens).filter((tokens) => tokens.size >= 5);
+  for (const [index, tokens] of proseBlocks.entries()) {
+    const blockMissing = [...tokens].filter((token) => !actual.has(token));
+    const blockCoverage = (tokens.size - blockMissing.length) / tokens.size;
+    assert.ok(blockCoverage >= 0.6,
+      `source prose block ${index + 1} omitted from ${targetId} (${sourcePath}): ${(blockCoverage * 100).toFixed(1)}%; missing ${blockMissing.slice(0, 12).join(', ')}`);
+  }
+  return { sourceTokens: expected.size, targetCoverage: Number(coverage.toFixed(4)), checkedProseBlocks: proseBlocks.length, missingTokens: missing };
+}
+
+function extractMermaid(source, label) {
+  const blocks = [...source.matchAll(/^```mermaid\s*\r?\n([\s\S]*?)^```\s*$/gm)].map(([, body]) => body.trim());
+  assert.equal(blocks.length, 1, `${label} must contain exactly one Mermaid diagram`);
+  return normalizeDiagram(blocks[0]);
+}
+
+function normalizeDiagram(source) {
+  return source
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*acc(?:Title|Descr)\s*:/i.test(line))
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join('\n');
 }
 
 function run() {
@@ -206,14 +279,16 @@ function run() {
       }
     }
 
-    results.push({ source, targetPageId: contract.id, codeBlocks: codeBlockCount, sourceCodeBlocks: parity.sourceCodeCount, tables: tableCount, sourceTableRows: parity.sourceTableRows, headings: parity.sourceParts.headings.length + 1, xrefs: xrefs.length });
+    results.push({ source, targetPageId: contract.id, codeBlocks: codeBlockCount, sourceCodeBlocks: parity.sourceCodeCount, tables: tableCount, sourceTableRows: parity.sourceTableRows, headings: parity.sourceParts.headings.length + 1, xrefs: xrefs.length, proseCoverage: parity.proseCoverage });
   }
 
   const diagramPath = join(options.pagesPath, 'components/preprocessors/speculative-decoding.adoc');
   const diagram = readFileSync(diagramPath, 'utf8');
   assert.match(diagram, /^\[mermaid\]\n----\naccTitle: .+\naccDescr: .+\nflowchart LR$/m, 'speculative-decoding Mermaid source must include accessible title and description');
-  const sourceDiagram = results.find(({ source }) => source.endsWith('/speculative-decoding.mdx'));
-  assert.equal(sourceDiagram && parseSource(readFileSync(join(sourceRoot, 'components/preprocessors/speculative-decoding.mdx'), 'utf8')).codeBlocks.filter(({ language }) => language === 'mermaid').length, 1, 'speculative-decoding source must contain one diagram');
+  const originalDiagram = extractMermaid(readFileSync(join(sourceRoot, 'components/preprocessors/speculative-decoding.mdx'), 'utf8'), 'source speculative-decoding page');
+  const targetDiagramBlocks = [...diagram.matchAll(/^\[mermaid\]\s*\r?\n-{4,}\r?\n([\s\S]*?)\r?\n-{4,}\s*$/gm)].map(([, body]) => body);
+  assert.equal(targetDiagramBlocks.length, 1, 'speculative-decoding target must contain exactly one Mermaid diagram');
+  assert.equal(normalizeDiagram(targetDiagramBlocks[0]), originalDiagram, 'speculative-decoding Mermaid graph differs from source after accessibility metadata is removed');
   assert.match(diagram, /xref:components\/preprocessors\/whitespace-normalization\.adoc\[/, 'speculative-decoding page must link to mapped whitespace page');
   assert.match(readFileSync(join(options.pagesPath, 'components/preprocessors/whitespace-normalization.adoc'), 'utf8'), /xref:components\/preprocessors\/speculative-decoding\.adoc\[/, 'whitespace page must link to mapped speculative-decoding page');
 
