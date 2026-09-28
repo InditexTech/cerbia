@@ -1,0 +1,10 @@
+= cerbia-core
+:description: CerbIA's core Python pipeline, configurable components, Runner, and SecurityGate.
+
+`cerbia-core` provides `cerbia.core`, the configurable pipeline used by CerbIA
+integrations. The package includes entries, loaders, preprocessors, scanners,
+score aggregators, configuration models, `Runner`, and `SecurityGate`.
+
+The existing package documentation includes a minimal Python pipeline and
+describes core runtime dependencies. Its full conversion is tracked separately,
+so this page is a concise entry point rather than the complete package reference.

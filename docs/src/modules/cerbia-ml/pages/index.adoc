@@ -1,0 +1,10 @@
+= cerbia-ml
+:description: Optional runtime support for model artifacts and text-classification adapters.
+
+`cerbia-ml` provides `cerbia.ml`, a runtime layer for pinned model artifacts
+and text-classification adapters. It is an optional package and does not add a
+CLI command or scanner to a core configuration by itself.
+
+The existing package documentation describes artifact coordinates, artifact
+sources, and the classifier adapter. Its full conversion is tracked separately,
+so this page is a concise entry point rather than the complete package reference.

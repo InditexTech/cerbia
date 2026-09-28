@@ -1,0 +1,10 @@
+= cerbia-protectai
+:description: Optional classifier-backed prompt-injection scanner integration.
+
+`cerbia-protectai` provides an optional classifier-backed prompt-injection
+scanner and depends on `cerbia-ml` for model and tokenizer loading. The existing
+package documentation describes local artifact requirements and whole-text or
+chunked classification modes.
+
+Its full package and scanner references are being converted separately. This
+page is a concise package entry point, not the complete integration reference.

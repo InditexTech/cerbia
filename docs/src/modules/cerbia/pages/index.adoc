@@ -1,0 +1,10 @@
+= cerbia
+:description: Install CerbIA core and select optional capabilities with package extras.
+
+`cerbia` is the installation selector for CerbIA. It installs `cerbia-core` and
+offers extras for optional capabilities. It does not provide a Python import
+namespace; import the selected component package instead.
+
+The existing package documentation describes installation choices and the
+available extras. Its full conversion is tracked separately, so this page is a
+concise entry point rather than the complete package reference.

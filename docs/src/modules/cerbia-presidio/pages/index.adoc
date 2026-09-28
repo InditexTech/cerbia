@@ -1,0 +1,9 @@
+= cerbia-presidio
+:description: Optional English NLP-based PII scanner integration backed by Presidio and spaCy.
+
+`cerbia-presidio` provides an optional English NLP-based PII scanner backed by
+Presidio and the `en_core_web_sm` spaCy model. Its existing package
+documentation describes the scanner's entity selection and confidence behavior.
+
+The full package and scanner references are being converted separately. This
+page is a concise package entry point, not the complete integration reference.

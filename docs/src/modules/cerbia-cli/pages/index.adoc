@@ -1,0 +1,9 @@
+= cerbia-cli
+:description: Command-line package for validating configurations and scanning content.
+
+`cerbia-cli` provides the `cerbia` executable for validating configurations and
+running configured pipelines. The existing package documentation shows the
+`validate` and `scan` commands and their documented outcomes.
+
+Its full command reference is being converted separately. This page is a
+concise package entry point, not the complete CLI reference.

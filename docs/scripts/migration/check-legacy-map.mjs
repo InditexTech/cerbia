@@ -8,8 +8,8 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const defaultManifest = join(repoRoot, 'docs/scripts/migration/legacy-routes.json');
 const defaultSourceRoot = join(repoRoot, 'docs/content/docs');
 const args = process.argv.slice(2);
-const modes = ['--source-check', '--map-only'];
-const failurePrefix = args.includes('--map-only') ? 'MAP_ONLY_FAILED' : 'SOURCE_CHECK_FAILED';
+const modes = ['--source-check', '--map-only', '--nav'];
+const failurePrefix = args.includes('--nav') ? 'NAV_CHECK_FAILED' : args.includes('--map-only') ? 'MAP_ONLY_FAILED' : 'SOURCE_CHECK_FAILED';
 
 function option(name, fallback) {
   const index = args.indexOf(name);
@@ -29,6 +29,87 @@ function walk(directory, extension) {
 const sha256 = (value) => createHash('sha256').update(value).digest('hex');
 const sourceRoot = option('--source-root', defaultSourceRoot);
 const manifestPath = option('--manifest', defaultManifest);
+const contentRoot = option('--content-root', join(repoRoot, 'docs/src'));
+
+function assertNav(manifest, allowPendingTargets) {
+  const antoraPath = join(contentRoot, 'antora.yml');
+  const descriptor = readFileSync(antoraPath, 'utf8');
+  const expectedModules = ['main', ...manifest.navigation.packageModules];
+  const registeredNavs = [...descriptor.matchAll(/^  - modules\/([^/]+)\/nav\.adoc$/gm)]
+    .map(([, module]) => `modules/${module}/nav.adoc`);
+  const expectedNavs = expectedModules.map((module) => `modules/${module}/nav.adoc`);
+  assert.deepEqual(registeredNavs, expectedNavs, 'Antora must register main and six package nav files in order');
+
+  const registeredModules = [...descriptor.matchAll(/^  - module: ([a-z0-9-]+)$/gm)]
+    .map(([, module]) => module);
+  assert.deepEqual(registeredModules, expectedModules, 'Antora nav_modules must register main and six package modules in order');
+  assert.match(descriptor, /^not_found_module: main$/m, '404 page module must be main');
+  assert.match(descriptor, /^footer:\n  groups:/m, 'component footer groups must be configured');
+
+  const sectionNames = manifest.navigation.mainSections.map(({ name }) => name);
+  const mainNavPath = join(contentRoot, 'modules/main/nav.adoc');
+  const mainNav = readFileSync(mainNavPath, 'utf8');
+  const navGroups = new Map();
+  const actualSections = [];
+  let activeSection;
+  for (const line of mainNav.split(/\r?\n/)) {
+    const item = line.match(/^\* (.+)$/)?.[1];
+    if (!item) continue;
+    if (!item.startsWith('xref:')) {
+      activeSection = item;
+      actualSections.push(item);
+      continue;
+    }
+    const page = item.match(/^xref:([^\[]+)\.adoc\[/)?.[1];
+    if (page) navGroups.set(`main:${page}`, activeSection);
+  }
+  assert.deepEqual(actualSections, sectionNames, 'main nav must declare the six section groups in order');
+
+  const declaredTargets = new Map();
+  const declaredOrder = new Map();
+  for (const module of expectedModules) {
+    const navPath = join(contentRoot, `modules/${module}/nav.adoc`);
+    const nav = readFileSync(navPath, 'utf8');
+    for (const [, page, label] of nav.matchAll(/xref:([^\[]+)\.adoc\[([^\]]*)\]/g)) {
+      const pageId = `${module}:${page}`;
+      declaredTargets.set(pageId, (declaredTargets.get(pageId) ?? 0) + 1);
+      if (!declaredOrder.has(module)) declaredOrder.set(module, []);
+      declaredOrder.get(module).push(pageId);
+      if (!allowPendingTargets) {
+        assert.ok(existsSync(join(contentRoot, `modules/${module}/pages/${page}.adoc`)), `missing nav target page: ${pageId}`);
+      }
+      assert.ok(label.trim().length > 0, `nav target has no label: ${pageId}`);
+    }
+  }
+
+  const expectedTargets = manifest.routes.map(({ targetPageId }) => targetPageId);
+  const sectionEntryIds = manifest.navigation.mainSections.map(({ entryPageId }) => entryPageId);
+  for (const pageId of new Set([...expectedTargets, ...sectionEntryIds])) {
+    assert.equal(declaredTargets.get(pageId), 1, `expected target exactly once in nav: ${pageId}`);
+  }
+  for (const row of manifest.routes.filter(({ targetModule }) => targetModule === 'main')) {
+    assert.equal(navGroups.get(row.targetPageId), row.nav.group, `mapped page is in the wrong section: ${row.targetPageId}`);
+  }
+  for (const section of manifest.navigation.mainSections) {
+    assert.equal(navGroups.get(section.entryPageId), section.name, `section entry is in the wrong group: ${section.entryPageId}`);
+  }
+  for (const pageId of declaredTargets.keys()) {
+    assert.ok(expectedTargets.includes(pageId) || sectionEntryIds.includes(pageId), `unmapped nav target: ${pageId}`);
+  }
+  for (const module of expectedModules) {
+    const mappedInManifestOrder = module === 'main'
+      ? manifest.navigation.mainSections.flatMap(({ name }) => manifest.routes
+          .filter(({ targetModule, nav }) => targetModule === module && nav.group === name)
+          .sort((left, right) => left.nav.order - right.nav.order)
+          .map(({ targetPageId }) => targetPageId))
+      : manifest.routes
+        .filter(({ targetModule }) => targetModule === module)
+        .sort((left, right) => left.nav.order - right.nav.order)
+        .map(({ targetPageId }) => targetPageId);
+    const mappedInNavOrder = declaredOrder.get(module).filter((pageId) => expectedTargets.includes(pageId));
+    assert.deepEqual(mappedInNavOrder, mappedInManifestOrder, `mapped nav order changed: ${module}`);
+  }
+}
 
 function assertMap(manifest) {
   const expectedSections = [
@@ -148,14 +229,23 @@ function assertMap(manifest) {
 }
 
 try {
-  const flags = args.filter((arg) => arg.startsWith('--') && !['--manifest', '--source-root'].includes(arg));
-  assert.equal(flags.length, 1, 'choose exactly one of --source-check or --map-only');
+  const flags = args.filter((arg) => arg.startsWith('--') && !['--manifest', '--source-root', '--content-root'].includes(arg));
+  assert.ok(flags.length === 1 || (flags.length === 2 && flags.includes('--nav') && flags.includes('--allow-pending-targets')),
+    'choose exactly one mode; --allow-pending-targets is only valid with --nav');
   assert.ok(modes.includes(flags[0]), `unsupported mode: ${flags[0]}`);
+  assert.ok(!args.includes('--allow-pending-targets') || flags[0] === '--nav', '--allow-pending-targets is only valid with --nav');
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 
   if (flags[0] === '--map-only') {
     assertMap(manifest);
     console.log(`MAP_ONLY_OK sources=${manifest.routes.length} mainSections=${manifest.navigation.mainSections.length} packageModules=${manifest.navigation.packageModules.length}`);
+    process.exit(0);
+  }
+
+  if (flags[0] === '--nav') {
+    assertMap(manifest);
+    assertNav(manifest, args.includes('--allow-pending-targets'));
+    console.log(`NAV_CHECK_OK sources=${manifest.routes.length} mainSections=${manifest.navigation.mainSections.length} packageModules=${manifest.navigation.packageModules.length} pendingTargets=${args.includes('--allow-pending-targets')}`);
     process.exit(0);
   }
 
