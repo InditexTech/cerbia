@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { frozenSource as readFrozenSource } from './frozen-source.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const args = process.argv.slice(2);
@@ -107,10 +107,7 @@ function option(name, fallback) {
 }
 
 function frozenSource(row, sourceRoot) {
-  const source = readFileSync(join(sourceRoot, row.source.slice('docs/content/docs/'.length)), 'utf8');
-  assert.equal(createHash('sha256').update(source).digest('hex'), row.sha256,
-    `package source changed from frozen baseline: ${row.source}`);
-  return source;
+  return readFrozenSource(repoRoot, row, sourceRoot);
 }
 
 try {

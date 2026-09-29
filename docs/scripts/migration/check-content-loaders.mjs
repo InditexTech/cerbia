@@ -2,9 +2,9 @@
 
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { createHash } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { frozenSource } from './frozen-source.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const expectedSources = new Map([
@@ -274,10 +274,7 @@ function run() {
     const pagePath = targetPagePath(options.pagesPath, row.targetPageId);
     assert.ok(existsSync(pagePath), `missing target page: ${contract.id}`);
     const page = readFileSync(pagePath, 'utf8');
-    const sourcePath = resolve(sourceRoot, source.slice('docs/content/docs/'.length));
-    assert.ok(sourcePath.startsWith(`${resolve(sourceRoot)}/`), `source path escapes source root: ${source}`);
-    const sourceText = readFileSync(sourcePath, 'utf8');
-    assert.equal(createHash('sha256').update(sourceText).digest('hex'), row.sha256, `source hash differs from frozen manifest: ${source}`);
+    const sourceText = frozenSource(repoRoot, row, sourceRoot);
     assert.match(page, /^= .+$/m, `missing page title: ${contract.id}`);
     for (const heading of contract.headings) {
       assert.match(page, new RegExp(`^={2,3} ${heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'm'), `missing topic heading "${heading}" in ${contract.id}`);
@@ -314,7 +311,7 @@ function run() {
   const diagramPath = join(options.pagesPath, 'components/preprocessors/speculative-decoding.adoc');
   const diagram = readFileSync(diagramPath, 'utf8');
   assert.match(diagram, /^\[mermaid\]\n\.\.\.\.\nflowchart LR\naccTitle: .+\naccDescr: .+$/m, 'speculative-decoding Mermaid source must include accessible title and description');
-  const originalDiagram = extractMermaid(readFileSync(join(sourceRoot, 'components/preprocessors/speculative-decoding.mdx'), 'utf8'), 'source speculative-decoding page');
+  const originalDiagram = extractMermaid(frozenSource(repoRoot, rows.find(({ source }) => source.endsWith('/speculative-decoding.mdx')), sourceRoot), 'source speculative-decoding page');
   const targetDiagramBlocks = [...diagram.matchAll(/^\[mermaid\]\s*\r?\n\.{4,}\r?\n([\s\S]*?)\r?\n\.{4,}\s*$/gm)].map(([, body]) => body);
   assert.equal(targetDiagramBlocks.length, 1, 'speculative-decoding target must contain exactly one Mermaid diagram');
   assert.equal(normalizeDiagram(targetDiagramBlocks[0]), originalDiagram, 'speculative-decoding Mermaid graph differs from source after accessibility metadata is removed');

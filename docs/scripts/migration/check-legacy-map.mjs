@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { frozenSource, frozenSourcePaths } from './frozen-source.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const defaultManifest = join(repoRoot, 'docs/scripts/migration/legacy-routes.json');
@@ -16,14 +17,6 @@ function option(name, fallback) {
   if (index === -1) return fallback;
   assert.ok(args[index + 1] && !args[index + 1].startsWith('--'), `missing ${name} value`);
   return resolve(args[index + 1]);
-}
-
-function walk(directory, extension) {
-  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) return walk(path, extension);
-    return entry.isFile() && entry.name.endsWith(extension) ? [path] : [];
-  });
 }
 
 const sha256 = (value) => createHash('sha256').update(value).digest('hex');
@@ -270,11 +263,8 @@ try {
     for (const key of ['targetPageId', 'targetModule', 'nav', 'redirectTarget']) {
       assert.ok(Object.hasOwn(row, key), `missing reserved field: ${key}`);
     }
-    const file = join(sourceRoot, relativeSource);
-    assert.ok(existsSync(file), `missing source file: ${row.source}`);
-    const contents = readFileSync(file);
-    assert.equal(row.sha256, sha256(contents), `stale source hash: ${row.source}`);
-    const lines = contents.toString('utf8').split('\n');
+    const contents = frozenSource(repoRoot, row, sourceRoot);
+    const lines = contents.split('\n');
     assert.equal(row.lineCount, lines.at(-1) === '' ? lines.length - 1 : lines.length, `stale line count: ${row.source}`);
     lines.forEach((line, index) => {
       if (/^\s*```mermaid\s*$/.test(line)) {
@@ -283,11 +273,12 @@ try {
     });
   }
 
-  const actual = walk(sourceRoot, '.mdx').map((path) => `docs/content/docs/${relative(sourceRoot, path).split(sep).join('/')}`);
+  const actual = frozenSourcePaths(repoRoot, sourceRoot);
   assert.deepEqual([...sources].sort(), actual.sort(), 'missing or extra MDX source in frozen inventory');
   assert.equal(diagrams.length, 6, 'expected six Mermaid fences');
   assert.deepEqual(manifest.mermaidFences, diagrams, 'Mermaid fence locations changed');
   assert.equal(manifest.marketingHome.source, 'docs/app/page.tsx');
+  frozenSource(repoRoot, manifest.marketingHome);
   assert.equal(manifest.marketingHome.oldUrl, '/cerbia/');
   assert.ok(!urls.has(manifest.marketingHome.oldUrl), 'marketing home must be separate from docs index');
   console.log(`SOURCE_CHECK_OK sources=${sources.size} oldUrls=${urls.size} mermaidFences=${diagrams.length}`);

@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { frozenSource } from './frozen-source.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const args = process.argv.slice(2);
@@ -219,11 +219,7 @@ try {
   for (const row of rows) {
     assert.equal(row.targetModule, 'main', `wrong target module for ${row.source}`);
     assert.equal(row.redirectTarget, row.targetPageId, `stale target mapping for ${row.source}`);
-    const relativeSource = row.source.slice('docs/content/docs/'.length);
-    const sourcePath = join(sourceRoot, relativeSource);
-    assert.ok(existsSync(sourcePath), `missing source: ${row.source}`);
-    const sourceText = readFileSync(sourcePath, 'utf8');
-    assert.equal(createHash('sha256').update(sourceText).digest('hex'), row.sha256, `source changed from frozen baseline: ${row.source}`);
+    const sourceText = frozenSource(repoRoot, row, sourceRoot);
     const page = row.targetPageId.slice('main:'.length);
     const targetPath = join(pagesDir, `${page}.adoc`);
     assert.ok(existsSync(targetPath), `missing target page: ${row.targetPageId} (${targetPath})`);

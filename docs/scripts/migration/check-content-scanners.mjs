@@ -5,6 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, posix, resolve } from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { frozenMetadata, frozenSource } from './frozen-source.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const defaultManifest = join(repoRoot, 'docs/scripts/migration/legacy-routes.json');
@@ -168,7 +169,7 @@ function assertSelectorImplementation(selector, sourcePath) {
 
 function checkGroup(name, group, manifest, options, nav) {
   const metaPath = join(options.sourceRoot, group.directory, 'meta.json');
-  const meta = JSON.parse(read(metaPath, `${name} source metadata`));
+  const meta = JSON.parse(frozenMetadata(repoRoot, `docs/content/docs/components/${group.directory}/meta.json`, options.sourceRoot));
   assert.equal(meta.title, name === 'scanners' ? 'Scanners' : 'Score aggregators', `${name} metadata title changed`);
   assert.deepEqual(meta.pages, group.pages, `${name} source metadata order changed`);
 
@@ -187,8 +188,8 @@ function checkGroup(name, group, manifest, options, nav) {
   for (const page of group.pages) {
     const sourceRelative = `docs/content/docs/components/${group.directory}/${page}.mdx`;
     const sourcePath = join(repoRoot, sourceRelative);
-    const source = read(sourcePath, `MDX source ${sourceRelative}`);
     const row = rows.find(({ source: mapped }) => mapped === sourceRelative);
+    const source = frozenSource(repoRoot, row, resolve(options.sourceRoot, '..'));
     const target = row.targetPageId;
     assert.equal(row.targetModule, 'main', `unexpected target module: ${sourceRelative}`);
     assert.equal(target, `main:components/${group.directory}${page === 'index' ? '' : `/${page}`}`, `wrong mapped target: ${sourceRelative}`);

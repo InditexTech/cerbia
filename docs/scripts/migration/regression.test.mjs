@@ -6,10 +6,29 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 import { aliasHtml } from './redirect-routes.mjs';
+import { frozenSource, frozenSourcePaths } from './frozen-source.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, '../../..');
 const manifest = JSON.parse(readFileSync(join(here, 'legacy-routes.json'), 'utf8'));
+
+test('committed frozen baseline retains 38 hashed sources and six Mermaid locations after MDX deletion', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'cerbia-frozen-source-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  assert.deepEqual(frozenSourcePaths(repo, join(repo, 'docs/content/docs')), manifest.routes.map(({ source }) => source).sort());
+  const text = frozenSource(repo, manifest.routes[0]);
+  assert.ok(text.length > 0);
+  assert.match(frozenSource(repo, manifest.marketingHome), /CerbIA/);
+  assert.throws(() => frozenSource(repo, { ...manifest.routes[0], sha256: '0'.repeat(64) }), /frozen source hash mismatch/);
+  assert.throws(() => frozenSource(repo, { ...manifest.routes[0], source: 'docs/content/docs/..\/escape.mdx' }), /invalid frozen source path/);
+  assert.throws(() => frozenSource(repo, manifest.routes[0], root), /missing source in fixture/);
+  const missing = structuredClone(manifest);
+  missing.routes[0].sha256 = '0'.repeat(64);
+  const file = join(root, 'routes.json');
+  writeFileSync(file, JSON.stringify(missing));
+  assertFailure(run('check-migration.mjs', '--source', '--manifest', file), 'changed frozen manifest hash');
+  assert.equal(manifest.mermaidFences.length, 6);
+});
 
 function run(script, ...args) {
   return spawnSync(process.execPath, [join(here, script), ...args], { encoding: 'utf8', timeout: 120000 });
