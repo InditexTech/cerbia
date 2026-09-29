@@ -6,8 +6,8 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "dev": "next dev --turbo",
-    "build": "next build",
+    "dev": "docouture dev",
+    "build": "npm run build:site:strict",
     "build:site": "antora --fetch --log-failure-level warn antora-playbook.yml && node scripts/migration/fix-search-index.mjs --site-dir build/site --version stable --allow-build-dir",
     "build:site:local": "antora --fetch --log-failure-level warn antora-playbook.local.yml && node scripts/migration/fix-search-index.mjs --site-dir build/site --version prerelease --allow-build-dir",
     "build:site:strict": "node scripts/migration/build-and-check-diagrams.mjs --mode full --playbook antora-playbook.local.yml --version prerelease",
@@ -19,35 +19,13 @@
     "check-links": "node scripts/migration/check-links.mjs",
     "test:migration": "node --test scripts/migration/*.test.mjs",
     "dev:site": "docouture dev",
-    "typecheck": "fumadocs-mdx && tsc --noEmit",
-    "verify": "npm ci && npm run typecheck && npm run build"
-  },
-  "dependencies": {
-    "fumadocs-core": "^15.3.3",
-    "fumadocs-mdx": "^11.6.4",
-    "fumadocs-ui": "^15.3.3",
-    "mermaid": "^11.10.0",
-    "next": "^15.5.18",
-    "next-themes": "^0.4.4",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "verify": "npm ci && npm run check-migration -- --source && npm run check-links && npm run test:migration && npm run build:site:strict"
   },
   "devDependencies": {
     "@inditextech/docouture-cli": "1.1.1",
     "@inditextech/docouture-ui-bundle": "1.1.1",
     "@inditextech/docouture-asciidoc-extensions": "1.1.1",
     "@inditextech/docouture-antora-extensions": "1.1.1",
-    "antora": "3.2.0",
-    "@eslint/eslintrc": "^3.3.6",
-    "@tailwindcss/postcss": "^4.1.4",
-    "@types/mdx": "^2.0.13",
-    "@types/node": "22.14.1",
-    "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2",
-    "eslint": "^8",
-    "eslint-config-next": "15.3.1",
-    "postcss": "^8.5.10",
-    "tailwindcss": "^4.1.4",
-    "typescript": "^5.8.3"
+    "antora": "3.2.0"
   }
 }
