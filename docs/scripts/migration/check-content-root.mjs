@@ -70,14 +70,14 @@ function extractTarget(target) {
   }));
   const tableRows = [...target.matchAll(/^\|===\s*\r?\n([\s\S]*?)^\|===\s*$/gm)].flatMap(([, table]) =>
     table.split(/\r?\n/).filter((line) => line.startsWith('|')).map((line) => `| ${line.slice(1).trim()}`));
-  const mermaidBlocks = [...target.matchAll(/^\[mermaid\]\s*\r?\n-{4,}\r?\n([\s\S]*?)\r?\n-{4,}\s*$/gm)].map(([, diagram]) =>
+  const mermaidBlocks = [...target.matchAll(/^\[mermaid\]\s*\r?\n\.{4,}\r?\n([\s\S]*?)\r?\n\.{4,}\s*$/gm)].map(([, diagram]) =>
     diagram.split(/\r?\n/).filter((line) => !/^\s*acc(?:Title|Descr)\s*:/i.test(line)).join('\n').trimEnd());
   const prose = target
     .replace(/^\|===\s*\r?\n[\s\S]*?^\|===\s*$/gm, '')
     .replace(/^\/\/.*$/gm, '')
     .replace(/^={1,6}\s+.+$/gm, '')
     .replace(/^\[source,[^\]]+\]\s*\r?\n-{4,}\r?\n[\s\S]*?\r?\n-{4,}\s*$/gm, '')
-    .replace(/^\[mermaid\]\s*\r?\n-{4,}\r?\n[\s\S]*?\r?\n-{4,}\s*$/gm, '')
+    .replace(/^\[mermaid\]\s*\r?\n\.{4,}\r?\n[\s\S]*?\r?\n\.{4,}\s*$/gm, '')
     .replace(/^\|===\s*\r?\n[\s\S]*?^\|===\s*$/gm, '')
     .replace(/^\s*\|.*$/gm, '')
     .replace(/^\s*[*.-]+\s+/gm, '')
@@ -89,7 +89,7 @@ function extractTarget(target) {
 function assertWordCoverage(sourceText, targetText, sourcePath) {
   const targetNarrative = targetText
     .replace(/^\[source,[^\]]+\]\s*\r?\n-{4,}\r?\n[\s\S]*?\r?\n-{4,}\s*$/gm, '')
-    .replace(/^\[mermaid\]\s*\r?\n-{4,}\r?\n[\s\S]*?\r?\n-{4,}\s*$/gm, '')
+    .replace(/^\[mermaid\]\s*\r?\n\.{4,}\r?\n[\s\S]*?\r?\n\.{4,}\s*$/gm, '')
     .replace(/^\|===\s*\r?\n[\s\S]*?^\|===\s*$/gm, '');
   const targetWords = new Set(normalizeWords(stripMarkup(targetNarrative)));
   for (const word of new Set(normalizeWords(stripMarkup(sourceText)))) {
@@ -103,7 +103,7 @@ function proseParagraphs(text, source) {
   prose = prose
     .replace(/^```[\w+-]*\s*\r?\n[\s\S]*?^```\s*$/gm, '')
     .replace(/^\[source,[^\]]+\]\s*\r?\n-{4,}\r?\n[\s\S]*?\r?\n-{4,}\s*$/gm, '')
-    .replace(/^\[mermaid\]\s*\r?\n-{4,}\r?\n[\s\S]*?\r?\n-{4,}\s*$/gm, '')
+    .replace(/^\[mermaid\]\s*\r?\n\.{4,}\r?\n[\s\S]*?\r?\n\.{4,}\s*$/gm, '')
     .replace(/^\|===\s*\r?\n[\s\S]*?^\|===\s*$/gm, '')
     .replace(/^\|.*$/gm, '')
     .replace(/^#{1,6}\s+.+$/gm, '')
@@ -271,7 +271,7 @@ try {
     assert.equal(targetDiagrams.length, sourceDiagrams.length, `Mermaid diagram count changed for ${row.source}`);
     for (const [index, diagram] of sourceDiagrams.entries()) {
       assert.equal(targetDiagrams[index], diagram.code, `Mermaid source changed for ${row.source} diagram ${index + 1}`);
-      const mermaidTarget = targetText.matchAll(/^\[mermaid\]\s*\r?\n-{4,}\r?\n([\s\S]*?)\r?\n-{4,}\s*$/gm);
+      const mermaidTarget = targetText.matchAll(/^\[mermaid\]\s*\r?\n\.{4,}\r?\n([\s\S]*?)\r?\n\.{4,}\s*$/gm);
       const blocks = [...mermaidTarget].map(([, contents]) => contents);
       const title = blocks[index].match(/^\s*accTitle:\s*(.+)$/im)?.[1].trim();
       const description = blocks[index].match(/^\s*accDescr:\s*(.+)$/im)?.[1].trim();

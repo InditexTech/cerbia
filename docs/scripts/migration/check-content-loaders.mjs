@@ -171,7 +171,7 @@ function targetProse(target) {
     .replace(/^\/\/.*$/gm, '')
     .replace(/^={1,6}\s+.*$/gm, '')
     .replace(/^\[source(?:,[^\]]+)?\]\s*\r?\n-{4,}\r?\n[\s\S]*?\r?\n-{4,}\s*$/gm, '')
-    .replace(/^\[mermaid\]\s*\r?\n-{4,}\r?\n[\s\S]*?\r?\n-{4,}\s*$/gm, '')
+    .replace(/^\[mermaid\]\s*\r?\n\.{4,}\r?\n[\s\S]*?\r?\n\.{4,}\s*$/gm, '')
     .replace(/^\|===\s*\r?\n[\s\S]*?^\|===\s*$/gm, '')
     .replace(/^\s*\|.*$/gm, '')
     .replace(/xref:[^[]+\[([^\]]*)\]/g, '$1')
@@ -313,9 +313,9 @@ function run() {
 
   const diagramPath = join(options.pagesPath, 'components/preprocessors/speculative-decoding.adoc');
   const diagram = readFileSync(diagramPath, 'utf8');
-  assert.match(diagram, /^\[mermaid\]\n----\naccTitle: .+\naccDescr: .+\nflowchart LR$/m, 'speculative-decoding Mermaid source must include accessible title and description');
+  assert.match(diagram, /^\[mermaid\]\n\.\.\.\.\nflowchart LR\naccTitle: .+\naccDescr: .+$/m, 'speculative-decoding Mermaid source must include accessible title and description');
   const originalDiagram = extractMermaid(readFileSync(join(sourceRoot, 'components/preprocessors/speculative-decoding.mdx'), 'utf8'), 'source speculative-decoding page');
-  const targetDiagramBlocks = [...diagram.matchAll(/^\[mermaid\]\s*\r?\n-{4,}\r?\n([\s\S]*?)\r?\n-{4,}\s*$/gm)].map(([, body]) => body);
+  const targetDiagramBlocks = [...diagram.matchAll(/^\[mermaid\]\s*\r?\n\.{4,}\r?\n([\s\S]*?)\r?\n\.{4,}\s*$/gm)].map(([, body]) => body);
   assert.equal(targetDiagramBlocks.length, 1, 'speculative-decoding target must contain exactly one Mermaid diagram');
   assert.equal(normalizeDiagram(targetDiagramBlocks[0]), originalDiagram, 'speculative-decoding Mermaid graph differs from source after accessibility metadata is removed');
   assert.match(diagram, /xref:components\/preprocessors\/whitespace-normalization\.adoc\[/, 'speculative-decoding page must link to mapped whitespace page');
