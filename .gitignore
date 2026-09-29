@@ -167,7 +167,8 @@ Thumbs.db
 # Agents
 .omo/
 
-# Fumadocs generated output and local dependencies
+# Documentation generated output and local dependencies
+docs/build/
 docs/.source/
 docs/tsconfig.tsbuildinfo
 docs/.next/
