@@ -22,7 +22,7 @@ risk verdict.
 Install CerbIA with CLI support, validate the example configuration, and scan
 text:
 
-[source,console]
+[source,bash]
 ----
 pip install "cerbia[cli]"
 cerbia validate examples/cli-usage/config.cerbia.yaml
