@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -103,11 +106,49 @@ function option(name, fallback) {
   return resolve(args[index + 1]);
 }
 
+function frozenSource(row, sourceRoot) {
+  const source = readFileSync(join(sourceRoot, row.source.slice('docs/content/docs/'.length)), 'utf8');
+  assert.equal(createHash('sha256').update(source).digest('hex'), row.sha256,
+    `package source changed from frozen baseline: ${row.source}`);
+  return source;
+}
+
 try {
+  if (args.includes('--self-test')) {
+    assert.deepEqual(args, ['--self-test'], 'usage: check-content-packages.mjs --self-test');
+    const fixtures = [
+      { name: 'gateway-title', module: 'main', page: 'packages', find: '= Packages', replace: '= Wrong packages', expected: /package gateway title differs/ },
+      { name: 'core-pipeline-order', module: 'cerbia-core', page: 'index', find: 'preprocessors in order, then evaluates each resulting entry through the gate.', replace: 'preprocessors independently.', expected: /core pipeline order and scanner behavior/ },
+    ];
+    for (const fixture of fixtures) {
+      const root = mkdtempSync(join(tmpdir(), `cerbia-package-${fixture.name}-`));
+      try {
+        for (const module of ['main', ...packageModules]) {
+          const sourceDir = join(repoRoot, 'docs/src/modules', module);
+          const targetDir = join(root, 'modules', module);
+          mkdirSync(join(targetDir, 'pages'), { recursive: true });
+          cpSync(join(sourceDir, 'nav.adoc'), join(targetDir, 'nav.adoc'));
+          const page = module === 'main' ? 'packages' : 'index';
+          cpSync(join(sourceDir, 'pages', `${page}.adoc`), join(targetDir, 'pages', `${page}.adoc`));
+        }
+        const path = join(root, 'modules', fixture.module, 'pages', `${fixture.page}.adoc`);
+        const contents = readFileSync(path, 'utf8');
+        assert.ok(contents.includes(fixture.find), `fixture anchor missing: ${fixture.name}`);
+        writeFileSync(path, contents.replace(fixture.find, fixture.replace));
+        const result = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--content', '--group', 'packages', '--allow-pending-targets', '--content-root', root], { encoding: 'utf8' });
+        assert.equal(result.status, 1, `${fixture.name} unexpectedly passed: ${result.stdout}${result.stderr}`);
+        assert.match(result.stderr, fixture.expected, `${fixture.name} failed for the wrong reason`);
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
+    console.log('PACKAGE_CONTENT_NEGATIVE_OK fixtures=gateway-title,core-pipeline-order cleanup=true');
+    process.exit(0);
+  }
   assert.ok(args.includes('--content'), 'required mode: --content');
   assert.ok(args.includes('--group') && args[args.indexOf('--group') + 1] === 'packages', 'required group: packages');
   const allowedFlags = ['--content', '--group', 'packages', '--allow-pending-targets'];
-  const valueOptions = ['--manifest', '--content-root'];
+  const valueOptions = ['--manifest', '--content-root', '--source-root'];
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
     if (valueOptions.includes(arg)) {
@@ -120,6 +161,7 @@ try {
 
   const manifestPath = option('--manifest', join(repoRoot, 'docs/scripts/migration/legacy-routes.json'));
   const contentRoot = option('--content-root', join(repoRoot, 'docs/src'));
+  const sourceRoot = option('--source-root', join(repoRoot, 'docs/content/docs'));
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
   const packageRoutes = manifest.routes.filter(({ source }) => source.startsWith('docs/content/docs/packages/'));
   assert.equal(packageRoutes.length, packageRows.length, 'expected seven frozen package source rows');
@@ -135,6 +177,14 @@ try {
   const gatewayPath = join(contentRoot, 'modules/main/pages/packages.adoc');
   assert.ok(existsSync(gatewayPath), 'missing main packages gateway');
   const gateway = readFileSync(gatewayPath, 'utf8');
+  const gatewaySource = frozenSource(packageRoutes.find(({ source }) => source.endsWith('/index.mdx')), sourceRoot);
+  const gatewaySourceTitle = gatewaySource.match(/^title:\s*["']([^"']+)["']\s*$/m)?.[1];
+  const gatewayTitle = gateway.match(/^=\s+(.+)$/m)?.[1];
+  assert.ok(gatewaySourceTitle, 'missing package gateway title in source MDX');
+  assert.equal(gatewayTitle, gatewaySourceTitle, 'package gateway title differs from source MDX');
+  for (const module of packageModules) {
+    assert.ok(gatewaySource.includes(`\`${module}\``), `package index source omits distribution: ${module}`);
+  }
   const gatewayTargets = [...gateway.matchAll(/\bxref:([a-z][a-z0-9-]*):index\.adoc\[([^\]]+)\]/g)]
     .map(([, module]) => module);
   assert.deepEqual(gatewayTargets, packageModules, 'gateway must link each package module once and in manifest order');
@@ -157,6 +207,18 @@ try {
     assert.equal([...nav.matchAll(/^\* xref:index\.adoc\[[^\]]+\]$/gm)].length, 1,
       `package module nav must link its index exactly once: ${module}`);
     const source = readFileSync(pagePath, 'utf8');
+    const sourcePath = `packages/${module}.mdx`;
+    const sourceMdx = frozenSource(packageRoutes.find(({ source: path }) => path === `docs/content/docs/${sourcePath}`), sourceRoot);
+    const sourceTitle = sourceMdx.match(/^title:\s*["']([^"']+)["']\s*$/m)?.[1];
+    const targetTitle = source.match(/^=\s+(.+)$/m)?.[1];
+    assert.ok(sourceTitle, `missing package title in source MDX: ${sourcePath}`);
+    assert.equal(targetTitle, sourceTitle, `target title differs from source title: ${sourcePath}`);
+    if (module === 'cerbia-core') {
+      assert.match(sourceMdx, /requires at least one loader and scanner\. It applies preprocessors in\s+order, then evaluates each resulting entry through the configured scanner set\./,
+        'core source pipeline contract changed');
+      assert.match(source.replace(/\s+/g, ' '), /requires at least one loader and scanner\. It applies configured preprocessors in order, then evaluates each resulting entry through the gate\./,
+        'core pipeline order and scanner behavior missing from target');
+    }
     const normalizedSource = source.replace(/\s+/g, ' ');
     assert.match(source, new RegExp(`^= ${module.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\n:description: .+$`, 'm'),
       `missing title or description: ${pageId}`);
