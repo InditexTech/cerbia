@@ -56,6 +56,8 @@ function outputPath(siteDir, version, pageId) {
 }
 
 function renderedDiagrams(html, context) {
+  const ids = [...html.matchAll(/\sid=["']([^"']+)["']/g)].map(([, id]) => id);
+  assert.equal(new Set(ids).size, ids.length, `${context}: duplicate HTML id`);
   const containers = [...html.matchAll(/<div\b(?=[^>]*\bclass="[^"]*\bdocouture-diagram\b[^"]*")(?=[^>]*\bdata-diagram-type="mermaid")[^>]*>([\s\S]*?)<\/div><\/div>/g)];
   return containers.map(([, body], index) => {
     const svg = body.match(/<svg\b([^>]*)>([\s\S]*?)<\/svg>/);
@@ -67,10 +69,10 @@ function renderedDiagrams(html, context) {
       const descriptionId = content.match(/<desc\b[^>]*\bid="([^"]+)"/)?.[1];
       const labelledBy = attributes.match(/\baria-labelledby="([^"]+)"/)?.[1]?.split(/\s+/) ?? [];
       const describedBy = attributes.match(/\baria-describedby="([^"]+)"/)?.[1]?.split(/\s+/) ?? [];
-      const accessibleTitle = title && title.length >= 4 && titleId && labelledBy.some((reference) => titleId === reference || titleId.endsWith(`-${reference}`));
-      const accessibleDescription = description && description.length >= 12 && descriptionId && describedBy.some((reference) => descriptionId === reference || descriptionId.endsWith(`-${reference}`));
-      assert.ok(title && title.length >= 4 && (accessibleTitle || labelledBy.includes('title')), `${context} diagram ${index + 1}: SVG needs an accessible title and aria-labelledby`);
-      assert.ok(description && description.length >= 12 && (accessibleDescription || describedBy.includes('desc')), `${context} diagram ${index + 1}: SVG needs a meaningful description and aria-describedby`);
+      assert.ok(title && title.length >= 4 && titleId && labelledBy.length === 1 && labelledBy[0] === titleId,
+        `${context} diagram ${index + 1}: aria-labelledby must resolve exactly to its own SVG title id`);
+      assert.ok(description && description.length >= 12 && descriptionId && describedBy.length === 1 && describedBy[0] === descriptionId,
+        `${context} diagram ${index + 1}: aria-describedby must resolve exactly to its own SVG desc id`);
       return { kind: 'svg', title, description };
     }
 
