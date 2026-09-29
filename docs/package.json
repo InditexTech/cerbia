@@ -8,8 +8,8 @@
   "scripts": {
     "dev": "next dev --turbo",
     "build": "next build",
-    "build:site": "antora --fetch --log-failure-level warn antora-playbook.yml",
-    "build:site:local": "antora --fetch --log-failure-level warn antora-playbook.local.yml",
+    "build:site": "antora --fetch --log-failure-level warn antora-playbook.yml && node scripts/migration/fix-search-index.mjs --site-dir build/site --version stable --allow-build-dir",
+    "build:site:local": "antora --fetch --log-failure-level warn antora-playbook.local.yml && node scripts/migration/fix-search-index.mjs --site-dir build/site --version prerelease --allow-build-dir",
     "build:site:strict": "node scripts/migration/build-and-check-diagrams.mjs --mode full --playbook antora-playbook.local.yml --version prerelease",
     "build:site:strict:stable": "node scripts/migration/build-and-check-diagrams.mjs --mode full --playbook antora-playbook.yml --version stable",
     "build:site:sample": "node scripts/migration/build-and-check-diagrams.mjs --mode sample --playbook antora-playbook.local.yml --version prerelease",

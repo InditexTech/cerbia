@@ -11,6 +11,7 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const docsRoot = join(repoRoot, 'docs');
 const antoraEntrypoint = join(docsRoot, 'node_modules/antora/bin/antora');
 const checker = join(docsRoot, 'scripts/migration/check-diagrams.mjs');
+const searchIndexFixer = join(docsRoot, 'scripts/migration/fix-search-index.mjs');
 
 function parseArgs(argv) {
   const options = {};
@@ -68,6 +69,12 @@ function main() {
     if (!existsSync(join(outputDir, options.version, 'index.html'))) {
       console.error(`DIAGRAM_BUILD_FAILED: Antora exited ${buildExit} without producing ${options.version}/index.html`);
       process.exitCode = 1;
+      return;
+    }
+
+    const searchFixExit = run(process.execPath, [searchIndexFixer, '--site-dir', outputDir, '--version', options.version], docsRoot);
+    if (searchFixExit !== 0) {
+      process.exitCode = searchFixExit;
       return;
     }
 
