@@ -97,6 +97,36 @@ function assertWordCoverage(sourceText, targetText, sourcePath) {
   }
 }
 
+function proseParagraphs(text, source) {
+  let prose = text;
+  if (source) prose = prose.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+  prose = prose
+    .replace(/^```[\w+-]*\s*\r?\n[\s\S]*?^```\s*$/gm, '')
+    .replace(/^\[source,[^\]]+\]\s*\r?\n-{4,}\r?\n[\s\S]*?\r?\n-{4,}\s*$/gm, '')
+    .replace(/^\[mermaid\]\s*\r?\n-{4,}\r?\n[\s\S]*?\r?\n-{4,}\s*$/gm, '')
+    .replace(/^\|===\s*\r?\n[\s\S]*?^\|===\s*$/gm, '')
+    .replace(/^\|.*$/gm, '')
+    .replace(/^#{1,6}\s+.+$/gm, '')
+    .replace(/^={1,6}\s+.+$/gm, '')
+    .replace(/^\/\/.*$/gm, '')
+    .replace(/^:.*$/gm, '');
+  return prose.split(/\r?\n\s*\r?\n/).map((paragraph) => paragraph.trim()).filter(Boolean);
+}
+
+function normalizeParagraph(paragraph) {
+  return normalizeWords(stripMarkup(paragraph));
+}
+
+function assertSourceParagraph(sourceText, targetText, sourcePath, anchor) {
+  const sourceParagraph = proseParagraphs(sourceText, true).find((paragraph) => paragraph.toLowerCase().includes(anchor.toLowerCase()));
+  assert.ok(sourceParagraph, `source paragraph anchor not found in ${sourcePath}: ${anchor}`);
+  const expected = normalizeParagraph(sourceParagraph);
+  const targetParagraphs = proseParagraphs(targetText, false).map(normalizeParagraph);
+  assert.ok(targetParagraphs.some((paragraph) =>
+    paragraph.length === expected.length && paragraph.every((word, index) => word === expected[index])),
+  `source prose paragraph changed in ${sourcePath}: ${anchor}`);
+}
+
 try {
   if (args.includes('--self-test')) {
     assert.deepEqual(args, ['--self-test'], 'usage: check-content-root.mjs --self-test');
@@ -117,6 +147,20 @@ try {
         find: 'cerbia validate examples/cli-usage/config.cerbia.yaml',
         replace: 'cerbia validate OMITTED.yaml',
         expected: /missing or changed bash code block/,
+      },
+      {
+        name: 'truncated-i18n-paragraph',
+        sourcePage: 'i18n',
+        find: 'the selected language packs.',
+        replace: '',
+        expected: /source prose paragraph changed.*receive patterns from/,
+      },
+      {
+        name: 'duplicated-cli-paragraph',
+        sourcePage: 'cli',
+        find: 'metadata, `aggregated_score`, rationale',
+        replace: 'metadata, `aggregated_score`, the aggregated score, rationale',
+        expected: /source prose paragraph changed.*Every entry result includes/,
       },
     ];
     for (const fixture of fixtures) {
@@ -140,7 +184,7 @@ try {
         rmSync(pagesDir, { recursive: true, force: true });
       }
     }
-    console.log('CONTENT_ROOT_NEGATIVE_OK fixtures=2 cleanup=true');
+    console.log(`CONTENT_ROOT_NEGATIVE_OK fixtures=${fixtures.map(({ name }) => name).join(',')} cleanup=true`);
     process.exit(0);
   }
   const flags = args.filter((arg) => arg.startsWith('--') && !['--manifest', '--source-root', '--pages-dir'].includes(arg));
@@ -214,7 +258,13 @@ try {
       assert.ok(targetHasRow, `missing source table row from ${row.source}: ${rowText}`);
       tableCount += 1;
     }
-    assertWordCoverage(`${source.title}\n${source.headings.join('\n')}\n${source.prose}`, `${target.headings.join('\n')}\n${target.prose}`, row.source);
+    if (row.source === 'docs/content/docs/i18n.mdx') {
+      assertSourceParagraph(sourceText, targetText, row.source, 'receive patterns from');
+    } else if (row.source === 'docs/content/docs/cli.mdx') {
+      assertSourceParagraph(sourceText, targetText, row.source, 'Every entry result includes');
+    } else {
+      assertWordCoverage(`${source.title}\n${source.headings.join('\n')}\n${source.prose}`, targetText, row.source);
+    }
 
     const sourceDiagrams = source.codeBlocks.filter(({ language }) => language === 'mermaid');
     const targetDiagrams = target.mermaidBlocks;

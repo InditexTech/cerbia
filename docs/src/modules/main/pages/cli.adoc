@@ -77,7 +77,7 @@ policy decisions remain visible.
 
 `--output` serializes a `ScanResult` with `entry_results`, `is_safe`,
 `total_findings`, and `unsafe_entries`. Every entry result includes the entry
-metadata, `aggregated_score`, the aggregated score, rationale, findings, and skipped scanners. Raw
+metadata, `aggregated_score`, rationale, findings, and skipped scanners. Raw
 entry text is included in the serialized entry, so treat JSON output as
 potentially sensitive and store it accordingly.
 

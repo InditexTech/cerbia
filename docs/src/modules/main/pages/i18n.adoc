@@ -10,6 +10,7 @@ CerbIA's i18n system is a registry of compiled, case-insensitive regular
 expressions indexed by language-code and category-key strings. Built-in packs
 use ISO-639-1 codes and currently provide English (`en`), Spanish (`es`), and
 Galician (`gl`). Consumers request the keys they need and receive patterns from
+the selected language packs.
 
 Language packs may provide a subset of categories. Missing categories and
 unknown language codes contribute no patterns, so validate a deployment's
