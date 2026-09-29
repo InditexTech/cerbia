@@ -41,7 +41,7 @@ inspect fixture text locally and do not make network requests.
 
 The command puts this scenario directory on `PYTHONPATH`, so the YAML imports
 its local `opencode_loader.OpenCodeLoader` directly. It is not a CerbIA package
-export. See [custom loaders](https://inditextech.github.io/cerbia/docs/components/loaders) for the general
+export. See [custom loaders](https://inditextech.github.io/cerbia/prerelease/main/components/loaders/) for the general
 loader contract.
 
 The loader scans only the project config and selected `.opencode` agent, command,
