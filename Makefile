@@ -66,14 +66,14 @@ verify: ## Run lint and tests for all packages, or one package with: make verify
 reuse: ## Check repository REUSE compliance
 	@uv run --locked reuse lint
 
-docs-install: ## Install locked documentation dependencies
+docs-install: ## Install locked Docouture/Antora dependencies
 	@npm --prefix docs ci
 
-docs-build: ## Type-check and build documentation with locked dependencies
-	@npm --prefix docs run verify
+docs-build: ## Build Docouture from fresh output and verify all rendered diagrams
+	@npm --prefix docs run build:site:strict
 
-docs-serve: ## Serve documentation locally with live reload
-	@npm --prefix docs run dev
+docs-serve: ## Serve Docouture locally with live reload
+	@npm --prefix docs run dev:site
 
 bump-version: ## Set every package and internal dependency to one version
 	$(call header,Bumping version to $(BUMP_VERSION))
