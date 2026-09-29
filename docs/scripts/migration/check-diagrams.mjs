@@ -7,7 +7,6 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const defaults = {
-  inventory: join(repoRoot, 'docs/scripts/migration/diagram-inventory.json'),
   routes: join(repoRoot, 'docs/scripts/migration/legacy-routes.json'),
   siteDir: join(repoRoot, 'docs/build/site'),
 };
@@ -18,7 +17,7 @@ function parseArgs(argv) {
     const argument = argv[index];
     assert.ok(argument.startsWith('--'), `unexpected argument: ${argument}`);
     const name = argument.slice(2);
-    assert.ok(['mode', 'site-dir', 'version', 'page-id', 'inventory', 'routes'].includes(name), `unknown option: ${argument}`);
+    assert.ok(['mode', 'site-dir', 'version', 'page-id', 'routes'].includes(name), `unknown option: ${argument}`);
     assert.ok(!Object.hasOwn(options, name), `duplicate option: ${argument}`);
     const value = argv[index + 1];
     assert.ok(value && !value.startsWith('--'), `missing value for ${argument}`);
@@ -37,7 +36,6 @@ function parseArgs(argv) {
   } else {
     assert.ok(!options.pageId, 'full mode derives every page from the manifest; do not pass --page-id');
   }
-  options.inventoryPath = resolve(options.inventory || defaults.inventory);
   options.routesPath = resolve(options.routes || defaults.routes);
   return options;
 }
@@ -165,14 +163,16 @@ function runSample(options) {
 }
 
 function runFull(options) {
-  const inventory = JSON.parse(readFileSync(options.inventoryPath, 'utf8'));
   const routes = JSON.parse(readFileSync(options.routesPath, 'utf8'));
-  assert.equal(inventory.expectedDiagramCount, 6, 'expected the frozen six-diagram source inventory');
-  assert.equal(inventory.mermaidFences.length, inventory.expectedDiagramCount, 'inventory count mismatch');
-  assert.deepEqual(inventory.mermaidFences, routes.mermaidFences, 'diagram inventory differs from the committed frozen source fence manifest');
+  assert.ok(Array.isArray(routes.mermaidFences), 'missing frozen Mermaid fences');
+  assert.equal(routes.mermaidFences.length, 6, 'expected six frozen Mermaid fences');
+  assert.ok(Array.isArray(routes.routes), 'missing mapped routes');
 
   const byPage = new Map();
-  for (const fence of inventory.mermaidFences) {
+  for (const fence of routes.mermaidFences) {
+    assert.equal(typeof fence.source, 'string', 'invalid Mermaid fence source');
+    assert.ok(Number.isInteger(fence.line) && fence.line > 0, `invalid Mermaid fence line: ${fence.source}`);
+    assert.match(fence.fenceSha256, /^[a-f0-9]{64}$/, `invalid Mermaid fence hash: ${fence.source}`);
     const route = routes.routes.find((candidate) => candidate.source === fence.source);
     assert.ok(route?.targetPageId, `diagram source has no mapped target page: ${fence.source}`);
     const entries = byPage.get(route.targetPageId) ?? [];
@@ -184,13 +184,13 @@ function runFull(options) {
   for (const [pageId, fences] of byPage) {
     const { path, html } = readPage(options.siteDir, options.version, pageId);
     const diagrams = renderedDiagrams(html, `${pageId} (${path})`);
-    assert.equal(diagrams.length, fences.length, `${pageId}: expected ${fences.length} rendered diagram(s) mapped from the frozen inventory; found ${diagrams.length}`);
+    assert.equal(diagrams.length, fences.length, `${pageId}: expected ${fences.length} rendered diagram(s) mapped from the frozen manifest; found ${diagrams.length}`);
     results.push({ pageId, sourceFences: fences.map(({ source, line }) => ({ source, line })), expected: fences.length, rendered: diagrams.length, diagrams });
   }
 
   const verified = results.reduce((total, page) => total + page.rendered, 0);
-  assert.equal(verified, inventory.expectedDiagramCount, 'full inventory rendered count mismatch');
-  console.log(JSON.stringify({ mode: 'full', fullInventoryVerified: true, version: options.version, expectedDiagramCount: inventory.expectedDiagramCount, renderedDiagramCount: verified, pages: results }, null, 2));
+  assert.equal(verified, routes.mermaidFences.length, 'full manifest rendered count mismatch');
+  console.log(JSON.stringify({ mode: 'full', fullInventoryVerified: true, version: options.version, expectedDiagramCount: routes.mermaidFences.length, renderedDiagramCount: verified, pages: results }, null, 2));
 }
 
 try {

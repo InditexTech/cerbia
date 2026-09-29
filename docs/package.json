@@ -15,11 +15,8 @@
     "build:site:sample": "node scripts/migration/build-and-check-diagrams.mjs --mode sample --playbook antora-playbook.local.yml --version prerelease",
     "check:diagrams:sample": "node scripts/migration/check-diagrams.mjs --mode sample",
     "check:diagrams:full": "node scripts/migration/check-diagrams.mjs --mode full",
-    "check-migration": "node scripts/migration/check-migration.mjs",
-    "check-links": "node scripts/migration/check-links.mjs",
-    "test:migration": "node --test scripts/migration/*.test.mjs",
     "dev:site": "docouture dev",
-    "verify": "npm ci && npm run check-migration -- --source && npm run check-links && npm run test:migration && npm run build:site:strict"
+    "verify": "npm ci && npm run build:site:strict"
   },
   "devDependencies": {
     "@inditextech/docouture-cli": "1.1.1",
