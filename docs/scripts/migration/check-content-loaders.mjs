@@ -199,6 +199,32 @@ function assertProseCoverage(source, target, sourcePath, targetId) {
   return { sourceTokens: expected.size, targetCoverage: Number(coverage.toFixed(4)), checkedProseBlocks: proseBlocks.length, missingTokens: missing };
 }
 
+function assertPreprocessorOverviewGuarantees(source, target, targetId) {
+  const sourceText = sourceProse(source).toLowerCase().replace(/\s+/g, ' ');
+  const targetText = targetProse(target).toLowerCase().replace(/\s+/g, ' ');
+  const sourceClaims = {
+    cardinality: /\binput-entry cardinality\b/.test(sourceText),
+    order: /\boutput of one preprocessor is the input to the next\b/.test(sourceText),
+    lineage: /\bretains preprocessing lineage metadata\b/.test(sourceText),
+  };
+
+  assert.deepEqual(sourceClaims, { cardinality: true, order: true, lineage: true },
+    'preprocessor source overview guarantee changed; update its source-anchored content contract');
+
+  const preserved = '(?:preserv\\w*|retain\\w*|keep\\w*|maintain\\w*|carr\\w*)';
+  const cardinality = new RegExp(`(?:${preserved}[^.\\n]{0,100}(?:input[- ]entry )?cardinality|(?:input[- ]entry )?cardinality[^.\\n]{0,100}${preserved}|(?:one|same) (?:entry|output) per (?:input|entry)|(?:one|same) (?:entry|output|result) for every input|every input (?:gets|produces|returns|yields) one (?:entry|output|result))`);
+  assert.match(targetText, cardinality,
+    `missing source-derived input-entry cardinality guarantee in ${targetId}`);
+
+  const orderedFlow = /(?:output|result)[^.\n]{0,100}(?:next|following)[^.\n]{0,60}(?:input|preprocessor)|(?:next|following)[^.\n]{0,100}(?:input|preprocessor)|(?:entries|results|output)[^.\n]{0,80}(?:same|original|stable) order|(?:preserv\w*|retain\w*|keep\w*|maintain\w*)[^.\n]{0,50}(?:entry )?order|(?:entries|preprocessors)[^.\n]{0,80}(?:configured|declared|specified|given) (?:order|sequence)|(?:apply|run|process|configure)\w*[^.\n]{0,80}(?:configured|declared|specified|given) (?:order|sequence)/;
+  assert.match(targetText, orderedFlow,
+    `missing source-derived ordered preprocessor output flow in ${targetId}`);
+
+  const lineage = new RegExp(`(?:${preserved}[^.\\n]{0,80}lineage[^.\\n]{0,40}(?:metadata|data|information)|${preserved}[^.\\n]{0,80}(?:metadata|data|information)[^.\\n]{0,40}lineage|lineage[^.\\n]{0,80}${preserved}[^.\\n]{0,40}(?:metadata|data|information)|(?:lineage|metadata|data|information)[^.\\n]{0,80}(?:carry|move|flow|travel|pass)\\w*[^.\\n]{0,40}(?:forward|through|between)|(?:carry|move|flow|travel|pass)\\w*[^.\\n]{0,80}lineage[^.\\n]{0,40}(?:metadata|data|information))`);
+  assert.match(targetText, lineage,
+    `missing source-derived preprocessing lineage metadata guarantee in ${targetId}`);
+}
+
 function extractMermaid(source, label) {
   const blocks = [...source.matchAll(/^```mermaid\s*\r?\n([\s\S]*?)^```\s*$/gm)].map(([, body]) => body.trim());
   assert.equal(blocks.length, 1, `${label} must contain exactly one Mermaid diagram`);
@@ -263,6 +289,9 @@ function run() {
     const uncommentedPage = page.replace(/^\/\/.*$/gm, '');
     assert.ok(!uncommentedPage.includes('.mdx'), `unconverted MDX link in ${contract.id}`);
     const parity = assertSourceParity(sourceText, page, source, contract.id);
+    if (contract.id === 'main:components/preprocessors') {
+      assertPreprocessorOverviewGuarantees(sourceText, page, contract.id);
+    }
 
     const xrefs = [...page.matchAll(/\bxref:([^\s\[]+)\[[^\]]*\]/g)].map(([, reference]) => reference);
     for (const reference of xrefs) {
