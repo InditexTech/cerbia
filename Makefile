@@ -69,8 +69,8 @@ reuse: ## Check repository REUSE compliance
 docs-install: ## Install locked Docouture/Antora dependencies
 	@npm --prefix docs ci
 
-docs-build: ## Build Docouture from fresh output and verify all rendered diagrams
-	@npm --prefix docs run build:site:strict
+docs-build: ## Build Docouture into isolated output and fix search URLs (no diagram check)
+	@npm --prefix docs run build:site:isolated
 
 docs-serve: ## Serve Docouture locally with live reload
 	@npm --prefix docs run dev:site

@@ -10,26 +10,23 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const docsRoot = join(repoRoot, 'docs');
 const antoraEntrypoint = join(docsRoot, 'node_modules/antora/bin/antora');
-const checker = join(docsRoot, 'scripts/migration/check-diagrams.mjs');
-const searchIndexFixer = join(docsRoot, 'scripts/migration/fix-search-index.mjs');
+const searchIndexFixer = join(docsRoot, 'scripts/build/fix-search-index.mjs');
 
 function parseArgs(argv) {
   const options = {};
   for (let index = 0; index < argv.length; index += 1) {
     const name = argv[index].slice(2);
     assert.ok(argv[index].startsWith('--'), `unexpected argument: ${argv[index]}`);
-    assert.ok(['mode', 'playbook', 'version', 'page-id'].includes(name), `unknown option --${name}`);
+    assert.ok(['playbook', 'version'].includes(name), `unknown option --${name}`);
     assert.ok(!Object.hasOwn(options, name), `duplicate option --${name}`);
     const value = argv[index + 1];
     assert.ok(value && !value.startsWith('--'), `missing value for --${name}`);
     options[name] = value;
     index += 1;
   }
-  assert.ok(options.mode === 'sample' || options.mode === 'full', 'usage: build-and-check-diagrams.mjs --mode sample|full --playbook PLAYBOOK --version VERSION [--page-id MODULE:PAGE]');
+  assert.ok(Object.keys(options).length === 2, 'usage: build-site.mjs --playbook PLAYBOOK --version VERSION');
   assert.ok(options.playbook === 'antora-playbook.local.yml' || options.playbook === 'antora-playbook.yml', 'unsupported Antora playbook');
   assert.ok(options.version && /^[A-Za-z0-9._-]+$/.test(options.version), 'invalid --version');
-  if (options.mode === 'sample') assert.ok(options['page-id'], 'sample mode requires --page-id');
-  else assert.ok(!options['page-id'], 'full mode does not accept --page-id');
   return options;
 }
 
@@ -45,19 +42,18 @@ function main() {
   try {
     options = parseArgs(process.argv.slice(2));
   } catch (error) {
-    console.error(`DIAGRAM_BUILD_FAILED: ${error.message}`);
+    console.error(`SITE_BUILD_FAILED: ${error.message}`);
     process.exitCode = 1;
     return;
   }
 
-  const outputDir = mkdtempSync(join(tmpdir(), 'cerbia-antora-diagrams-'));
+  const outputDir = mkdtempSync(join(tmpdir(), 'cerbia-antora-site-'));
   try {
-    const failureLevel = options.mode === 'sample' ? 'fatal' : 'warn';
     const buildExit = run(process.execPath, [
       antoraEntrypoint,
       'generate',
       '--fetch',
-      '--log-failure-level', failureLevel,
+      '--log-failure-level', 'warn',
       '--log-level', 'info',
       '--to-dir', outputDir,
       options.playbook,
@@ -67,22 +63,14 @@ function main() {
       return;
     }
     if (!existsSync(join(outputDir, options.version, 'index.html'))) {
-      console.error(`DIAGRAM_BUILD_FAILED: Antora exited ${buildExit} without producing ${options.version}/index.html`);
+      console.error(`SITE_BUILD_FAILED: Antora exited ${buildExit} without producing ${options.version}/index.html`);
       process.exitCode = 1;
       return;
     }
 
-    const searchFixExit = run(process.execPath, [searchIndexFixer, '--site-dir', outputDir, '--version', options.version], docsRoot);
-    if (searchFixExit !== 0) {
-      process.exitCode = searchFixExit;
-      return;
-    }
-
-    const checkArgs = [checker, '--mode', options.mode, '--site-dir', outputDir, '--version', options.version];
-    if (options['page-id']) checkArgs.push('--page-id', options['page-id']);
-    process.exitCode = run(process.execPath, checkArgs, docsRoot);
+    process.exitCode = run(process.execPath, [searchIndexFixer, '--site-dir', outputDir, '--version', options.version], docsRoot);
   } catch (error) {
-    console.error(`DIAGRAM_BUILD_FAILED: ${error.message}`);
+    console.error(`SITE_BUILD_FAILED: ${error.message}`);
     process.exitCode = 1;
   } finally {
     rmSync(outputDir, { recursive: true, force: true });

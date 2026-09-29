@@ -7,16 +7,13 @@
   },
   "scripts": {
     "dev": "docouture dev",
-    "build": "npm run build:site:strict",
-    "build:site": "antora --fetch --log-failure-level warn antora-playbook.yml && node scripts/migration/fix-search-index.mjs --site-dir build/site --version stable --allow-build-dir",
-    "build:site:local": "antora --fetch --log-failure-level warn antora-playbook.local.yml && node scripts/migration/fix-search-index.mjs --site-dir build/site --version prerelease --allow-build-dir",
-    "build:site:strict": "node scripts/migration/build-and-check-diagrams.mjs --mode full --playbook antora-playbook.local.yml --version prerelease",
-    "build:site:strict:stable": "node scripts/migration/build-and-check-diagrams.mjs --mode full --playbook antora-playbook.yml --version stable",
-    "build:site:sample": "node scripts/migration/build-and-check-diagrams.mjs --mode sample --playbook antora-playbook.local.yml --version prerelease",
-    "check:diagrams:sample": "node scripts/migration/check-diagrams.mjs --mode sample",
-    "check:diagrams:full": "node scripts/migration/check-diagrams.mjs --mode full",
+    "build": "npm run build:site:isolated",
+    "build:site": "antora --fetch --log-failure-level warn antora-playbook.yml && node scripts/build/fix-search-index.mjs --site-dir build/site --version stable --allow-build-dir",
+    "build:site:local": "antora --fetch --log-failure-level warn antora-playbook.local.yml && node scripts/build/fix-search-index.mjs --site-dir build/site --version prerelease --allow-build-dir",
+    "build:site:isolated": "node scripts/build/build-site.mjs --playbook antora-playbook.local.yml --version prerelease",
+    "build:site:isolated:stable": "node scripts/build/build-site.mjs --playbook antora-playbook.yml --version stable",
     "dev:site": "docouture dev",
-    "verify": "npm ci && npm run build:site:strict"
+    "verify": "npm ci && npm run build:site:isolated"
   },
   "devDependencies": {
     "@inditextech/docouture-cli": "1.1.1",

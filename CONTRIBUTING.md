@@ -91,8 +91,8 @@ through uv, so no globally installed Python tooling is required.
 Documentation uses Docouture and Antora. Install Node.js 24 or later, npm, and
 Docker with a running daemon. The site renders Mermaid diagrams through a local
 Kroki service; the Antora extension starts it with Docker Compose when needed.
-From the repository root, install locked dependencies, build the site with a
-strict check of all six rendered diagrams, or start the live development server:
+From the repository root, install locked dependencies, build the site in an
+isolated directory, or start the live development server:
 
 ```bash
 make docs-install
@@ -104,12 +104,13 @@ The equivalent commands from `docs/` are:
 
 ```bash
 npm ci
-npm run build:site:strict
+npm run build:site:isolated
 npm run dev:site
 ```
 
-`make docs-build` builds into a fresh, temporary Antora output directory and
-checks its generated pages for accessible rendered SVG or images. It fails if
-Kroki is unavailable or diagrams fall back to raw Mermaid source; a successful
-Antora process alone is not proof of a complete render. The strict build cleans
-up its temporary output and does not replace the live server's `docs/build/`.
+`make docs-build` builds into a fresh, temporary Antora output directory, fixes
+search index URLs for the `/cerbia/` mount, and removes that output afterward.
+It does not replace the live server's `docs/build/`. The build checks Antora's
+exit status and generated home page, but does not check diagram count or SVG
+accessibility. Kroki failures may fall back to raw Mermaid without failing
+Antora; a successful build is not proof that diagrams rendered.
