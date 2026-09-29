@@ -1,0 +1,16 @@
+docs/supplemental-ui/css/mobile-content-overflow.css
+  h_d6d31939214ddd 1-42
+docs/supplemental-ui/partials/head-styles.hbs
+  h_d6d31939214ddd 1-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ee9c32f5117771b51f5e3b15b7b656c02ba708fd",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
