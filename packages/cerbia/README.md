@@ -6,4 +6,4 @@ The metadata-only CerbIA installation selector. It installs `cerbia-core` but do
 pip install "cerbia[cli]"
 ```
 
-Choose `cli`, `ml`, `presidio`, `protectai`, or `all` extras as needed. Read the [full package reference](https://inditextech.github.io/cerbia/docs/packages/cerbia).
+Choose `cli`, `ml`, `presidio`, `protectai`, or `all` extras as needed. Read the [full package reference](https://inditextech.github.io/cerbia/prerelease/cerbia/).
