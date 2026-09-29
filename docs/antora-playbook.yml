@@ -38,6 +38,7 @@ asciidoc:
     page-pagination: '@'
   extensions:
     - '@inditextech/docouture-asciidoc-extensions'
+    - ./scripts/migration/diagram-accessibility.cjs
 antora:
   extensions:
     - require: '@inditextech/docouture-antora-extensions'
