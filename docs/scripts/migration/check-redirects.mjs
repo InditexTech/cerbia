@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { basePath, routes, safeFile, selectedVersion } from './redirect-routes.mjs';
+import { aliasHtml, basePath, routes, safeFile, selectedVersion } from './redirect-routes.mjs';
 
 try {
   const args = process.argv.slice(2);
@@ -28,10 +28,7 @@ try {
     expected.add(alias);
     const page = route.targetParts.slice(0, -1).join('/');
     const target = `${basePath}${version}/${page}${page ? '/' : ''}`;
-    const html = readFileSync(alias, 'utf8');
-    assert.ok(html.includes('<noscript>') && html.includes('<main>'), `missing visible/no-JS fallback: ${route.oldUrl}`);
-    assert.deepEqual([...html.matchAll(/<a\s+href="([^"]+)"/g)].map(([, href]) => href), [target, target], `wrong visible/no-JS links: ${route.oldUrl}`);
-    assert.ok(html.includes(`new URL(${JSON.stringify(target)}, location.origin)`) && html.includes('destination.search = location.search;') && html.includes('destination.hash = location.hash;') && html.includes('location.replace(destination.href)'), `unsafe or stale redirect: ${route.oldUrl}`);
+    assert.equal(readFileSync(alias, 'utf8'), aliasHtml(target), `unexpected alias HTML: ${route.oldUrl}`);
   }
   const docsDir = safeFile(site, ['docs']);
   function visit(dir) {

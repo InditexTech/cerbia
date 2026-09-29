@@ -102,6 +102,16 @@ test('Given an unexpected alias or forged redirect, when checking, then artifact
   assert.equal(run('check-redirects.mjs', site).status, 1);
 });
 
+test('Given an appended executable script, when checking, then artifact fails', (t) => {
+  const site = fixture();
+  t.after(() => rmSync(site, { recursive: true, force: true }));
+  assert.equal(run('generate-redirects.mjs', site).status, 0);
+  const alias = join(site, 'docs/index.html');
+  writeFileSync(alias, `${readFileSync(alias, 'utf8')}<script>location.replace("https://example.invalid/")</script>`);
+  const result = run('check-redirects.mjs', site);
+  assert.equal(result.status, 1, `appended script bypassed checker: ${result.stdout}`);
+});
+
 test('Given a symlink in the alias tree, when generating, then path is rejected', (t) => {
   const site = fixture();
   t.after(() => rmSync(site, { recursive: true, force: true }));
