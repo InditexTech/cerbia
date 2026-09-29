@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -90,6 +90,154 @@ test('artifact mode requires every alias, canonical target, and all six rendered
   mkdirSync(join(site, 'stable'), { recursive: true });
   writeFileSync(join(site, 'stable/index.html'), '<main><h1>Stale stable home</h1></main>');
   assertFailure(check(), 'stale partial stable output');
+});
+
+test('search-index URLs include the mounted base path for prerelease and stable without changing assets', (t) => {
+  const site = mkdtempSync(join(tmpdir(), 'cerbia-migration-search-'));
+  t.after(() => rmSync(site, { recursive: true, force: true }));
+  const searchDir = join(site, '_/search');
+  const cssDir = join(site, '_/css');
+  mkdirSync(searchDir, { recursive: true });
+  mkdirSync(cssDir, { recursive: true });
+  for (const version of ['prerelease', 'stable']) {
+    mkdirSync(join(site, version), { recursive: true });
+    writeFileSync(join(site, version, 'index.html'), `<main>${version}</main>`);
+  }
+  const asset = join(cssDir, 'site.css');
+  const assetContents = 'body { color: black; }';
+  writeFileSync(asset, assetContents);
+
+  for (const version of ['prerelease', 'stable']) {
+    writeFileSync(join(searchDir, `ROOT-${version}.json`), JSON.stringify({
+      records: [
+        { title: 'Keyword scanner', url: `/${version}/main/components/scanners/keyword/` },
+        { title: 'Section', url: `/${version}/main/components/scanners/keyword/#parameters` },
+        { title: 'Mounted home', url: '/cerbia/' },
+        { title: 'Asset', url: '/_/css/site.css' },
+        { title: 'External', url: 'https://example.invalid/docs/' },
+      ],
+    }));
+  }
+
+  const normalize = (version) => run('fix-search-index.mjs', '--site-dir', site, '--version', version);
+  for (const version of ['prerelease', 'stable']) {
+    assert.equal(normalize(version).status, 0);
+    const { records } = JSON.parse(readFileSync(join(searchDir, `ROOT-${version}.json`), 'utf8'));
+    assert.deepEqual(records.map(({ url }) => url), [
+      `/cerbia/${version}/main/components/scanners/keyword/`,
+      `/cerbia/${version}/main/components/scanners/keyword/#parameters`,
+      '/cerbia/',
+      '/_/css/site.css',
+      'https://example.invalid/docs/',
+    ]);
+  }
+  assert.equal(normalize('prerelease').status, 0, 'normalizing an already normalized index is idempotent');
+  const malformed = join(searchDir, 'ROOT-stable.json');
+  for (const url of [
+    '/other-version/main/page/',
+    '/cerbia/prerelease/main/page/',
+    '/cerbia/cerbia/stable/main/page/',
+  ]) {
+    writeFileSync(malformed, JSON.stringify({ records: [{ url }] }));
+    assertFailure(normalize('stable'), `malformed search URL must fail instead of being ignored: ${url}`);
+  }
+  assert.equal(readFileSync(asset, 'utf8'), assetContents, 'non-search site assets remain unchanged');
+  assertFailure(run('fix-search-index.mjs', '--site-dir', join(repo, 'docs/build/site'), '--version', 'stable'),
+    'build output is protected unless explicitly selected by a build command');
+});
+
+test('search-index fixer rejects URL traversal and noncanonical paths before writing', (t) => {
+  const site = mkdtempSync(join(tmpdir(), 'cerbia-migration-search-url-'));
+  t.after(() => rmSync(site, { recursive: true, force: true }));
+  mkdirSync(join(site, 'stable'), { recursive: true });
+  mkdirSync(join(site, '_/search'), { recursive: true });
+  writeFileSync(join(site, 'stable/index.html'), '<main>stable</main>');
+  const path = join(site, '_/search/ROOT-stable.json');
+  for (const url of [
+    '/stable/../prerelease/main/page/',
+    '/stable/%2e%2e/prerelease/main/page/',
+    '/cerbia/stable/../prerelease/main/page/',
+    '/cerbia/stable/%2e%2e/prerelease/main/page/',
+    '/stable//evil.invalid/main/page/',
+    '/stable/%6dain/page/',
+    '/stable/main/page/%2fadmin/',
+    '/stable/main/page/?q=has space',
+    '/cerbia/stable/main/page/#bad space',
+    '/stable/main/page/?q=%2f',
+    '/stable/main/page/#bad%zz',
+    '/_/../stable/main/page/',
+    '/cerbia/_/../stable/main/page/',
+  ]) {
+    const original = JSON.stringify({ records: [{ title: 'Unsafe', url }] });
+    writeFileSync(path, original);
+    const result = run('fix-search-index.mjs', '--site-dir', site, '--version', 'stable');
+    assertFailure(result, `unsafe search URL was accepted: ${url}`);
+    assert.equal(readFileSync(path, 'utf8'), original, `invalid URL mutated index before rejection: ${url}`);
+  }
+  const original = JSON.stringify({ records: [{ title: 'Valid', url: '/stable/main/page/?from=search#section' }] });
+  writeFileSync(path, original);
+  assert.equal(run('fix-search-index.mjs', '--site-dir', site, '--version', 'stable').status, 0);
+  assert.deepEqual(JSON.parse(readFileSync(path, 'utf8')).records[0].url,
+    '/cerbia/stable/main/page/?from=search#section');
+  const navigationLinks = {
+    query: '/stable/main/page/?query=A%20B&next=%2Fadmin',
+    fragment: '/stable/main/page/#part%20one',
+    combined: '/stable/main/page/?next=%2Fadmin#part%20one',
+  };
+  for (const url of Object.values(navigationLinks)) {
+    writeFileSync(path, JSON.stringify({ records: [{ url }] }));
+    assert.equal(run('fix-search-index.mjs', '--site-dir', site, '--version', 'stable').status, 0,
+      `well-formed encoded query/fragment should be preserved: ${url}`);
+    const rewritten = JSON.parse(readFileSync(path, 'utf8')).records[0].url;
+    assert.equal(rewritten, `/cerbia${url}`);
+  }
+});
+
+test('search-index fixer rejects symlinked site, parent, and index paths without changing external files', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'cerbia-migration-search-symlink-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const site = join(root, 'site');
+  const external = join(root, 'external');
+  mkdirSync(join(site, 'stable'), { recursive: true });
+  mkdirSync(join(site, '_/search'), { recursive: true });
+  mkdirSync(join(external, 'stable'), { recursive: true });
+  mkdirSync(join(external, '_/search'), { recursive: true });
+  writeFileSync(join(site, 'stable/index.html'), '<main>stable</main>');
+  writeFileSync(join(external, 'stable/index.html'), '<main>external</main>');
+  const externalIndex = join(external, '_/search/ROOT-stable.json');
+  const sentinel = JSON.stringify({ records: [{ url: '/stable/main/page/' }] });
+  writeFileSync(externalIndex, sentinel);
+
+  const symlinkIndex = join(site, '_/search/ROOT-stable.json');
+  symlinkSync(externalIndex, symlinkIndex);
+  assertFailure(run('fix-search-index.mjs', '--site-dir', site, '--version', 'stable'), 'symlinked search index must be refused');
+  assert.equal(readFileSync(externalIndex, 'utf8'), sentinel, 'external index target must remain unchanged');
+  rmSync(symlinkIndex);
+
+  const searchDirectory = join(site, '_/search');
+  rmSync(searchDirectory, { recursive: true });
+  symlinkSync(join(external, '_/search'), searchDirectory, 'dir');
+  assertFailure(run('fix-search-index.mjs', '--site-dir', site, '--version', 'stable'), 'symlinked search directory must be refused');
+  assert.equal(readFileSync(externalIndex, 'utf8'), sentinel, 'external search directory target must remain unchanged');
+  unlinkSync(searchDirectory);
+
+  const assetDirectory = join(site, '_');
+  rmSync(assetDirectory, { recursive: true });
+  symlinkSync(join(external, '_'), assetDirectory, 'dir');
+  assertFailure(run('fix-search-index.mjs', '--site-dir', site, '--version', 'stable'), 'symlinked asset parent must be refused');
+  assert.equal(readFileSync(externalIndex, 'utf8'), sentinel, 'external asset parent target must remain unchanged');
+  unlinkSync(assetDirectory);
+
+  const siteAlias = join(root, 'site-alias');
+  symlinkSync(site, siteAlias, 'dir');
+  assertFailure(run('fix-search-index.mjs', '--site-dir', siteAlias, '--version', 'stable'), 'symlinked site root must be refused');
+  assert.equal(readFileSync(externalIndex, 'utf8'), sentinel, 'site-root symlink target must remain unchanged');
+
+  const symlinkedVersion = join(site, 'stable');
+  rmSync(symlinkedVersion, { recursive: true });
+  symlinkSync(join(external, 'stable'), symlinkedVersion, 'dir');
+  assertFailure(run('fix-search-index.mjs', '--site-dir', site, '--version', 'stable'), 'symlinked version directory must be refused');
+  assert.equal(readFileSync(externalIndex, 'utf8'), sentinel, 'version-directory symlink target must remain unchanged');
 });
 
 test('link checker rejects missing xref, dead docs URL, missing YAML and logo', (t) => {
