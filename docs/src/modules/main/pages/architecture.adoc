@@ -14,10 +14,10 @@ and returns a `ScanResult`.
 == Pipeline overview
 
 [mermaid]
-----
+....
+flowchart LR
 accTitle: CerbIA pipeline overview
 accDescr: Configured loaders produce entries for ordered preprocessing. Each entry is evaluated by a SecurityGate, which routes compatible scanners, aggregates blocking findings, and returns a verdict that the runner collects into a scan result.
-flowchart LR
     A[Configured loaders] --> B[Loaded entries]
     B --> C[Ordered preprocessors]
     C --> D[Post-preprocessing entries]
@@ -45,7 +45,7 @@ flowchart LR
 
     M --> N[Runner maps verdict and entry to EntryResult]
     N --> O[ScanResult]
-----
+....
 
 == Construction and ownership
 
@@ -70,10 +70,10 @@ returned list becomes the input to the next preprocessor. `Runner` calls
 `SecurityGate.scan()` once for every final, post-preprocessing entry.
 
 [mermaid]
-----
+....
+flowchart TD
 accTitle: Entry lifecycle
 accDescr: Loader outputs are combined, passed through optional ordered preprocessors, and each resulting entry is scanned by SecurityGate. The runner maps each verdict and entry to an EntryResult and collects the results in a ScanResult.
-flowchart TD
     A[Loader outputs] --> B[Combined Entry list]
     B --> C[Optional ordered preprocessors]
     C --> D[Post-preprocessing Entry list]
@@ -82,7 +82,7 @@ flowchart TD
     F --> G[GateVerdict]
     G --> H[Runner maps verdict and Entry to EntryResult]
     H --> I[ScanResult]
-----
+....
 
 === Entry derivation and cardinality
 
@@ -127,10 +127,10 @@ xref:components/score-aggregators.adoc[Score aggregators] for aggregation strate
 == Result hierarchy
 
 [mermaid]
-----
+....
+flowchart TD
 accTitle: CerbIA result hierarchy
 accDescr: Scanners produce scan outcomes that become findings. Routing and skip policy can produce skipped scanners. Findings and skipped scanners belong to a SecurityGate verdict, which is associated with an entry in EntryResult and collected into ScanResult.
-flowchart TD
     A[Scanner] --> B[ScanOutcome]
     B --> C[Finding]
     D[Routing or skip policy] --> E[SkippedScanner]
@@ -143,7 +143,7 @@ flowchart TD
     E --> G
     G --> H[EntryResult plus Entry]
     H --> I[ScanResult]
-----
+....
 
 |===
 |Layer |Cardinality |Responsibility

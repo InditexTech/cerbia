@@ -19,10 +19,10 @@ selected languages and required categories with the registry introspection API.
 == Architecture
 
 [mermaid]
-----
+....
+flowchart LR
 accTitle: Internationalization registry architecture
 accDescr: English, Spanish, Galician, and custom language modules register patterns in I18nRegistry. Keyword, prompt injection, and invisible text scanners request patterns by selected languages and category keys.
-flowchart LR
     subgraph Registration
         EN["en.py"] -->|"@i18n_pattern"| R["I18nRegistry"]
         ES["es.py"] -->|"@i18n_pattern"| R
@@ -35,7 +35,7 @@ flowchart LR
         R -->|"get_patterns(languages, keys)"| Injection["PromptInjectionScanner"]
         R -->|"get_patterns(languages, keys)"| Invisible["InvisibleTextScanner"]
     end
-----
+....
 
 == Registry and category contract
 

@@ -36,16 +36,16 @@ accepted replacement is returned unchanged. A changed entry is derived with its
 original source, field path, content type, and existing metadata preserved.
 
 [mermaid]
-----
+....
+flowchart LR
 accTitle: Speculative decoding flow
 accDescr: Candidate spans are extracted, searched through bounded decoder chains, scored and accepted, then rewritten in a derived entry with lineage metadata.
-flowchart LR
     A[Entry text] --> B[Extract and merge candidate spans]
     B --> C[Bounded breadth-first decoder search]
     C --> D[Score and accept viable branches]
     D --> E[Rewrite accepted spans]
     E --> F[Derived entry with lineage metadata]
-----
+....
 
 == Configuration
 

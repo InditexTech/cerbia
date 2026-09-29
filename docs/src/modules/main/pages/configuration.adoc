@@ -46,10 +46,10 @@ scanners.
 |===
 
 [mermaid]
-----
+....
+classDiagram
 accTitle: CerbIA configuration model
 accDescr: CerbIAConfig contains loader, preprocessor, and scanner lists plus one score aggregator. Each list item is a specialized component configuration derived from ComponentConfig and can include initialization arguments.
-classDiagram
     class CerbIAConfig {
         +str name
         +list loaders
@@ -92,7 +92,7 @@ classDiagram
     CerbIAConfig "1" *-- "0..*" PreprocessorConfig : preprocessors
     CerbIAConfig "1" *-- "0..*" ScannerConfig : scanners
     CerbIAConfig "1" *-- "1" ScoreAggregatorConfig : score_aggregator
-----
+....
 
 == Component records
 
