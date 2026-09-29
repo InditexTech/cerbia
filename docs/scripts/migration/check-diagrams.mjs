@@ -55,20 +55,81 @@ function outputPath(siteDir, version, pageId) {
   return result;
 }
 
+// Tokenize tags with quote-aware boundaries: `data-x=" aria-labelledby=..."`
+// is one attribute value, not another SVG attribute or an HTML element.
+const tagPattern = /<\/?[a-z][\w:-]*(?:[^>"']|"[^"]*"|'[^']*')*>/gi;
+
+function tagAttributes(tag) {
+  const attributes = new Map();
+  const open = tag.match(/^<[a-z][\w:-]*/i)?.[0].length ?? 0;
+  const source = tag.slice(open, -1);
+  const pattern = /\s([^\s=/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/gy;
+  let index = 0;
+  while (index < source.length) {
+    if (source.slice(index).trim() === '' || source.slice(index).trim() === '/') break;
+    pattern.lastIndex = index;
+    const attribute = pattern.exec(source);
+    assert.ok(attribute, `malformed HTML attribute in ${tag.slice(0, 80)}`);
+    assert.ok(!attributes.has(attribute[1]), `duplicate HTML attribute: ${attribute[1]}`);
+    attributes.set(attribute[1], attribute[2] ?? attribute[3] ?? attribute[4] ?? '');
+    index = pattern.lastIndex;
+  }
+  return attributes;
+}
+
+function svgTextNode(content, name) {
+  const tags = [...content.matchAll(tagPattern)];
+  let depth = 0;
+  for (let index = 0; index < tags.length; index += 1) {
+    const tag = tags[index];
+    const closing = tag[0].startsWith('</');
+    const tagName = tag[0].match(/^<\/?([\w:-]+)/)?.[1]?.toLowerCase();
+    if (closing) {
+      depth -= 1;
+    } else if (depth === 0 && tagName === name) {
+      const next = tags[index + 1];
+      if (next?.[0].toLowerCase() === `</${name}>`) {
+        return { id: tagAttributes(tag[0]).get('id'), text: content.slice(tag.index + tag[0].length, next.index).trim() };
+      }
+    }
+    if (!closing && !tag[0].endsWith('/>')) depth += 1;
+  }
+  return undefined;
+}
+
 function renderedDiagrams(html, context) {
-  const ids = [...html.matchAll(/\sid=["']([^"']+)["']/g)].map(([, id]) => id);
+  // Comments and script/template content are not rendered SVG nodes. Replace
+  // with a space so markup on either side cannot be joined into a fake tag.
+  const rendered = html.replace(/<!--[\s\S]*?-->|<(script|template|style)\b(?:[^>"']|"[^"]*"|'[^']*')*>[\s\S]*?<\/\1\s*>/gi, ' ')
+    .replace(tagPattern, (tag) => tag.replace(/=("[^"]*"|'[^']*')/g,
+      (attribute) => attribute.replaceAll('<', '&lt;').replaceAll('>', '&gt;')));
+  const ids = [...rendered.matchAll(tagPattern)].filter(([tag]) => !tag.startsWith('</') && /\sid\s*=/.test(tag))
+    .map(([tag]) => tagAttributes(tag).get('id')).filter(Boolean);
   assert.equal(new Set(ids).size, ids.length, `${context}: duplicate HTML id`);
-  const containers = [...html.matchAll(/<div\b(?=[^>]*\bclass="[^"]*\bdocouture-diagram\b[^"]*")(?=[^>]*\bdata-diagram-type="mermaid")[^>]*>([\s\S]*?)<\/div><\/div>/g)];
-  return containers.map(([, body], index) => {
-    const svg = body.match(/<svg\b([^>]*)>([\s\S]*?)<\/svg>/);
-    if (svg) {
-      const [, attributes, content] = svg;
-      const title = content.match(/<title\b[^>]*>([\s\S]*?)<\/title>/)?.[1]?.replace(/<[^>]*>/g, '').trim();
-      const description = content.match(/<desc\b[^>]*>([\s\S]*?)<\/desc>/)?.[1]?.replace(/<[^>]*>/g, '').trim();
-      const titleId = content.match(/<title\b[^>]*\bid="([^"]+)"/)?.[1];
-      const descriptionId = content.match(/<desc\b[^>]*\bid="([^"]+)"/)?.[1];
-      const labelledBy = attributes.match(/\baria-labelledby="([^"]+)"/)?.[1]?.split(/\s+/) ?? [];
-      const describedBy = attributes.match(/\baria-describedby="([^"]+)"/)?.[1]?.split(/\s+/) ?? [];
+  const containers = [...rendered.matchAll(tagPattern)]
+    .filter(([tag]) => /^<div\b/i.test(tag))
+    .filter(([tag]) => {
+      const attrs = tagAttributes(tag);
+      return attrs.get('class')?.split(/\s+/).includes('docouture-diagram') && attrs.get('data-diagram-type') === 'mermaid';
+    })
+    .map((tag) => rendered.slice(tag.index + tag[0].length).match(/^([\s\S]*?)<\/div><\/div>/)?.[1] ?? '');
+  return containers.map((body, index) => {
+    const tags = [...body.matchAll(tagPattern)];
+    const svgIndex = tags.findIndex(([tag]) => /^<svg\b/i.test(tag));
+    if (svgIndex !== -1) {
+      const root = tags[svgIndex];
+      const end = tags.slice(svgIndex + 1).find(([tag]) => /^<\/svg\s*>$/i.test(tag));
+      assert.ok(end, `${context} diagram ${index + 1}: missing rendered SVG close tag`);
+      const content = body.slice(root.index + root[0].length, end.index);
+      const titleNode = svgTextNode(content, 'title');
+      const descriptionNode = svgTextNode(content, 'desc');
+      const title = titleNode?.text;
+      const description = descriptionNode?.text;
+      const rootAttributes = tagAttributes(root[0]);
+      const labelledBy = rootAttributes.get('aria-labelledby')?.trim().split(/\s+/) ?? [];
+      const describedBy = rootAttributes.get('aria-describedby')?.trim().split(/\s+/) ?? [];
+      const titleId = titleNode?.id;
+      const descriptionId = descriptionNode?.id;
       assert.ok(title && title.length >= 4 && titleId && labelledBy.length === 1 && labelledBy[0] === titleId,
         `${context} diagram ${index + 1}: aria-labelledby must resolve exactly to its own SVG title id`);
       assert.ok(description && description.length >= 12 && descriptionId && describedBy.length === 1 && describedBy[0] === descriptionId,
