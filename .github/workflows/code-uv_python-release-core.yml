@@ -21,11 +21,11 @@ on:
     secrets:
       APP_PRIVATE_KEY:
         required: true
-      RELEASE_GPG_PRIVATE_KEY:
+      CI_GPG_SECRET_KEY:
         description: Armored GPG secret key signing release commits and tags.
         required: false
-      RELEASE_GPG_PASSPHRASE:
-        description: Passphrase protecting RELEASE_GPG_PRIVATE_KEY.
+      CI_GPG_SECRET_KEY_PASSWORD:
+        description: Passphrase protecting CI_GPG_SECRET_KEY.
         required: false
 
 permissions:
@@ -467,8 +467,11 @@ jobs:
             fi
 
             primary_version="$(jq -r '.[0].version' <<< "$releases")"
-            echo "RELEASE_VERSION=$primary_version" >> "$GITHUB_ENV"
-            echo "RELEASE_TARGET=$release_target" >> "$GITHUB_ENV"
+            {
+              echo "RELEASE_VERSION=$primary_version"
+              echo "RELEASE_TARGET=$release_target"
+              echo "RELEASE_BUMP=$release_bump"
+            } >> "$GITHUB_ENV"
           else
             write_records
             releases="$(jq -cs . "$records_file")"
@@ -494,7 +497,7 @@ jobs:
         uses: release-flow/keep-a-changelog-action@74931dec7ecdbfc8e38ac9ae7e8dd84c08db2f32 # v3.0.0
         with:
           command: bump
-          version: ${{ env.RELEASE_VERSION }}
+          version: ${{ env.RELEASE_BUMP }}
           changelog: ${{ env.WORKING_DIRECTORY }}/CHANGELOG.md
           fail-on-empty-release-notes: false
           keep-unreleased-section: true
@@ -526,8 +529,8 @@ jobs:
         uses: InditexTech/gh-actions/configure-release-git@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
         with:
           token: ${{ steps.app-token.outputs.token }}
-          gpg-secret-key: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
-          gpg-passphrase: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
+          gpg-secret-key: ${{ secrets.CI_GPG_SECRET_KEY }}
+          gpg-passphrase: ${{ secrets.CI_GPG_SECRET_KEY_PASSWORD }}
 
       - name: Commit and stage release
         if: steps.release-plan.outputs.resume != 'true'
@@ -691,8 +694,8 @@ jobs:
         uses: InditexTech/gh-actions/configure-release-git@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
         with:
           token: ${{ steps.app-token.outputs.token }}
-          gpg-secret-key: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
-          gpg-passphrase: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
+          gpg-secret-key: ${{ secrets.CI_GPG_SECRET_KEY }}
+          gpg-passphrase: ${{ secrets.CI_GPG_SECRET_KEY_PASSWORD }}
 
       - name: Promote the release to the default branch
         id: promote
