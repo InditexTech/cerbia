@@ -1,0 +1,36 @@
+.github/workflows/docouture-publish-prerelease.yml
+  h_d6d31939214ddd 82-84
+README.md
+  h_d6d31939214ddd 93-104,106
+examples/README.md
+  h_d6d31939214ddd 9-10
+examples/cli-usage/README.md
+  h_d6d31939214ddd 17-18
+examples/custom-loader/README.md
+  h_d6d31939214ddd 44
+examples/programmatic-usage/README.md
+  h_d6d31939214ddd 16-17
+packages/cerbia-cli/README.md
+  h_d6d31939214ddd 10
+packages/cerbia-core/README.md
+  h_d6d31939214ddd 9
+packages/cerbia-ml/README.md
+  h_d6d31939214ddd 9
+packages/cerbia-presidio/README.md
+  h_d6d31939214ddd 9
+packages/cerbia-protectai/README.md
+  h_d6d31939214ddd 9
+packages/cerbia/README.md
+  h_d6d31939214ddd 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9f6600bce21c2b7489ea28e385db4e3cfdf264bc",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
