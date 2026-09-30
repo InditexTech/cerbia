@@ -1,0 +1,1261 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+
+<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script>
+      /*
+       * Theme bootstrap. Runs before first paint so the page never flashes the
+       * wrong theme. Keep it inline, keep it tiny, and keep it in sync with
+       * src/js/08-theme.ts, which owns the same storage key and class names.
+       *
+       * IDS switches theme with a class on <html>, not a data attribute, so an
+       * attribute here would style nothing.
+       */
+      (function () {
+        var stored
+        try { stored = localStorage.getItem('dt-theme') } catch (e) {}
+        var theme = stored === 'light' || stored === 'dark'
+          ? stored
+          : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        var root = document.documentElement
+        root.classList.add('dt-theme-' + theme, 'dt-scale-medium')
+        root.style.colorScheme = theme
+      })()
+    </script>
+    <script>
+      /*
+       * Side-menu collapse bootstrap (GH-8). Runs before first paint so the
+       * 320px column never flashes in and reflows the article on navigation.
+       * Keep it inline, keep it tiny, and keep it in sync with
+       * src/js/01-nav.ts, which owns the same storage key and class name.
+       *
+       * A stored choice always wins; absent one, the menu starts collapsed
+       * on the home/landing page (matching Figma's "State=Home" toolbar
+       * variant, which is the only one that shows the toggle) and open
+       * everywhere else. With JavaScript disabled this script never runs, so
+       * the class is never added and the menu stays open unconditionally —
+       * the toggle that would reopen it is also never unhidden.
+       */
+      (function () {
+        var stored
+        try { stored = localStorage.getItem('docouture-side-menu') } catch (e) {}
+        var collapsed = stored === 'collapsed' || stored === 'open'
+          ? stored === 'collapsed'
+          : document.documentElement.hasAttribute('data-page-home')
+        if (collapsed) document.documentElement.classList.add('is-side-menu-collapsed')
+      })()
+    </script>
+    <script>
+      /*
+       * ToC collapse bootstrap (GH-10). Runs before first paint so a closed
+       * choice never flashes open for an instant. Keep it in sync with
+       * src/js/02-on-this-page.ts, which owns the same storage key and class
+       * name.
+       *
+       * Deliberately does NOT add `has-toc` — only 02-on-this-page.ts knows
+       * whether this page actually has a usable ToC (headings found, page
+       * not `-toc`), and every effect of the class added here is itself
+       * gated behind `has-toc` in toc.css, so there is nothing to flash
+       * either way before that script runs. This one exists only so a
+       * *closed* choice is already in place the moment it does.
+       */
+      (function () {
+        var stored
+        try { stored = localStorage.getItem('docouture-toc') } catch (e) {}
+        if (stored === 'closed') document.documentElement.classList.add('is-toc-closed')
+      })()
+    </script>
+
+<title>Configuration | CerbIA</title>
+
+    <link rel="prev" href="../reference-overview/">
+    <link rel="next" href="../i18n/">
+    <meta name="description" content="Configure a CerbIA security gate in YAML, including component classes, initialization arguments, and validation rules.">
+    <meta name="generator" content="Antora 3.2.0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Mono:wght@100..900&display=swap">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/mobile-content-overflow.css">
+
+
+
+    <link rel="icon" href="../../../favicon.png">
+  </head>
+  <body class="article">
+
+
+
+<header class="header-toolbar">
+  <div class="dt-grid-layout dt-grid-layout--with-margin header-toolbar__grid">
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-6 dt-grid-layout__item--span-xs-3 header-toolbar__left">
+      <button class="dt-button dt-button--ghost dt-button--icon-only side-menu-toggle" type="button" aria-controls="side-menu" hidden>
+        <span class="dt-button__content">
+          <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-menu"></use></svg></span>
+        </span>
+      </button>
+      <a class="header-toolbar__brand" href="../../">
+        <img class="header-toolbar__logo header-toolbar__logo--light" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+        <img class="header-toolbar__logo header-toolbar__logo--dark" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+        <span class="header-toolbar__product-name dt-text dt-text--label-l-high">CerbIA</span>
+      </a>
+    </div>
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-6 dt-grid-layout__item--span-xs-3 header-toolbar__actions">
+      <button type="button" class="dt-button dt-button--ghost header-toolbar__search-trigger">
+        <span class="dt-button__content">
+          <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-search"></use></svg></span>
+          <span class="dt-text dt-text--label-l header-toolbar__search-label">Search</span>
+          <kbd class="header-toolbar__search-shortcut" aria-hidden="true">⌘K</kbd>
+        </span>
+      </button>
+
+<div class="page-versions">
+  <span class="dt-tag dt-tag--solid dt-tag--selected dt-tag--read-only header-toolbar__version header-toolbar__version--prerelease" aria-label="Version prerelease">
+    <span class="dt-tag__label">prerelease</span>
+  </span>
+</div>
+
+<a class="dt-button dt-button--ghost dt-button--icon-only header-toolbar__repo" href="https://github.com/InditexTech/cerbia" target="_blank" rel="noopener" aria-label="Repository">
+  <span class="dt-button__content">
+    <span class="dt-button__icon dt-button__icon-icon header-toolbar__repo-icon" aria-hidden="true"></span>
+  </span>
+</a>
+
+<button class="dt-button dt-button--ghost dt-button--icon-only theme-toggle" type="button" hidden>
+  <span class="dt-button__content">
+    <span class="dt-button__icon dt-button__icon-icon theme-toggle-icon theme-toggle-icon--light" aria-hidden="true"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-sun"></use></svg></span>
+    <span class="dt-button__icon dt-button__icon-icon theme-toggle-icon theme-toggle-icon--dark" aria-hidden="true"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-moon"></use></svg></span>
+  </span>
+</button>
+    </div>
+  </div>
+</header>
+
+<dialog id="search-dialog" class="search-dialog" aria-label="Search" data-search-index="ROOT-prerelease.json">
+  <div class="dt-overlay dt-overlay--visible search-dialog__overlay">
+    <div class="dt-overlay__content"></div>
+    <div class="dt-modal dt-modal--small search-dialog__panel">
+      <div class="dt-modal__container search-dialog__container">
+        <div class="dt-search-field-minimal dt-search-field-minimal--full-width search-dialog__field">
+          <span class="dt-search-field-minimal__icon-start" aria-hidden="true"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-search"></use></svg></span>
+          <div class="dt-search-field-minimal__input-wrapper">
+            <div class="dt-search-field-minimal__input-container">
+              <input type="search" class="dt-search-field-minimal__input" placeholder="Search the docs" aria-label="Search the docs"
+                role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-autocomplete="list"
+                aria-controls="search-dialog-listbox" disabled>
+            </div>
+          </div>
+          <button type="button" class="dt-button dt-button--ghost dt-button--icon-only search-dialog__close" aria-label="Close search" disabled>
+            <span class="dt-button__content">
+              <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-x"></use></svg></span>
+            </span>
+          </button>
+        </div>
+        <div class="search-dialog__chips" role="group" aria-label="Filter results by module">
+          <button type="button" class="dt-tag dt-tag--solid dt-tag--selected search-dialog__chip" data-category="" aria-pressed="true">
+            <span class="dt-tag__label">All</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="Documentation" aria-pressed="false">
+            <span class="dt-tag__label">Documentation</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia" aria-pressed="false">
+            <span class="dt-tag__label">cerbia</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-core" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-core</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-cli" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-cli</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-ml" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-ml</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-presidio" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-presidio</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-protectai" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-protectai</span>
+          </button>
+        </div>
+        <div id="search-dialog-listbox" class="dt-modal__content dt-modal__content--scrollable search-dialog__results" role="listbox" aria-label="Search results"></div>
+        <div class="search-dialog__status" aria-live="polite"></div>
+        <div class="dt-modal__footer dt-modal__footer--horizontal search-dialog__footer">
+          <span class="dt-modal__footer-left dt-text dt-text--detail-m search-dialog__hints">
+            <kbd>&uarr;&darr;</kbd> navigate &middot; <kbd>&crarr;</kbd> select &middot; <kbd>esc</kbd> close
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+<div class="dt-floating-button-wrapper dt-floating-button-wrapper--viewport dt-floating-button-wrapper--end search-fab">
+  <button type="button" class="dt-button dt-button--ghost dt-button--icon-only dt-floating-button search-fab__trigger" aria-label="Search" aria-haspopup="dialog" aria-controls="search-dialog">
+    <span class="dt-button__content">
+      <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-search"></use></svg></span>
+    </span>
+  </button>
+</div>
+
+<dialog id="image-zoom-dialog" class="image-zoom-dialog" aria-label="Zoomed image">
+  <div class="dt-overlay dt-overlay--visible image-zoom-dialog__overlay">
+    <div class="dt-overlay__content"></div>
+    <div class="dt-modal dt-modal--fullscreen image-zoom-dialog__panel">
+      <div class="dt-modal__container image-zoom-dialog__container">
+        <button type="button" class="dt-button dt-button--ghost dt-button--icon-only image-zoom-dialog__close" aria-label="Close zoomed image">
+          <span class="dt-button__content">
+            <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-x"></use></svg></span>
+          </span>
+        </button>
+        <div class="image-zoom-dialog__content"></div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<div class="body">
+
+<div id="side-menu" class="side-menu" data-component="ROOT" data-version="prerelease" data-module="main">
+  <div class="side-menu__header">
+    <div class="side-menu__header-start">
+      <img class="side-menu__header-logo side-menu__header-logo--light" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+      <img class="side-menu__header-logo side-menu__header-logo--dark" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+      <span class="side-menu__header-title dt-text dt-text--title-s">CerbIA</span>
+    </div>
+    <button class="side-menu__close" type="button" aria-label="Close navigation"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-x"></use></svg></button>
+  </div>
+
+<div class="side-menu__brand">
+  <a class="side-menu__brand-link" href="../../">
+    <img class="side-menu__brand-logo side-menu__brand-logo--light" src="../../../cerbia-logo.png" width="40" height="40" alt="">
+    <img class="side-menu__brand-logo side-menu__brand-logo--dark" src="../../../cerbia-logo.png" width="40" height="40" alt="">
+    <span class="side-menu__brand-title dt-text dt-text--title-m">CerbIA</span>
+  </a>
+</div>
+
+<div class="nav-switcher">
+  <button class="nav-switcher__toggle" type="button" aria-expanded="false" aria-haspopup="true" aria-label="Switch module, currently Documentation">
+    <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+    <span class="nav-switcher__label">
+      <span class="nav-switcher__title dt-text dt-text--body-m-high">Documentation</span>
+      <span class="nav-switcher__description dt-text dt-text--detail-m">Product overview, setup, guides, and component reference.</span>
+    </span>
+    <span class="nav-switcher__chevron"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
+  </button>
+  <div class="nav-switcher__menu" hidden>
+    <ul class="dt-list nav-switcher__list">
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../about/" aria-current="true">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">Documentation</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Product overview, setup, guides, and component reference.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Installation selector and optional capability extras.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-core/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-core</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Core Python pipeline and configurable security gates.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-cli/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-cli</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Command-line interface for validation and scanning.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-ml/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-ml</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Model artifact and text-classification adapters.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-presidio/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-presidio</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Optional Presidio-based PII scanner integration.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-protectai/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-protectai</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Optional ProtectAI prompt-injection scanner integration.</span>
+          </span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+  <nav class="side-menu__nav" aria-label="Site navigation">
+
+
+<ul class="dt-list side-menu__list" data-depth="0">
+  <li class="side-menu__item side-menu__item--label">
+    <div class="side-menu__row">
+      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Overview</span></span>
+      </span>
+    </div>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../about/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">About CerbIA</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../architecture/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Architecture</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item side-menu__item--label">
+    <div class="side-menu__row">
+      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Getting started</span></span>
+      </span>
+    </div>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../prerequisites/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Prerequisites</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../quickstart/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Quickstart</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item side-menu__item--label">
+    <div class="side-menu__row">
+      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Guides</span></span>
+      </span>
+    </div>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../guides-overview/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Guides overview</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item side-menu__item--label">
+    <div class="side-menu__row">
+      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Reference</span></span>
+      </span>
+    </div>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../reference-overview/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Reference overview</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="./" aria-current="page">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Configuration</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../i18n/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Internationalization</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../logging/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Logging</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../cli/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">CLI</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../gate/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Gate behavior</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../packages/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Packages</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/custom-components/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Custom components</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/loaders/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Loaders</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/loaders/text-loader/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Text loader</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/loaders/file-loader/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">File loader</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/preprocessors/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Preprocessors</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/preprocessors/speculative-decoding/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Speculative decoding</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/preprocessors/whitespace-normalization/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Whitespace normalization</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/scanners/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Scanners</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/scanners/canary-leak/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Canary leak</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/scanners/invisible-text/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Invisible text</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/scanners/keyword/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Keyword</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/scanners/pii/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">PII</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/scanners/pii-presidio/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">PII with Presidio</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/scanners/prompt-injection/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/scanners/prompt-injection-protectai/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection with ProtectAI</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/scanners/secrets/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Secrets</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/scanners/url-malicious/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Malicious URLs</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/scanners/url-allowlist/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">URL allowlist</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/scanners/xss/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Cross-site scripting</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/score-aggregators/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Score aggregators</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/score-aggregators/max/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Maximum</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/score-aggregators/max-with-bonus/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Maximum with bonus</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../components/score-aggregators/mean/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Mean</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item side-menu__item--label">
+    <div class="side-menu__row">
+      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Additional information</span></span>
+      </span>
+    </div>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../additional-information/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Additional information</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item side-menu__item--label">
+    <div class="side-menu__row">
+      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Contributing</span></span>
+      </span>
+    </div>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../contributing/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Contributing</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </nav>
+  <div class="side-menu__version">
+
+<div class="page-versions">
+  <span class="dt-tag dt-tag--solid dt-tag--selected dt-tag--read-only header-toolbar__version header-toolbar__version--prerelease" aria-label="Version prerelease">
+    <span class="dt-tag__label">prerelease</span>
+  </span>
+</div>
+  </div>
+</div>
+<div class="side-menu-scrim"></div>
+
+<main class="article">
+
+<div class="hero">
+  <div class="dt-grid-layout dt-grid-layout--with-margin hero__grid">
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-full hero__row">
+      <div class="hero__main">
+
+<nav class="dt-breadcrumbs" aria-label="Breadcrumb">
+  <a class="dt-breadcrumb-item dt-breadcrumb-item--link" href="../../"><span class="dt-breadcrumb-item__content">CerbIA</span></a>
+  <div class="dt-breadcrumb-item dt-breadcrumb-item--active" aria-current="page"><span class="dt-breadcrumb-item__content">Configuration</span></div>
+</nav>
+        <h1 class="hero__title dt-text dt-text--title-xl">Configuration</h1>
+        <p class="hero__excerpt dt-text dt-text--body-l">Configure a CerbIA security gate in YAML, including component classes, initialization arguments, and validation rules.</p>
+        <div class="hero__tags">
+          <div class="dt-label dt-label--grey">
+            <span class="dt-label__content">reference</span>
+          </div>
+          <div class="dt-label dt-label--grey">
+            <span class="dt-label__content">configuration</span>
+          </div>
+          <div class="dt-label dt-label--grey">
+            <span class="dt-label__content">yaml</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero__aside">
+        <button class="dt-button dt-button--ghost dt-button--icon-only toc-toggle" type="button" aria-controls="on-this-page" aria-expanded="true" hidden>
+          <span class="dt-button__content">
+            <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-panel-left"></use></svg></span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+  <div class="content dt-grid-layout dt-grid-layout--with-margin">
+
+<aside id="on-this-page" class="toc" data-title="On this page" data-levels="4">
+  <div class="toc-menu"></div>
+</aside>
+
+<article class="doc">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>CerbIA reads one YAML mapping for one security gate. The root mapping is
+validated as <code>CerbIAConfig</code>; component records then tell <code>Runner</code> which classes
+to construct and how to initialize them.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="configuration-lifecycle"><a class="anchor" href="#configuration-lifecycle"></a>Configuration lifecycle</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="schema-validation"><a class="anchor" href="#schema-validation"></a>Schema validation</h3>
+<div class="paragraph">
+<p>The root model rejects unknown root keys and validates required fields, enum
+values, and the <code>threshold</code> range. At this stage, component paths remain strings
+and <code>init_args</code> is an arbitrary mapping. The schema permits empty <code>loaders</code> and
+<code>scanners</code> lists so a configuration can be assembled incrementally.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="component-construction"><a class="anchor" href="#component-construction"></a>Component construction</h3>
+<div class="paragraph">
+<p><code>Runner</code> requires at least one loader and scanner. It imports every configured
+class, passes its <code>init_args</code> as constructor keyword arguments, and verifies that
+the resulting instance satisfies the expected component contract. Therefore, an
+invalid import path or constructor argument can pass root-schema validation but
+fail when the component is built.</p>
+</div>
+<div class="paragraph">
+<p><code>cerbia validate</code> performs both phases without loading entries or running
+scanners.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="root-schema"><a class="anchor" href="#root-schema"></a>Root schema</h2>
+<div class="sectionbody">
+<div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Key</th>
+<th class="tableblock halign-left valign-top">Required</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">—</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Human-readable pipeline identifier.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>loaders</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No in schema</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ordered loader records; <code>Runner</code> requires at least one.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>preprocessors</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ordered transformation records.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>scanners</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No in schema</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ordered scanner records; <code>Runner</code> requires at least one.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>score_aggregator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">—</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Record selecting the score-combination strategy.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fail_fast</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stops after a qualifying blocking finding or blocking scanner failure.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>threshold</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0.0</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Blocking-score threshold, inclusive from <code>0.0</code> through <code>1.0</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>on_scanner_error</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>block</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scanner failure policy: <code>fail</code>, <code>block</code>, or <code>skip</code>.</p></td>
+</tr>
+</tbody>
+</table></div></div>
+<div class="docouture-diagram" data-diagram-type="mermaid"><div class="docouture-diagram__content"><svg id="docouture-diagram-1-container" width="1130.08984375" xmlns="http://www.w3.org/2000/svg" class="classDiagram" height="498" viewBox="0 0 1130.08984375 498" role="graphics-document document" aria-roledescription="class" aria-describedby="chart-desc-container" aria-labelledby="chart-title-container"><title id="docouture-diagram-1-chart-title-container">CerbIA configuration model</title><desc id="docouture-diagram-1-chart-desc-container">CerbIAConfig contains loader, preprocessor, and scanner lists plus one score aggregator. Each list item is a specialized component configuration derived from ComponentConfig and can include initialization arguments.</desc><style>#docouture-diagram-1-container{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;fill:#000000;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#docouture-diagram-1-container .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#docouture-diagram-1-container .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#docouture-diagram-1-container .error-icon{fill:hsl(180, 0%, 100%);}#docouture-diagram-1-container .error-text{fill:rgb(0, 0, 0);stroke:rgb(0, 0, 0);}#docouture-diagram-1-container .edge-thickness-normal{stroke-width:1px;}#docouture-diagram-1-container .edge-thickness-thick{stroke-width:3.5px;}#docouture-diagram-1-container .edge-pattern-solid{stroke-dasharray:0;}#docouture-diagram-1-container .edge-thickness-invisible{stroke-width:0;fill:none;}#docouture-diagram-1-container .edge-pattern-dashed{stroke-dasharray:3;}#docouture-diagram-1-container .edge-pattern-dotted{stroke-dasharray:2;}#docouture-diagram-1-container .marker{fill:#000000;stroke:#000000;}#docouture-diagram-1-container .marker.cross{stroke:#000000;}#docouture-diagram-1-container svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;}#docouture-diagram-1-container p{margin:0;}#docouture-diagram-1-container g.classGroup text{fill:#000000;stroke:none;font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:10px;}#docouture-diagram-1-container g.classGroup text .title{font-weight:bolder;}#docouture-diagram-1-container .cluster-label text{fill:rgb(0, 0, 0);}#docouture-diagram-1-container .cluster-label span{color:rgb(0, 0, 0);}#docouture-diagram-1-container .cluster-label span p{background-color:transparent;}#docouture-diagram-1-container .cluster rect{fill:hsl(180, 0%, 100%);stroke:hsl(180, 0%, 90%);stroke-width:1px;}#docouture-diagram-1-container .cluster text{fill:rgb(0, 0, 0);}#docouture-diagram-1-container .cluster span{color:rgb(0, 0, 0);}#docouture-diagram-1-container .nodeLabel,#docouture-diagram-1-container .edgeLabel{color:#000000;}#docouture-diagram-1-container .noteLabel .nodeLabel,#docouture-diagram-1-container .noteLabel .edgeLabel{color:#333;}#docouture-diagram-1-container .edgeLabel .label rect{fill:#ffffff;}#docouture-diagram-1-container .label text{fill:#000000;}#docouture-diagram-1-container .labelBkg{background:#ffffff;}#docouture-diagram-1-container .edgeLabel .label span{background:#ffffff;}#docouture-diagram-1-container .classTitle{font-weight:bolder;}#docouture-diagram-1-container .node rect,#docouture-diagram-1-container .node circle,#docouture-diagram-1-container .node ellipse,#docouture-diagram-1-container .node polygon,#docouture-diagram-1-container .node path{fill:#ffffff;stroke:#000000;stroke-width:1;}#docouture-diagram-1-container .divider{stroke:#000000;stroke-width:1;}#docouture-diagram-1-container g.clickable{cursor:pointer;}#docouture-diagram-1-container g.classGroup rect{fill:#ffffff;stroke:#000000;}#docouture-diagram-1-container g.classGroup line{stroke:#000000;stroke-width:1;}#docouture-diagram-1-container .classLabel .box{stroke:none;stroke-width:0;fill:#ffffff;opacity:0.5;}#docouture-diagram-1-container .classLabel .label{fill:#000000;font-size:10px;}#docouture-diagram-1-container .relation{stroke:#000000;stroke-width:1;fill:none;}#docouture-diagram-1-container .dashed-line{stroke-dasharray:3;}#docouture-diagram-1-container .dotted-line{stroke-dasharray:1 2;}#docouture-diagram-1-container [id$="-compositionStart"],#docouture-diagram-1-container .composition{fill:#000000!important;stroke:#000000!important;stroke-width:1;}#docouture-diagram-1-container [id$="-compositionEnd"],#docouture-diagram-1-container .composition{fill:#000000!important;stroke:#000000!important;stroke-width:1;}#docouture-diagram-1-container [id$="-dependencyStart"],#docouture-diagram-1-container .dependency{fill:#000000!important;stroke:#000000!important;stroke-width:1;}#docouture-diagram-1-container [id$="-dependencyEnd"],#docouture-diagram-1-container .dependency{fill:#000000!important;stroke:#000000!important;stroke-width:1;}#docouture-diagram-1-container [id$="-extensionStart"],#docouture-diagram-1-container .extension{fill:transparent!important;stroke:#000000!important;stroke-width:1;}#docouture-diagram-1-container [id$="-extensionEnd"],#docouture-diagram-1-container .extension{fill:transparent!important;stroke:#000000!important;stroke-width:1;}#docouture-diagram-1-container [id$="-aggregationStart"],#docouture-diagram-1-container .aggregation{fill:transparent!important;stroke:#000000!important;stroke-width:1;}#docouture-diagram-1-container [id$="-aggregationEnd"],#docouture-diagram-1-container .aggregation{fill:transparent!important;stroke:#000000!important;stroke-width:1;}#docouture-diagram-1-container [id$="-lollipopStart"],#docouture-diagram-1-container .lollipop{fill:#ffffff!important;stroke:#000000!important;stroke-width:1;}#docouture-diagram-1-container [id$="-lollipopEnd"],#docouture-diagram-1-container .lollipop{fill:#ffffff!important;stroke:#000000!important;stroke-width:1;}#docouture-diagram-1-container .edgeTerminals{font-size:11px;line-height:initial;}#docouture-diagram-1-container .classTitleText{text-anchor:middle;font-size:18px;fill:#000000;}#docouture-diagram-1-container .edgeLabel[data-look="neo"]{background-color:hsl(-120, 0%, 100%);text-align:center;}#docouture-diagram-1-container .edgeLabel[data-look="neo"] p{background-color:hsl(-120, 0%, 100%);}#docouture-diagram-1-container .edgeLabel[data-look="neo"] rect{opacity:0.5;background-color:hsl(-120, 0%, 100%);fill:hsl(-120, 0%, 100%);}#docouture-diagram-1-container .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#docouture-diagram-1-container .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#docouture-diagram-1-container .node .neo-node{stroke:#000000;}#docouture-diagram-1-container [data-look="neo"].node rect,#docouture-diagram-1-container [data-look="neo"].cluster rect,#docouture-diagram-1-container [data-look="neo"].node polygon{stroke:url(#docouture-diagram-1-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container [data-look="neo"].swimlane.cluster rect{filter:none;}#docouture-diagram-1-container [data-look="neo"].node path{stroke:url(#docouture-diagram-1-container-gradient);stroke-width:1px;}#docouture-diagram-1-container [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container [data-look="neo"].node .neo-line path{stroke:#000000;filter:none;}#docouture-diagram-1-container [data-look="neo"].node circle{stroke:url(#docouture-diagram-1-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container [data-look="neo"].node circle .state-start{fill:#000000;}#docouture-diagram-1-container [data-look="neo"].icon-shape .icon{fill:url(#docouture-diagram-1-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container [data-look="neo"].icon-shape .icon-neo path{stroke:url(#docouture-diagram-1-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container .node rect,#docouture-diagram-1-container .statediagram-state rect.basic,#docouture-diagram-1-container .statediagram-cluster rect{rx:0!important;ry:0!important;}#docouture-diagram-1-container .transition{stroke:rgb(0, 0, 0)!important;}#docouture-diagram-1-container .marker,#docouture-diagram-1-container .node circle.state-start,#docouture-diagram-1-container [id$="-barbEnd"]{stroke:rgb(0, 0, 0)!important;fill:rgb(0, 0, 0)!important;}#docouture-diagram-1-container .node circle.state-end{fill:rgb(0, 0, 0)!important;stroke:rgb(255, 255, 255)!important;}#docouture-diagram-1-container .nodeLabel,#docouture-diagram-1-container .edgeLabel,#docouture-diagram-1-container .stateLabel,#docouture-diagram-1-container .cluster-label{color:rgb(0, 0, 0)!important;}#docouture-diagram-1-container :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g><defs><marker id="docouture-diagram-1-container_class-aggregationStart" class="marker aggregation class" refX="18" refY="7" markerWidth="190" markerHeight="240" orient="auto"><path d="M 18,7 L9,13 L1,7 L9,1 Z"></path></marker></defs><defs><marker id="docouture-diagram-1-container_class-aggregationEnd" class="marker aggregation class" refX="1" refY="7" markerWidth="20" markerHeight="28" orient="auto"><path d="M 18,7 L9,13 L1,7 L9,1 Z"></path></marker></defs><defs><marker id="docouture-diagram-1-container_class-aggregationStart-margin" class="marker aggregation class" refX="15" refY="7" markerWidth="190" markerHeight="240" orient="auto" markerUnits="userSpaceOnUse"><path d="M 18,7 L9,13 L1,7 L9,1 Z" style="stroke-width: 2;"></path></marker></defs><defs><marker id="docouture-diagram-1-container_class-aggregationEnd-margin" class="marker aggregation class" refX="1" refY="7" markerWidth="20" markerHeight="28" orient="auto" markerUnits="userSpaceOnUse"><path d="M 18,7 L9,13 L1,7 L9,1 Z" style="stroke-width: 2;"></path></marker></defs><defs><marker id="docouture-diagram-1-container_class-extensionStart" class="marker extension class" refX="18" refY="7" markerWidth="20" markerHeight="28" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1,7 L18,13 V 1 Z"></path></marker></defs><defs><marker id="docouture-diagram-1-container_class-extensionEnd" class="marker extension class" refX="1" refY="7" markerWidth="20" markerHeight="28" orient="auto"><path d="M 1,1 V 13 L18,7 Z"></path></marker></defs><marker id="docouture-diagram-1-container_class-extensionStart-margin" class="marker extension class" refX="18" refY="7" markerWidth="20" markerHeight="28" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 14"><polygon points="10,7 18,13 18,1" style="stroke-width: 2; stroke-dasharray: 0;"></polygon></marker><defs><marker id="docouture-diagram-1-container_class-extensionEnd-margin" class="marker extension class" refX="9" refY="7" markerWidth="20" markerHeight="28" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 14"><polygon points="10,1 10,13 18,7" style="stroke-width: 2; stroke-dasharray: 0;"></polygon></marker></defs><defs><marker id="docouture-diagram-1-container_class-compositionStart" class="marker composition class" refX="18" refY="7" markerWidth="190" markerHeight="240" orient="auto"><path d="M 18,7 L9,13 L1,7 L9,1 Z"></path></marker></defs><defs><marker id="docouture-diagram-1-container_class-compositionEnd" class="marker composition class" refX="1" refY="7" markerWidth="20" markerHeight="28" orient="auto"><path d="M 18,7 L9,13 L1,7 L9,1 Z"></path></marker></defs><defs><marker id="docouture-diagram-1-container_class-compositionStart-margin" class="marker composition class" refX="15" refY="7" markerWidth="190" markerHeight="240" orient="auto" markerUnits="userSpaceOnUse"><path viewBox="0 0 15 15" d="M 18,7 L9,13 L1,7 L9,1 Z" style="stroke-width: 0;"></path></marker></defs><defs><marker id="docouture-diagram-1-container_class-compositionEnd-margin" class="marker composition class" refX="3.5" refY="7" markerWidth="20" markerHeight="28" orient="auto" markerUnits="userSpaceOnUse"><path d="M 18,7 L9,13 L1,7 L9,1 Z" style="stroke-width: 0;"></path></marker></defs><defs><marker id="docouture-diagram-1-container_class-dependencyStart" class="marker dependency class" refX="6" refY="7" markerWidth="190" markerHeight="240" orient="auto"><path d="M 5,7 L9,13 L1,7 L9,1 Z"></path></marker></defs><defs><marker id="docouture-diagram-1-container_class-dependencyEnd" class="marker dependency class" refX="13" refY="7" markerWidth="20" markerHeight="28" orient="auto"><path d="M 18,7 L9,13 L14,7 L9,1 Z"></path></marker></defs><defs><marker id="docouture-diagram-1-container_class-dependencyStart-margin" class="marker dependency class" refX="4" refY="7" markerWidth="190" markerHeight="240" orient="auto" markerUnits="userSpaceOnUse"><path d="M 5,7 L9,13 L1,7 L9,1 Z" style="stroke-width: 0;"></path></marker></defs><defs><marker id="docouture-diagram-1-container_class-dependencyEnd-margin" class="marker dependency class" refX="16" refY="7" markerWidth="20" markerHeight="28" orient="auto" markerUnits="userSpaceOnUse"><path d="M 18,7 L9,13 L14,7 L9,1 Z" style="stroke-width: 0;"></path></marker></defs><defs><marker id="docouture-diagram-1-container_class-lollipopStart" class="marker lollipop class" refX="13" refY="7" markerWidth="190" markerHeight="240" orient="auto"><circle fill="transparent" cx="7" cy="7" r="6"></circle></marker></defs><defs><marker id="docouture-diagram-1-container_class-lollipopEnd" class="marker lollipop class" refX="1" refY="7" markerWidth="190" markerHeight="240" orient="auto"><circle fill="transparent" cx="7" cy="7" r="6"></circle></marker></defs><defs><marker id="docouture-diagram-1-container_class-lollipopStart-margin" class="marker lollipop class" refX="13" refY="7" markerWidth="190" markerHeight="240" orient="auto" markerUnits="userSpaceOnUse"><circle fill="transparent" cx="7" cy="7" r="6" stroke-width="2"></circle></marker></defs><defs><marker id="docouture-diagram-1-container_class-lollipopEnd-margin" class="marker lollipop class" refX="1" refY="7" markerWidth="190" markerHeight="240" orient="auto" markerUnits="userSpaceOnUse"><circle fill="transparent" cx="7" cy="7" r="6" stroke-width="2"></circle></marker></defs><g class="root"><g class="clusters"></g><g class="edgePaths"><path d="M238.833,223.282L209.006,241.568C179.179,259.855,119.525,296.427,91.195,320.88C62.866,345.333,65.86,357.667,67.357,363.833L68.854,370" id="docouture-diagram-1-container-id_ComponentConfig_LoaderConfig_1" class="edge-thickness-normal edge-pattern-solid relation" style=";;;" data-edge="true" data-et="edge" data-id="docouture-diagram-1-id_ComponentConfig_LoaderConfig_1" data-points="W3sieCI6MjUzLjUzOTA2MjUsInkiOjIxNC4yNjU5NzMzNTIzODYyNX0seyJ4Ijo1OS44NzEwOTM3NSwieSI6MzMzfSx7IngiOjY4Ljg1NDM4MTQ0MzI5ODk2LCJ5IjozNzB9XQ==" data-look="classic" marker-start="url(#docouture-diagram-1-container_class-extensionStart)"></path><path d="M294.922,250.729L286.565,264.441C278.207,278.153,261.491,305.576,260.64,325.455C259.789,345.333,274.803,357.667,282.31,363.833L289.817,370" id="docouture-diagram-1-container-id_ComponentConfig_PreprocessorConfig_2" class="edge-thickness-normal edge-pattern-solid relation" style=";;;" data-edge="true" data-et="edge" data-id="docouture-diagram-1-id_ComponentConfig_PreprocessorConfig_2" data-points="W3sieCI6MzAzLjkwMDQ2NjE2MDIyMSwieSI6MjM2fSx7IngiOjI0NC43NzUzOTA2MjUsInkiOjMzM30seyJ4IjoyODkuODE2OTkwMTczOTY5MSwieSI6MzcwfV0=" data-look="classic" marker-start="url(#docouture-diagram-1-container_class-extensionStart)"></path><path d="M468.014,247.113L485.007,261.428C502,275.742,535.986,304.371,560.905,324.852C585.824,345.333,601.676,357.667,609.602,363.833L617.528,370" id="docouture-diagram-1-container-id_ComponentConfig_ScannerConfig_3" class="edge-thickness-normal edge-pattern-solid relation" style=";;;" data-edge="true" data-et="edge" data-id="docouture-diagram-1-id_ComponentConfig_ScannerConfig_3" data-points="W3sieCI6NDU0LjgyMDc0NDEyOTgzNDIsInkiOjIzNn0seyJ4Ijo1NjkuOTcyNjU2MjUsInkiOjMzM30seyJ4Ijo2MTcuNTI3OTA3NTM4NjU5NywieSI6MzcwfV0=" data-look="classic" marker-start="url(#docouture-diagram-1-container_class-extensionStart)"></path><path d="M472.96,192.921L540.202,216.267C607.444,239.614,741.928,286.307,816.433,315.82C890.939,345.333,905.466,357.667,912.729,363.833L919.993,370" id="docouture-diagram-1-container-id_ComponentConfig_ScoreAggregatorConfig_4" class="edge-thickness-normal edge-pattern-solid relation" style=";;;" data-edge="true" data-et="edge" data-id="docouture-diagram-1-id_ComponentConfig_ScoreAggregatorConfig_4" data-points="W3sieCI6NDU2LjY2NDA2MjUsInkiOjE4Ny4yNjI2OTA1NTk3NzQ2fSx7IngiOjg3Ni40MTIxMDkzNzUsInkiOjMzM30seyJ4Ijo5MTkuOTkyNzUxMjg4NjU5NywieSI6MzcwfV0=" data-look="classic" marker-start="url(#docouture-diagram-1-container_class-extensionStart)"></path><path d="M490.47,225.571L441.67,243.476C392.871,261.381,295.272,297.19,239.21,321.262C183.147,345.333,168.62,357.667,161.357,363.833L154.093,370" id="docouture-diagram-1-container-id_CerbIAConfig_LoaderConfig_5" class="edge-thickness-normal edge-pattern-solid relation" style=";;;" data-edge="true" data-et="edge" data-id="docouture-diagram-1-id_CerbIAConfig_LoaderConfig_5" data-points="W3sieCI6NTA2LjY2NDA2MjUsInkiOjIxOS42Mjk2NDk1NzIyMDk2NH0seyJ4IjoxOTcuNjczODI4MTI1LCJ5IjozMzN9LHsieCI6MTU0LjA5MzE4NjIxMTM0MDIsInkiOjM3MH1d" data-look="classic" marker-start="url(#docouture-diagram-1-container_class-compositionStart)"></path><path d="M525.646,307.831L521.195,312.026C516.745,316.221,507.843,324.61,494.741,334.972C481.639,345.333,464.336,357.667,455.684,363.833L447.033,370" id="docouture-diagram-1-container-id_CerbIAConfig_PreprocessorConfig_6" class="edge-thickness-normal edge-pattern-solid relation" style=";;;" data-edge="true" data-et="edge" data-id="docouture-diagram-1-id_CerbIAConfig_PreprocessorConfig_6" data-points="W3sieCI6NTM4LjE5OTYwNzIxNjg1MDgsInkiOjI5Nn0seyJ4Ijo0OTguOTQxNDA2MjUsInkiOjMzM30seyJ4Ijo0NDcuMDMzMDgyMzEzMTQ0MzUsInkiOjM3MH1d" data-look="classic" marker-start="url(#docouture-diagram-1-container_class-compositionStart)"></path><path d="M807.142,309.895L809.975,313.746C812.808,317.597,818.473,325.298,813.073,335.316C807.674,345.333,791.209,357.667,782.976,363.833L774.744,370" id="docouture-diagram-1-container-id_CerbIAConfig_ScannerConfig_7" class="edge-thickness-normal edge-pattern-solid relation" style=";;;" data-edge="true" data-et="edge" data-id="docouture-diagram-1-id_CerbIAConfig_ScannerConfig_7" data-points="W3sieCI6Nzk2LjkyMDA4MzczNjE4NzgsInkiOjI5Nn0seyJ4Ijo4MjQuMTM4NjcxODc1LCJ5IjozMzN9LHsieCI6Nzc0Ljc0Mzk5OTY3NzgzNTEsInkiOjM3MH1d" data-look="classic" marker-start="url(#docouture-diagram-1-container_class-compositionStart)"></path><path d="M890.461,260.659L912.594,272.716C934.728,284.773,978.995,308.886,999.056,327.11C1019.117,345.333,1014.972,357.667,1012.9,363.833L1010.828,370" id="docouture-diagram-1-container-id_CerbIAConfig_ScoreAggregatorConfig_8" class="edge-thickness-normal edge-pattern-solid relation" style=";;;" data-edge="true" data-et="edge" data-id="docouture-diagram-1-id_CerbIAConfig_ScoreAggregatorConfig_8" data-points="W3sieCI6ODc1LjMxMjUsInkiOjI1Mi40MDczMTQ2NjQ1OTc2fSx7IngiOjEwMjMuMjYxNzE4NzUsInkiOjMzM30seyJ4IjoxMDEwLjgyNzU2MTIxMTM0MDMsInkiOjM3MH1d" data-look="classic" marker-start="url(#docouture-diagram-1-container_class-compositionStart)"></path></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="docouture-diagram-1-id_ComponentConfig_LoaderConfig_1" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="docouture-diagram-1-id_ComponentConfig_PreprocessorConfig_2" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="docouture-diagram-1-id_ComponentConfig_ScannerConfig_3" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="docouture-diagram-1-id_ComponentConfig_ScoreAggregatorConfig_4" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(325.3338, 286.1608)"><g class="label" data-id="docouture-diagram-1-id_CerbIAConfig_LoaderConfig_5" transform="translate(-27.1015625, -12)"><foreignObject width="54.203125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>loaders</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(494.95169, 335.84385)"><g class="label" data-id="docouture-diagram-1-id_CerbIAConfig_PreprocessorConfig_6" transform="translate(-51.03125, -12)"><foreignObject width="102.0625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>preprocessors</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(817.8228, 337.73102)"><g class="label" data-id="docouture-diagram-1-id_CerbIAConfig_ScannerConfig_7" transform="translate(-32.2734375, -12)"><foreignObject width="64.546875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>scanners</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(966.42595, 302.03973)"><g class="label" data-id="docouture-diagram-1-id_CerbIAConfig_ScoreAggregatorConfig_8" transform="translate(-61.8125, -12)"><foreignObject width="123.625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>score_aggregator</p></span></div></foreignObject></g></g><g class="edgeTerminals" transform="translate(485.0682078322505, 211.57551391893082)"><g class="inner" transform="translate(-2.3828125, -8.25)"><foreignObject width="4.765625" height="16.5" style="width: 9px; height: 12px;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="edgeLabel"><p>1</p></span></div></foreignObject></g></g><g class="edgeTerminals" transform="translate(515.1763808770145, 297.0867641833267)"><g class="inner" transform="translate(-2.3828125, -8.25)"><foreignObject width="4.765625" height="16.5" style="width: 9px; height: 12px;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="edgeLabel"><p>1</p></span></div></foreignObject></g></g><g class="edgeTerminals" transform="translate(795.2072722444548, 318.9851296982776)"><g class="inner" transform="translate(-2.3828125, -8.25)"><foreignObject width="4.765625" height="16.5" style="width: 9px; height: 12px;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="edgeLabel"><p>1</p></span></div></foreignObject></g></g><g class="edgeTerminals" transform="translate(883.5048954625387, 273.95110050502046)"><g class="inner" transform="translate(-2.3828125, -8.25)"><foreignObject width="4.765625" height="16.5" style="width: 9px; height: 12px;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="edgeLabel"><p>1</p></span></div></foreignObject></g></g><g class="edgeTerminals" transform="translate(172.14178949929592, 365.10862112234366)"><g class="inner" transform="translate(-7.578125, -8.25)"></g><foreignObject width="15.15625" height="16.5" style="width: 36px; height: 12px;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="edgeLabel"><p>0..*</p></span></div></foreignObject></g><g class="edgeTerminals" transform="translate(464.98997054978594, 367.05700630232354)"><g class="inner" transform="translate(-7.578125, -8.25)"></g><foreignObject width="15.15625" height="16.5" style="width: 36px; height: 12px;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="edgeLabel"><p>0..*</p></span></div></foreignObject></g><g class="edgeTerminals" transform="translate(792.7431020585241, 366.513715001251)"><g class="inner" transform="translate(-7.578125, -8.25)"></g><foreignObject width="15.15625" height="16.5" style="width: 36px; height: 12px;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="edgeLabel"><p>0..*</p></span></div></foreignObject></g><g class="edgeTerminals" transform="translate(1025.6207942231206, 353.1899266450164)"><g class="inner" transform="translate(-2.3828125, -8.25)"></g><foreignObject width="4.765625" height="16.5" style="width: 9px; height: 12px;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="edgeLabel"><p>1</p></span></div></foreignObject></g></g><g class="nodes"><g class="node default" id="docouture-diagram-1-container-classId-CerbIAConfig-0" data-look="classic" transform="translate(690.98828125, 152)"><g class="basic label-container outer-path"><path d="M-184.32421875 -144 L184.32421875 -144 L184.32421875 144 L-184.32421875 144" stroke="none" stroke-width="0" fill="#ffffff" style=""></path><path d="M-184.32421875 -144 C-91.48535186263881 -144, 1.353515024722384 -144, 184.32421875 -144 M-184.32421875 -144 C-76.45834191286194 -144, 31.40753492427612 -144, 184.32421875 -144 M184.32421875 -144 C184.32421875 -85.31556545914215, 184.32421875 -26.6311309182843, 184.32421875 144 M184.32421875 -144 C184.32421875 -43.147676250597144, 184.32421875 57.70464749880571, 184.32421875 144 M184.32421875 144 C78.17555551345238 144, -27.97310772309524 144, -184.32421875 144 M184.32421875 144 C45.30277012016629 144, -93.71867850966743 144, -184.32421875 144 M-184.32421875 144 C-184.32421875 80.52558078750909, -184.32421875 17.05116157501817, -184.32421875 -144 M-184.32421875 144 C-184.32421875 67.619150146257, -184.32421875 -8.761699707486002, -184.32421875 -144" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g><g class="annotation-group text" transform="translate(0, -120)"></g><g class="label-group text" transform="translate(-46.7578125, -120)"><g class="label" style="font-weight: bolder" transform="translate(0,-12)"><foreignObject width="93.515625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 142px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>CerbIAConfig</p></span></div></foreignObject></g></g><g class="members-group text" transform="translate(-172.32421875, -72)"><g class="label" style="" transform="translate(0,-12)"><foreignObject width="72.171875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 130px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+str name</p></span></div></foreignObject></g><g class="label" style="" transform="translate(0,12)"><foreignObject width="88.875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 147px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+list loaders</p></span></div></foreignObject></g><g class="label" style="" transform="translate(0,36)"><foreignObject width="136.734375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 195px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+list preprocessors</p></span></div></foreignObject></g><g class="label" style="" transform="translate(0,60)"><foreignObject width="102.828125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 161px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+bool fail_fast</p></span></div></foreignObject></g><g class="label" style="" transform="translate(0,84)"><foreignObject width="114.984375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 173px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+float threshold</p></span></div></foreignObject></g><g class="label" style="" transform="translate(0,108)"><foreignObject width="276.015625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 335px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+ScannerErrorPolicy on_scanner_error</p></span></div></foreignObject></g><g class="label" style="" transform="translate(0,132)"><foreignObject width="99.21875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 158px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+list scanners</p></span></div></foreignObject></g><g class="label" style="" transform="translate(0,156)"><foreignObject width="297.890625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 357px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+ScoreAggregatorConfig score_aggregator</p></span></div></foreignObject></g></g><g class="methods-group text" transform="translate(-172.32421875, 144)"></g><g class="divider" style=""><path d="M-184.32421875 -96 C-84.40985932169218 -95.99972897115717, 15.504500106615637 -95.99945794231432, 184.32421875 -95.999 M-184.32421875 -96 C-51.26445680237313 -95.9996390605563, 81.79530514525374 -95.99927812111262, 184.32421875 -95.999" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g><g class="divider" style=""><path d="M-184.32421875 120 C-60.5694981023383 120.00033569848142, 63.1852225453234 120.00067139696284, 184.32421875 120.001 M-184.32421875 120 C-77.43029538639294 120.0002899616884, 29.463627977214117 120.0005799233768, 184.32421875 120.001" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g></g><g class="node default" id="docouture-diagram-1-container-classId-ComponentConfig-1" data-look="classic" transform="translate(355.1015625, 152)"><g class="basic label-container outer-path"><path d="M-101.5625 -84 L101.5625 -84 L101.5625 84 L-101.5625 84" stroke="none" stroke-width="0" fill="#ffffff" style=""></path><path d="M-101.5625 -84 C-35.183874598800685 -84, 31.19475080239863 -84, 101.5625 -84 M-101.5625 -84 C-42.1991446142468 -84, 17.164210771506404 -84, 101.5625 -84 M101.5625 -84 C101.5625 -26.754624336775336, 101.5625 30.490751326449328, 101.5625 84 M101.5625 -84 C101.5625 -18.50724087010802, 101.5625 46.98551825978396, 101.5625 84 M101.5625 84 C41.092141422298475 84, -19.37821715540305 84, -101.5625 84 M101.5625 84 C49.63546209794629 84, -2.291575804107424 84, -101.5625 84 M-101.5625 84 C-101.5625 32.968626863117365, -101.5625 -18.06274627376527, -101.5625 -84 M-101.5625 84 C-101.5625 40.79925785573649, -101.5625 -2.4014842885270156, -101.5625 -84" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g><g class="annotation-group text" transform="translate(-38.609375, -60)"><g class="label" style="" transform="translate(0,-12)"><foreignObject width="77.21875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 127px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>«abstract»</p></span></div></foreignObject></g></g><g class="label-group text" transform="translate(-64.984375, -36)"><g class="label" style="font-weight: bolder" transform="translate(0,-12)"><foreignObject width="129.96875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 179px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>ComponentConfig</p></span></div></foreignObject></g></g><g class="members-group text" transform="translate(-89.5625, 12)"><g class="label" style="" transform="translate(0,-12)"><foreignObject width="102.234375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 161px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+dict init_args</p></span></div></foreignObject></g><g class="label" style="" transform="translate(0,12)"><foreignObject width="114.140625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 173px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+str component</p></span></div></foreignObject></g></g><g class="methods-group text" transform="translate(-89.5625, 84)"></g><g class="divider" style=""><path d="M-101.5625 -12 C-22.846500578616897 -11.999612475079772, 55.869498842766205 -11.999224950159544, 101.5625 -11.999 M-101.5625 -12 C-29.048204610375038 -11.999643006545774, 43.466090779249924 -11.999286013091549, 101.5625 -11.999" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g><g class="divider" style=""><path d="M-101.5625 60 C-35.042901115387394 60.000327481102204, 31.47669776922521 60.0006549622044, 101.5625 60.001 M-101.5625 60 C-52.991611087902214 60.00023911822234, -4.420722175804428 60.00047823644467, 101.5625 60.001" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g></g><g class="node default" id="docouture-diagram-1-container-classId-LoaderConfig-2" data-look="classic" transform="translate(83.421875, 430)"><g class="basic label-container outer-path"><path d="M-75.421875 -60 L75.421875 -60 L75.421875 60 L-75.421875 60" stroke="none" stroke-width="0" fill="#ffffff" style=""></path><path d="M-75.421875 -60 C-39.695863932618245 -60, -3.96985286523649 -60, 75.421875 -60 M-75.421875 -60 C-40.58002898160433 -60, -5.738182963208658 -60, 75.421875 -60 M75.421875 -60 C75.421875 -21.935143249505806, 75.421875 16.129713500988387, 75.421875 60 M75.421875 -60 C75.421875 -34.767149413892994, 75.421875 -9.534298827785989, 75.421875 60 M75.421875 60 C16.647538182730223 60, -42.126798634539554 60, -75.421875 60 M75.421875 60 C23.554566657409183 60, -28.312741685181635 60, -75.421875 60 M-75.421875 60 C-75.421875 29.933178912145564, -75.421875 -0.1336421757088715, -75.421875 -60 M-75.421875 60 C-75.421875 25.576244326396747, -75.421875 -8.847511347206506, -75.421875 -60" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g><g class="annotation-group text" transform="translate(0, -36)"></g><g class="label-group text" transform="translate(-48.234375, -36)"><g class="label" style="font-weight: bolder" transform="translate(0,-12)"><foreignObject width="96.46875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 145px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>LoaderConfig</p></span></div></foreignObject></g></g><g class="members-group text" transform="translate(-63.421875, 12)"><g class="label" style="" transform="translate(0,-12)"><foreignObject width="78.609375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 138px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+str loader</p></span></div></foreignObject></g></g><g class="methods-group text" transform="translate(-63.421875, 60)"></g><g class="divider" style=""><path d="M-75.421875 -12 C-38.79038657866701 -11.999757156074274, -2.158898157334022 -11.999514312148547, 75.421875 -11.999 M-75.421875 -12 C-42.03289218314321 -11.999778651864483, -8.643909366286422 -11.999557303728967, 75.421875 -11.999" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g><g class="divider" style=""><path d="M-75.421875 36 C-37.60695746570362 36.00025068932279, 0.2079600685927545 36.00050137864557, 75.421875 36.001 M-75.421875 36 C-41.8813828692612 36.00022235254779, -8.340890738522404 36.00044470509558, 75.421875 36.001" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g></g><g class="node default" id="docouture-diagram-1-container-classId-PreprocessorConfig-3" data-look="classic" transform="translate(362.857421875, 430)"><g class="basic label-container outer-path"><path d="M-110.7421875 -60 L110.7421875 -60 L110.7421875 60 L-110.7421875 60" stroke="none" stroke-width="0" fill="#ffffff" style=""></path><path d="M-110.7421875 -60 C-51.25136621008213 -60, 8.239455079835736 -60, 110.7421875 -60 M-110.7421875 -60 C-22.263091012515474 -60, 66.21600547496905 -60, 110.7421875 -60 M110.7421875 -60 C110.7421875 -15.040329557624055, 110.7421875 29.91934088475189, 110.7421875 60 M110.7421875 -60 C110.7421875 -13.146294581590837, 110.7421875 33.707410836818326, 110.7421875 60 M110.7421875 60 C47.48546965920626 60, -15.771248181587481 60, -110.7421875 60 M110.7421875 60 C64.34140720245253 60, 17.94062690490506 60, -110.7421875 60 M-110.7421875 60 C-110.7421875 21.37186678530643, -110.7421875 -17.25626642938714, -110.7421875 -60 M-110.7421875 60 C-110.7421875 18.348250482746977, -110.7421875 -23.303499034506046, -110.7421875 -60" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g><g class="annotation-group text" transform="translate(0, -36)"></g><g class="label-group text" transform="translate(-71.015625, -36)"><g class="label" style="font-weight: bolder" transform="translate(0,-12)"><foreignObject width="142.03125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 190px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>PreprocessorConfig</p></span></div></foreignObject></g></g><g class="members-group text" transform="translate(-98.7421875, 12)"><g class="label" style="" transform="translate(0,-12)"><foreignObject width="126.46875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 186px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+str preprocessor</p></span></div></foreignObject></g></g><g class="methods-group text" transform="translate(-98.7421875, 60)"></g><g class="divider" style=""><path d="M-110.7421875 -12 C-57.38898966967317 -11.999759110782282, -4.035791839346345 -11.999518221564566, 110.7421875 -11.999 M-110.7421875 -12 C-40.39527859425503 -11.999682384326634, 29.951630311489936 -11.999364768653267, 110.7421875 -11.999" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g><g class="divider" style=""><path d="M-110.7421875 36 C-55.30568116688618 36.00025029533724, 0.13082516622763762 36.00050059067447, 110.7421875 36.001 M-110.7421875 36 C-63.7352521749706 36.000212235898466, -16.728316849941194 36.00042447179694, 110.7421875 36.001" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g></g><g class="node default" id="docouture-diagram-1-container-classId-ScannerConfig-4" data-look="classic" transform="translate(694.64453125, 430)"><g class="basic label-container outer-path"><path d="M-82.734375 -60 L82.734375 -60 L82.734375 60 L-82.734375 60" stroke="none" stroke-width="0" fill="#ffffff" style=""></path><path d="M-82.734375 -60 C-44.57646916410598 -60, -6.41856332821196 -60, 82.734375 -60 M-82.734375 -60 C-37.28535336697201 -60, 8.163668266055979 -60, 82.734375 -60 M82.734375 -60 C82.734375 -12.47789168286154, 82.734375 35.04421663427692, 82.734375 60 M82.734375 -60 C82.734375 -30.742612819066743, 82.734375 -1.4852256381334854, 82.734375 60 M82.734375 60 C49.316803283520805 60, 15.89923156704161 60, -82.734375 60 M82.734375 60 C35.48437441495245 60, -11.765626170095103 60, -82.734375 60 M-82.734375 60 C-82.734375 31.933718277521763, -82.734375 3.8674365550435255, -82.734375 -60 M-82.734375 60 C-82.734375 17.480781102913326, -82.734375 -25.038437794173348, -82.734375 -60" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g><g class="annotation-group text" transform="translate(0, -36)"></g><g class="label-group text" transform="translate(-52.5, -36)"><g class="label" style="font-weight: bolder" transform="translate(0,-12)"><foreignObject width="105" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 154px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>ScannerConfig</p></span></div></foreignObject></g></g><g class="members-group text" transform="translate(-70.734375, 12)"><g class="label" style="" transform="translate(0,-12)"><foreignObject width="88.96875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 148px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+str scanner</p></span></div></foreignObject></g></g><g class="methods-group text" transform="translate(-70.734375, 60)"></g><g class="divider" style=""><path d="M-82.734375 -12 C-24.730480668049317 -11.999649457106965, 33.273413663901366 -11.999298914213929, 82.734375 -11.999 M-82.734375 -12 C-27.798615127626498 -11.999667999184908, 27.137144744747005 -11.999335998369816, 82.734375 -11.999" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g><g class="divider" style=""><path d="M-82.734375 36 C-28.669804109989855 36.00032673583918, 25.39476678002029 36.00065347167837, 82.734375 36.001 M-82.734375 36 C-41.27569066804646 36.00025055295536, 0.18299366390708371 36.000501105910715, 82.734375 36.001" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g></g><g class="node default" id="docouture-diagram-1-container-classId-ScoreAggregatorConfig-5" data-look="classic" transform="translate(990.6640625, 430)"><g class="basic label-container outer-path"><path d="M-131.42578125 -60 L131.42578125 -60 L131.42578125 60 L-131.42578125 60" stroke="none" stroke-width="0" fill="#ffffff" style=""></path><path d="M-131.42578125 -60 C-61.73099463304894 -60, 7.9637919839021265 -60, 131.42578125 -60 M-131.42578125 -60 C-59.39308697222681 -60, 12.639607305546377 -60, 131.42578125 -60 M131.42578125 -60 C131.42578125 -30.226283345882475, 131.42578125 -0.45256669176495024, 131.42578125 60 M131.42578125 -60 C131.42578125 -14.886121228747598, 131.42578125 30.227757542504804, 131.42578125 60 M131.42578125 60 C59.980136714826 60, -11.465507820347995 60, -131.42578125 60 M131.42578125 60 C31.320133800104685 60, -68.78551364979063 60, -131.42578125 60 M-131.42578125 60 C-131.42578125 19.47005123461198, -131.42578125 -21.05989753077604, -131.42578125 -60 M-131.42578125 60 C-131.42578125 34.3054386068232, -131.42578125 8.610877213646411, -131.42578125 -60" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g><g class="annotation-group text" transform="translate(0, -36)"></g><g class="label-group text" transform="translate(-83.5859375, -36)"><g class="label" style="font-weight: bolder" transform="translate(0,-12)"><foreignObject width="167.171875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 213px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>ScoreAggregatorConfig</p></span></div></foreignObject></g></g><g class="members-group text" transform="translate(-119.42578125, 12)"><g class="label" style="" transform="translate(0,-12)"><foreignObject width="155.265625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 214px; text-align: center;"><span class="nodeLabel markdown-node-label" style=""><p>+str score_aggregator</p></span></div></foreignObject></g></g><g class="methods-group text" transform="translate(-119.42578125, 60)"></g><g class="divider" style=""><path d="M-131.42578125 -12 C-49.91875839428293 -11.999689912351746, 31.588264461434136 -11.99937982470349, 131.42578125 -11.999 M-131.42578125 -12 C-66.50735507337774 -11.999753022483263, -1.5889288967554762 -11.999506044966527, 131.42578125 -11.999" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g><g class="divider" style=""><path d="M-131.42578125 36 C-75.40594387036586 36.000213123471084, -19.386106490731706 36.00042624694216, 131.42578125 36.001 M-131.42578125 36 C-42.75071068630747 36.000337357973905, 45.92435987738506 36.00067471594782, 131.42578125 36.001" stroke="#000000" stroke-width="1.3" fill="none" stroke-dasharray="0 0" style=""></path></g></g></g></g></g><defs><filter id="docouture-diagram-1-container-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><defs><filter id="docouture-diagram-1-container-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><linearGradient id="docouture-diagram-1-container-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#000000" stop-opacity="1"></stop><stop offset="100%" stop-color="hsl(-120, 0%, 90%)" stop-opacity="1"></stop></linearGradient></svg></div></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="component-records"><a class="anchor" href="#component-records"></a>Component records</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Every component record names an importable class using its collection&#8217;s path key:</p>
+</div>
+<div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Collection</th>
+<th class="tableblock halign-left valign-top">Path key</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>loaders</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>loader</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>preprocessors</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>preprocessor</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>scanners</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>scanner</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>score_aggregator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>score_aggregator</code></p></td>
+</tr>
+</tbody>
+</table></div></div>
+<div class="sect2">
+<h3 id="init_args-contract"><a class="anchor" href="#init_args-contract"></a><code>init_args</code> contract</h3>
+<div class="paragraph">
+<p><code>init_args</code> is optional and defaults to <code>{}</code>. Its keys become keyword argument
+names for the configured class constructor; its values are forwarded without
+component-specific schema validation. Use the selected component&#8217;s reference
+page for accepted arguments, defaults, and validation rules.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loaders</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loader</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.loaders.FileLoader</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      paths</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"src"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"tests"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      extensions</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">".py"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">".yaml"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      recursive</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">true</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.KeywordScanner</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      languages</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"en"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"es"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      match_strategy</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">all</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      redact</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">true</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">  score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.score_aggregators.MaxWithBonusScoreAggregator</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">  init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    bonus</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.05</span></span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Incorrect constructor names or values fail during component construction, not
+when the root YAML mapping is parsed.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="loaders"><a class="anchor" href="#loaders"></a>Loaders</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Loaders run in list order and their entries are combined. Use <code>TextLoader</code> for
+inline values or <code>FileLoader</code> for paths and directories. See the
+<a href="../components/loaders/" class="xref page">loader reference</a> for details.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loaders</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loader</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.loaders.TextLoader</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      texts</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">        - </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"First value to scan"</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">        - </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"Second value to scan"</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loader</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.loaders.FileLoader</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      paths</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"src"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      extensions</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">".py"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">".md"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      recursive</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">true</span></span></span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="preprocessors"><a class="anchor" href="#preprocessors"></a>Preprocessors</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Preprocessors run in list order after loading and before gate evaluation. They
+can transform entries or produce derived entries. See the
+<a href="../components/preprocessors/" class="xref page">preprocessor reference</a> for available components.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">preprocessors</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">preprocessor</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      max_consecutive_spaces</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">6</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      max_consecutive_newlines</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">6</span></span></span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="scanners"><a class="anchor" href="#scanners"></a>Scanners</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Scanners run inside <code>SecurityGate</code>. Scanner options belong in <code>init_args</code> and
+are specific to the configured scanner; see the
+<a href="../components/scanners/" class="xref page">scanner reference</a> before adding options.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.XssScanner</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      html_context_aware</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">true</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      content_types</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">text</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">code</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span></span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="content-type-routing"><a class="anchor" href="#content-type-routing"></a>Content-type routing</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>content_types</code> controls whether a scanner is eligible for an entry. Valid
+values are <code>text</code>, <code>url</code>, <code>code</code>, and <code>unknown</code>.</p>
+</div>
+<div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Condition</th>
+<th class="tableblock halign-left valign-top">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scanner <code>content_types</code> is <code>null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scanner accepts every content type.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Entry type is <code>unknown</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Every scanner accepts it.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A known entry type is listed in <code>content_types</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scanner runs.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A known entry type is not listed</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scanner is skipped and recorded in the result.</p></td>
+</tr>
+</tbody>
+</table></div></div>
+<div class="paragraph">
+<p>Routing controls scanner eligibility, not loader selection or preprocessing.
+The core <code>TextLoader</code> and <code>FileLoader</code> currently produce entries with an
+<code>unknown</code> content type, so scanner restrictions do not exclude their entries.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="score-aggregators"><a class="anchor" href="#score-aggregators"></a>Score aggregators</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The score aggregator combines severity-weighted scores from positive <code>BLOCK</code>
+findings. Choose one aggregator record and configure its options with
+<code>init_args</code>; see <a href="../components/score-aggregators/" class="xref page">score aggregators</a> for strategies.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">  score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.score_aggregators.MaxWithBonusScoreAggregator</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">  init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    bonus</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.05</span></span></span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="representative-configuration"><a class="anchor" href="#representative-configuration"></a>Representative configuration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This illustrative configuration demonstrates every component-record type and
+<code>init_args</code>. The relative link <code>../examples/cli-usage/config.cerbia.yaml</code>
+remains the maintained executable repository example, available as the
+<a href="https://github.com/InditexTech/cerbia/blob/main/examples/cli-usage/config.cerbia.yaml">CLI example configuration</a>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">name</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">documentation-example</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">fail_fast</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">false</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">threshold</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.5</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">on_scanner_error</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">block</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loaders</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loader</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.loaders.TextLoader</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      texts</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">        - </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"A normal response"</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">        - </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"&#x3C;script>alert('example')&#x3C;/script>"</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">preprocessors</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">preprocessor</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      max_consecutive_spaces</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">6</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      max_consecutive_newlines</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">6</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.XssScanner</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      html_context_aware</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">true</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      content_types</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">text</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">code</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.SecretScanner</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      entropy_detection</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">true</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      content_types</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">null</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">  score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.score_aggregators.MaxWithBonusScoreAggregator</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">  init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    bonus</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.05</span></span></span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="execution-policies"><a class="anchor" href="#execution-policies"></a>Execution policies</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Only positive <code>BLOCK</code> findings contribute severity-weighted scores to the
+aggregator. An entry is unsafe when the aggregate reaches or exceeds
+<code>threshold</code>; with <code>threshold: 0.0</code>, any positive blocking finding makes the
+entry unsafe. <code>fail_fast: true</code> stops after an individual blocking finding
+reaches the threshold.</p>
+</div>
+<div class="paragraph">
+<p><code>on_scanner_error</code> controls exceptions raised by scanners:</p>
+</div>
+<div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Propagates the scanner error.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>block</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Marks the entry unsafe and records a scanner-failure rationale.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>skip</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Records the scanner as skipped and continues.</p></td>
+</tr>
+</tbody>
+</table></div></div>
+<div class="paragraph">
+<p>See <a href="../gate/" class="xref page">Gate behavior</a> for verdict rules.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="validate-configuration"><a class="anchor" href="#validate-configuration"></a>Validate configuration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Validate YAML before scanning:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="bash"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> validate</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/config.cerbia.yaml</span></span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A successful command means the YAML mapping and root schema are valid, required
+runtime loader and scanner presence is checked, component paths can be imported,
+constructors accept their arguments, and the resulting objects satisfy their
+expected contracts. It does not load entries or run scanners.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="related-references"><a class="anchor" href="#related-references"></a>Related references</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>See <a href="../architecture/" class="xref page">Architecture</a>, <a href="../gate/" class="xref page">Gate behavior</a>, and
+<a href="../packages/" class="xref page">Packages</a> for pipeline and package details. See
+<a href="../components/custom-components/" class="xref page">Custom components</a> to configure externally provided
+loaders, preprocessors, scanners, and score aggregators.</p>
+</div>
+</div>
+</div>
+</article>
+  </div>
+</main>
+</div>
+
+
+<footer class="page-footer">
+  <div class="page-footer__nav">
+
+<div class="dt-grid-layout dt-grid-layout--with-margin pagination">
+  <div class="dt-grid-layout__item dt-grid-layout__item--span-full pagination__row">
+    <div class="pagination__buttons">
+    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-icon pagination__prev" href="../reference-overview/">
+      <span class="dt-button__content">
+        <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-arrow-left"></use></svg></span>
+        <span class="pagination__label-full">Reference overview</span>
+        <span class="pagination__label-short">Prev</span>
+      </span>
+    </a>
+    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action pagination__next" href="../i18n/">
+      <span class="dt-button__content">
+        <span class="pagination__label-full">Internationalization</span>
+        <span class="pagination__label-short">Next</span>
+        <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-arrow-right"></use></svg></span>
+      </span>
+    </a>
+    </div>
+  </div>
+</div>
+  </div>
+  <div class="dt-grid-layout dt-grid-layout--with-margin page-footer__feedback">
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-full page-footer__contribute">
+      <div class="page-footer__contribute-copy">
+        <p class="dt-text dt-text--title-s">Help us make these docs great!</p>
+        <p class="dt-text dt-text--body-m">See something that is wrong or unclear? Collaborate with us! Submit a pull request</p>
+      </div>
+      <div class="page-footer__contribute-buttons">
+
+<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/edit/main/docs/src/modules/main/pages/configuration.adoc">
+  <span class="dt-button__content">
+    Propose a change
+    <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-external-link"></use></svg></span>
+  </span>
+</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+
+<footer class="site-footer">
+  <div class="dt-grid-layout dt-grid-layout--with-margin site-footer__grid">
+    <div class="dt-grid-layout__item site-footer__col site-footer__brand">
+      <a class="site-footer__brand-link" href="../../">
+        <img class="site-footer__logo site-footer__logo--light" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+        <img class="site-footer__logo site-footer__logo--dark" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+        <span class="dt-text dt-text--label-l-high">CerbIA</span>
+      </a>
+      <span class="dt-text dt-text--detail-m site-footer__legal">&#169; 2026 InditexTech</span>
+    </div>
+    <div class="dt-grid-layout__item site-footer__col site-footer__links">
+      <span class="dt-text dt-text--label-l site-footer__heading">Documentation</span>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../about/">Overview</a>
+    </div>
+    <div class="dt-grid-layout__item site-footer__col site-footer__links">
+      <span class="dt-text dt-text--label-l site-footer__heading">Modules</span>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../about/">Documentation</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia/">cerbia</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-core/">cerbia-core</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-cli/">cerbia-cli</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-ml/">cerbia-ml</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-presidio/">cerbia-presidio</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-protectai/">cerbia-protectai</a>
+    </div>
+  </div>
+</footer>
+  </body>
+</html>
