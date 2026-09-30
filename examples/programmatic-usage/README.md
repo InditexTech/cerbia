@@ -13,5 +13,5 @@ The sample prints each verdict's `is_safe` value, score, and rationale. The
 safe entry passes; the prompt-injection entry is blocked by the default keyword
 patterns.
 
-See the [gate behavior documentation](https://inditextech.github.io/cerbia/prerelease/main/gate/) and the
-[scanner reference](https://inditextech.github.io/cerbia/prerelease/main/components/scanners/) for general concepts.
+See the [gate behavior documentation](https://inditextech.github.io/cerbia/latest/main/gate/) and the
+[scanner reference](https://inditextech.github.io/cerbia/latest/main/components/scanners/) for general concepts.

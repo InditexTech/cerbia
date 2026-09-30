@@ -90,20 +90,20 @@ cerbia scan --config examples/cli-usage/config.cerbia.yaml --text "A short messa
 
 ## Documentation
 
-- [Getting started](https://inditextech.github.io/cerbia/prerelease/main/quickstart/)
-- [Architecture](https://inditextech.github.io/cerbia/prerelease/main/architecture/)
-- [Configuration](https://inditextech.github.io/cerbia/prerelease/main/configuration/)
-- [CLI reference](https://inditextech.github.io/cerbia/prerelease/main/cli/)
-- [Loaders](https://inditextech.github.io/cerbia/prerelease/main/components/loaders/)
-- [Preprocessors](https://inditextech.github.io/cerbia/prerelease/main/components/preprocessors/)
-- [Scanners](https://inditextech.github.io/cerbia/prerelease/main/components/scanners/)
-- [Gate behavior](https://inditextech.github.io/cerbia/prerelease/main/gate/)
-- [Score aggregators](https://inditextech.github.io/cerbia/prerelease/main/components/score-aggregators/)
-- [Internationalization](https://inditextech.github.io/cerbia/prerelease/main/i18n/)
-- [Packages](https://inditextech.github.io/cerbia/prerelease/main/packages/)
-- [Logging](https://inditextech.github.io/cerbia/prerelease/main/logging/)
+- [Getting started](https://inditextech.github.io/cerbia/latest/main/quickstart/)
+- [Architecture](https://inditextech.github.io/cerbia/latest/main/architecture/)
+- [Configuration](https://inditextech.github.io/cerbia/latest/main/configuration/)
+- [CLI reference](https://inditextech.github.io/cerbia/latest/main/cli/)
+- [Loaders](https://inditextech.github.io/cerbia/latest/main/components/loaders/)
+- [Preprocessors](https://inditextech.github.io/cerbia/latest/main/components/preprocessors/)
+- [Scanners](https://inditextech.github.io/cerbia/latest/main/components/scanners/)
+- [Gate behavior](https://inditextech.github.io/cerbia/latest/main/gate/)
+- [Score aggregators](https://inditextech.github.io/cerbia/latest/main/components/score-aggregators/)
+- [Internationalization](https://inditextech.github.io/cerbia/latest/main/i18n/)
+- [Packages](https://inditextech.github.io/cerbia/latest/main/packages/)
+- [Logging](https://inditextech.github.io/cerbia/latest/main/logging/)
 - [Examples](examples/README.md)
-- [Custom components](https://inditextech.github.io/cerbia/prerelease/main/components/custom-components/)
+- [Custom components](https://inditextech.github.io/cerbia/latest/main/components/custom-components/)
 
 ## Contributing
 

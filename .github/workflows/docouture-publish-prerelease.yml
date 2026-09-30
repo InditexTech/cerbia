@@ -79,6 +79,9 @@ jobs:
               - 'docs/src/**'
               - 'docs/antora-playbook*.yml'
               - 'docs/supplemental-ui/**'
+              - 'docs/package.json'
+              - 'docs/package-lock.json'
+              - 'docs/scripts/**'
               # docs/.release-version is deliberately NOT listed — see this
               # file's own header comment, point 1.
 

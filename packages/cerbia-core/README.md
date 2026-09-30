@@ -6,4 +6,4 @@ The CerbIA core pipeline, imported as `cerbia.core`.
 pip install cerbia-core
 ```
 
-Use `CerbIAConfig` and `Runner` to build a gate. Read the [full package reference](https://inditextech.github.io/cerbia/prerelease/cerbia-core/).
+Use `CerbIAConfig` and `Runner` to build a gate. Read the [full package reference](https://inditextech.github.io/cerbia/latest/cerbia-core/).

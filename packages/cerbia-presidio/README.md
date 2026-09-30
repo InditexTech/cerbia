@@ -6,4 +6,4 @@ Optional Presidio integration, imported as `cerbia.presidio`.
 pip install cerbia-presidio
 ```
 
-Use `PresidioPiiScanner` for English NLP-backed PII detection. Read the [full package reference](https://inditextech.github.io/cerbia/prerelease/cerbia-presidio/).
+Use `PresidioPiiScanner` for English NLP-backed PII detection. Read the [full package reference](https://inditextech.github.io/cerbia/latest/cerbia-presidio/).
