@@ -21,12 +21,18 @@ on:
     secrets:
       APP_PRIVATE_KEY:
         required: true
+      RELEASE_GPG_PRIVATE_KEY:
+        description: Armored GPG secret key signing release commits and tags.
+        required: false
+      RELEASE_GPG_PASSPHRASE:
+        description: Passphrase protecting RELEASE_GPG_PRIVATE_KEY.
+        required: false
 
 permissions:
   contents: read
 
 env:
-  CI_GOVERNANCE_RELEASE_STAGING_REF: refs/ci-governance/release/${{ github.run_id }}-${{ github.run_attempt }}
+  CI_GOVERNANCE_RELEASE_STAGING_REF: refs/ci-governance/release/${{ github.run_id }}
   PROJECT_TYPE: ${{ vars.PROJECT_TYPE }}
   WORKING_DIRECTORY: ${{ vars.WORKING_DIRECTORY }}
   ASDF_BRANCH_VERSION: '0.18.0'
@@ -141,42 +147,15 @@ jobs:
           {
             echo "tool_versions<<EOF"
             cat .tool-versions
-            echo
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Install Python build dependencies
-        shell: bash
-        run: |
-          set -euo pipefail
-          # asdf compiles CPython from source; without these dev libraries the
-          # interpreter lacks _bz2/readline/_lzma and Code/Verify fails at import
-          # time (observed live on pypi-ci-testing since 2026-09-17).
-          cd /tmp
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends \
-            libbz2-dev libreadline-dev liblzma-dev libsqlite3-dev \
-            libffi-dev libssl-dev zlib1g-dev uuid-dev 
-      - name: Set up asdf-managed Python
-        uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
+      - name: Set up governed Python toolchain
+        uses: InditexTech/gh-actions/python-toolchain@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
         with:
-          tool_versions: ${{ steps.tool-versions.outputs.tool_versions }}
-          asdf_version: ${{ env.ASDF_BRANCH_VERSION }}
-
-      - name: Point uv at the asdf-managed interpreter
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "UV_PYTHON=$(asdf where python)/bin/python" >> "$GITHUB_ENV"
-
-      - name: Set up UV
-        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-        with:
-          version: '0.9.7'
-          enable-cache: true
+          tool-versions: ${{ steps.tool-versions.outputs.tool_versions }}
+          asdf-version: ${{ env.ASDF_BRANCH_VERSION }}
           working-directory: ${{ env.WORKING_DIRECTORY }}
-          cache-dependency-glob: ${{ env.WORKING_DIRECTORY }}/uv.lock
 
       - name: Verify release candidate
         working-directory: ${{ env.WORKING_DIRECTORY }}
@@ -404,11 +383,63 @@ jobs:
           }
 
           if [[ "$resume" == "false" ]]; then
+            # Target versions derive from the release tags actually published on
+            # the remote, not from the versions currently declared in the working
+            # tree: a dispatch that names a bump type must consume the latest
+            # real release. A repository with no release yet cuts its first
+            # release at the versions the packages already declare.
+            latest_release_tags="$(git ls-remote --tags --refs origin 'v*-*' 'v*' | awk '{print $2}' | sed 's@^refs/tags/@@' || true)"
+            if [[ -z "$latest_release_tags" ]]; then
+              release_version=""
+            else
+              release_version="$(sed -E 's/^v(([0-9]+)\.([0-9]+)\.([0-9]+)).*/\1/' <<< "$latest_release_tags" | sort -V | tail -1)"
+              if [[ ! "$release_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                echo "::error title=Unrecognized release tag design::Latest release tag '${release_version}' is not vX.Y.Z."
+                exit 1
+              fi
+            fi
+
+            if [[ -z "$release_version" ]]; then
+              if [[ "$release_strategy" == "single" ]]; then
+                release_target="$(uv version --short)"
+              else
+                if [[ "$release_strategy" == "locked-step" ]]; then
+                  declare -a target_packages=()
+                  while IFS= read -r package; do
+                    target_packages+=("$package")
+                  done < "$packages_file"
+                else
+                  declare -a target_packages=()
+                  while IFS= read -r package; do
+                    target_packages+=("$package")
+                  done < "$packages_file"
+                fi
+                release_target="$(uv version --package "${target_packages[0]}" --short)"
+                for package in "${target_packages[@]}"; do
+                  if [[ "$(uv version --package "$package" --short)" != "$release_target" ]]; then
+                    echo "::error title=Invalid first release workspace::All release packages must declare the same starting version."
+                    exit 1
+                  fi
+                done
+              fi
+            else
+              IFS=. read -r v_major v_minor v_patch <<< "$release_version"
+              case "$release_bump" in
+                major) release_target="$((v_major + 1)).0.0" ;;
+                minor) release_target="$v_major.$((v_minor + 1)).0" ;;
+                patch) release_target="$v_major.$v_minor.$((v_patch + 1))" ;;
+                *)
+                  echo "::error title=Invalid release type::Unsupported bump '$release_bump'."
+                  exit 1
+                  ;;
+              esac
+            fi
+
             if [[ "$release_strategy" == "single" ]]; then
-              uv version --bump "$release_bump"
+              uv version "$release_target"
             else
               while IFS= read -r package; do
-                uv version --package "$package" --bump "$release_bump"
+                uv version --package "$package" "$release_target"
               done < "$packages_file"
               reconcile_internal_pins
             fi
@@ -424,15 +455,20 @@ jobs:
               fi
             done < <(jq -r '.[].tag' <<< "$releases")
 
-            git -C "$GITHUB_WORKSPACE" add --update -- "$WORKING_DIRECTORY"
-            if git diff --cached --quiet; then
-              echo "::error title=Missing release metadata::Versioning did not produce changes to commit."
-              exit 1
+            # A first release that target==declared produces no versioning diff
+            # here; the CHANGELOG bump below supplies the commit content, and
+            # the commit step still fails closed on an empty tree.
+            if [[ -n "$release_version" ]]; then
+              git -C "$GITHUB_WORKSPACE" add --update -- "$WORKING_DIRECTORY"
+              if git diff --cached --quiet; then
+                echo "::error title=Missing release metadata::Versioning did not produce changes to commit."
+                exit 1
+              fi
             fi
 
             primary_version="$(jq -r '.[0].version' <<< "$releases")"
             echo "RELEASE_VERSION=$primary_version" >> "$GITHUB_ENV"
-            echo "RELEASE_BUMP=$release_bump" >> "$GITHUB_ENV"
+            echo "RELEASE_TARGET=$release_target" >> "$GITHUB_ENV"
           else
             write_records
             releases="$(jq -cs . "$records_file")"
@@ -458,12 +494,11 @@ jobs:
         uses: release-flow/keep-a-changelog-action@74931dec7ecdbfc8e38ac9ae7e8dd84c08db2f32 # v3.0.0
         with:
           command: bump
-          version: ${{ env.RELEASE_BUMP }}
+          version: ${{ env.RELEASE_VERSION }}
           changelog: ${{ env.WORKING_DIRECTORY }}/CHANGELOG.md
           fail-on-empty-release-notes: false
           keep-unreleased-section: true
           tag-prefix: ""
-
       - name: Reconcile CHANGELOG version with release
         if: steps.release-plan.outputs.resume != 'true'
         env:
@@ -486,6 +521,14 @@ jobs:
             sed -i -E "s@^\[${cl_ver_re}\]: (.*/)(compare/[^ ]*\.\.\.|releases/tag/)${cl_ver_re}@[${RELEASE_VERSION}]: \1\2${RELEASE_VERSION}@" "$cl"
           fi
 
+      - name: Configure release git signing
+        if: steps.release-plan.outputs.resume != 'true'
+        uses: InditexTech/gh-actions/configure-release-git@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          gpg-secret-key: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
+
       - name: Commit and stage release
         if: steps.release-plan.outputs.resume != 'true'
         id: release-commit
@@ -504,8 +547,6 @@ jobs:
             echo "::error title=Missing release metadata::Versioning did not produce changes to commit."
             exit 1
           fi
-          git config user.name "${APP_SLUG}[bot]"
-          git config user.email "${APP_SLUG}[bot]@users.noreply.github.com"
           git commit -m "[python-release] Prepare release"
 
           while IFS= read -r record; do
@@ -560,42 +601,15 @@ jobs:
           {
             echo "tool_versions<<EOF"
             cat .tool-versions
-            echo
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Install Python build dependencies
-        shell: bash
-        run: |
-          set -euo pipefail
-          # asdf compiles CPython from source; without these dev libraries the
-          # interpreter lacks _bz2/readline/_lzma and Code/Verify fails at import
-          # time (observed live on pypi-ci-testing since 2026-09-17).
-          cd /tmp
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends \
-            libbz2-dev libreadline-dev liblzma-dev libsqlite3-dev \
-            libffi-dev libssl-dev zlib1g-dev uuid-dev 
-      - name: Set up asdf-managed Python
-        uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
+      - name: Set up governed Python toolchain
+        uses: InditexTech/gh-actions/python-toolchain@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
         with:
-          tool_versions: ${{ steps.tool-versions.outputs.tool_versions }}
-          asdf_version: ${{ env.ASDF_BRANCH_VERSION }}
-
-      - name: Point uv at the asdf-managed interpreter
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "UV_PYTHON=$(asdf where python)/bin/python" >> "$GITHUB_ENV"
-
-      - name: Set up UV
-        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-        with:
-          version: '0.9.7'
-          enable-cache: true
+          tool-versions: ${{ steps.tool-versions.outputs.tool_versions }}
+          asdf-version: ${{ env.ASDF_BRANCH_VERSION }}
           working-directory: ${{ env.WORKING_DIRECTORY }}
-          cache-dependency-glob: ${{ env.WORKING_DIRECTORY }}/uv.lock
 
       - name: Build declared distributions
         env:
@@ -662,42 +676,23 @@ jobs:
           {
             echo "tool_versions<<EOF"
             cat .tool-versions
-            echo
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Install Python build dependencies
-        shell: bash
-        run: |
-          set -euo pipefail
-          # asdf compiles CPython from source; without these dev libraries the
-          # interpreter lacks _bz2/readline/_lzma and Code/Verify fails at import
-          # time (observed live on pypi-ci-testing since 2026-09-17).
-          cd /tmp
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends \
-            libbz2-dev libreadline-dev liblzma-dev libsqlite3-dev \
-            libffi-dev libssl-dev zlib1g-dev uuid-dev 
-      - name: Set up asdf-managed Python
-        uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
+      - name: Set up governed Python toolchain
+        uses: InditexTech/gh-actions/python-toolchain@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
         with:
-          tool_versions: ${{ steps.tool-versions.outputs.tool_versions }}
-          asdf_version: ${{ env.ASDF_BRANCH_VERSION }}
-
-      - name: Point uv at the asdf-managed interpreter
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "UV_PYTHON=$(asdf where python)/bin/python" >> "$GITHUB_ENV"
-
-      - name: Set up UV
-        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-        with:
-          version: '0.9.7'
-          enable-cache: true
+          tool-versions: ${{ steps.tool-versions.outputs.tool_versions }}
+          asdf-version: ${{ env.ASDF_BRANCH_VERSION }}
           working-directory: ${{ env.WORKING_DIRECTORY }}
-          cache-dependency-glob: ${{ env.WORKING_DIRECTORY }}/uv.lock
+
+      - name: Configure release git signing
+        if: needs.build-distributions.result == 'success' || needs.build-distributions.result == 'skipped'
+        uses: InditexTech/gh-actions/configure-release-git@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          gpg-secret-key: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
 
       - name: Promote the release to the default branch
         id: promote
@@ -714,8 +709,6 @@ jobs:
         run: |
           set -euo pipefail
           gh auth setup-git
-          git config user.name "${APP_SLUG}[bot]"
-          git config user.email "${APP_SLUG}[bot]@users.noreply.github.com"
 
           git fetch --no-tags origin "+${STAGING_REF}:refs/ci-governance/staged" 2>/dev/null || true
           if [[ "$(git ls-remote origin "$EXPECTED_REF" | cut -f1)" == "$RELEASE_COMMIT" ]]; then
@@ -739,10 +732,9 @@ jobs:
               echo "::error title=Tag conflict::$tag already exists."
               exit 1
             fi
-            git tag -a "$tag" -m "Release $version"
+            git tag -s "$tag" -m "Release $version"
             tag_refs+=("refs/tags/$tag")
           done < <(jq -c '.[]' <<< "$RELEASES")
-
           git push --atomic origin "${RELEASE_COMMIT}:${EXPECTED_REF}" "${tag_refs[@]}"
 
       - name: Next development iteration and sync PR
@@ -758,8 +750,6 @@ jobs:
         run: |
           set -euo pipefail
           gh auth setup-git
-          git config user.name "${APP_SLUG}[bot]"
-          git config user.email "${APP_SLUG}[bot]@users.noreply.github.com"
 
           if [[ "$(git rev-parse HEAD)" != "$RELEASE_COMMIT" ]]; then
             echo "::notice title=Next-dev skipped::Branch already advanced past the release commit."
