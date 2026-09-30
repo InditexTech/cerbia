@@ -146,7 +146,9 @@ jobs:
           fi
           {
             echo "tool_versions<<EOF"
-            cat .tool-versions
+            # awk normalizes a missing trailing newline so the heredoc
+            # delimiter is matched even for files lacking a final LF.
+            awk '1' .tool-versions
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -603,7 +605,9 @@ jobs:
           fi
           {
             echo "tool_versions<<EOF"
-            cat .tool-versions
+            # awk normalizes a missing trailing newline so the heredoc
+            # delimiter is matched even for files lacking a final LF.
+            awk '1' .tool-versions
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -678,7 +682,9 @@ jobs:
           fi
           {
             echo "tool_versions<<EOF"
-            cat .tool-versions
+            # awk normalizes a missing trailing newline so the heredoc
+            # delimiter is matched even for files lacking a final LF.
+            awk '1' .tool-versions
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
