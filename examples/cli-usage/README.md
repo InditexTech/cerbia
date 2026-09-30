@@ -14,5 +14,5 @@ uv run cerbia scan --config config.cerbia.yaml --text "A short message"
 
 Validation exits `0`. The safe `--text` override replaces configured loaders
 and exits `0`. The final command uses the configured loaders and exits `1`
-because the fixture includes an unsafe value. See the [CLI reference](https://inditextech.github.io/cerbia/docs/cli)
-and [configuration guide](https://inditextech.github.io/cerbia/docs/configuration) for general options.
+because the fixture includes an unsafe value. See the [CLI reference](https://inditextech.github.io/cerbia/latest/main/cli/)
+and [configuration guide](https://inditextech.github.io/cerbia/latest/main/configuration/) for general options.

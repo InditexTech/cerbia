@@ -1,0 +1,40 @@
+= PII scanners
+:description: Detect common personally identifiable information with built-in or custom regular expressions.
+:page-tags: Reference, Scanner
+
+`cerbia.core.scanners.PiiScanner` uses built-in regular expressions to locate common personally identifiable information. It reports match spans and uses the highest matching pattern score as its risk score.
+
+[options="header"]
+|===
+|Parameter |Default |Meaning
+
+|`extra_patterns`
+|`null`
+|Additional `(name, regex)` pairs. Extra patterns use risk `0.80`.
+
+|`severity`
+|`HIGH`
+|Finding severity.
+
+|`action`
+|`WARN`
+|Findings are visible but do not contribute to blocking aggregation unless changed.
+
+|`content_types`
+|`[TEXT]`
+|Accepted content types.
+|===
+
+[source,yaml]
+----
+scanners:
+  - scanner: cerbia.core.scanners.PiiScanner
+    init_args:
+      action: block
+      extra_patterns:
+        - ["Employee ID", "EMP-[0-9]{6}"]
+----
+
+For NLP-backed English entity recognition, use the optional xref:components/scanners/pii-presidio.adoc[PresidioPiiScanner]. See the xref:cerbia-presidio:index.adoc[Presidio package reference].
+
+Use `action: block` when detected PII must affect the aggregate verdict. Keep the default `warn` when the pipeline should report PII while allowing the caller to make a separate handling decision from the findings and match spans.

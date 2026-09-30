@@ -1,34 +1,37 @@
 {
-  "name": "docs",
+  "name": "cerbia",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev --turbo",
-    "build": "next build",
-    "typecheck": "fumadocs-mdx && tsc --noEmit",
-    "verify": "npm ci && npm run typecheck && npm run build"
+  "description": "CerbIA documentation, built with Antora",
+  "engines": {
+    "node": ">=24.0.0"
   },
-  "dependencies": {
-    "fumadocs-core": "^15.3.3",
-    "fumadocs-mdx": "^11.6.4",
-    "fumadocs-ui": "^15.3.3",
-    "mermaid": "^11.10.0",
-    "next": "^15.5.18",
-    "next-themes": "^0.4.4",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+  "packageManager": "npm@11.8.0",
+  "scripts": {
+    "dev": "docouture dev",
+    "build": "antora --fetch --log-failure-level warn antora-playbook.yml && node scripts/fix-search-index.mjs",
+    "check-links": "node scripts/check-links.mjs"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.6",
-    "@tailwindcss/postcss": "^4.1.4",
-    "@types/mdx": "^2.0.13",
-    "@types/node": "22.14.1",
-    "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2",
-    "eslint": "^8",
-    "eslint-config-next": "15.3.1",
-    "postcss": "^8.5.10",
-    "tailwindcss": "^4.1.4",
-    "typescript": "^5.8.3"
+    "@inditextech/docouture-cli": "1.1.1",
+    "@inditextech/docouture-ui-bundle": "1.1.1",
+    "@inditextech/docouture-asciidoc-extensions": "1.1.1",
+    "@inditextech/docouture-antora-extensions": "1.1.1",
+    "@inditextech/docouture-publish-gh-pages": "1.1.1",
+    "antora": "3.2.0",
+    "linkinator": "8.0.4"
+  },
+  "docouture": {
+    "branching": "trunk-based",
+    "publish": {
+      "gh-pages": {}
+    },
+    "checkLinks": {
+      "ignore": [
+        "*/edit/HEAD/*",
+        "https://github.com/InditexTech/cerbia",
+        "https://inditextech.github.io/cerbia/prerelease/*"
+      ]
+    }
   }
 }

@@ -17,7 +17,7 @@ SPDX-License-Identifier: Apache-2.0
 
 Security gates for AI agents' inputs and outputs.
 
-[**Explore the docs**](https://inditextech.github.io/cerbia/docs/)
+[**Explore the docs**](https://inditextech.github.io/cerbia/)
 
 </div>
 
@@ -90,20 +90,20 @@ cerbia scan --config examples/cli-usage/config.cerbia.yaml --text "A short messa
 
 ## Documentation
 
-- [Getting started](https://inditextech.github.io/cerbia/docs/getting-started)
-- [Architecture](https://inditextech.github.io/cerbia/docs/architecture)
-- [Configuration](https://inditextech.github.io/cerbia/docs/configuration)
-- [CLI reference](https://inditextech.github.io/cerbia/docs/cli)
-- [Loaders](https://inditextech.github.io/cerbia/docs/components/loaders)
-- [Preprocessors](https://inditextech.github.io/cerbia/docs/components/preprocessors)
-- [Scanners](https://inditextech.github.io/cerbia/docs/components/scanners)
-- [Gate behavior](https://inditextech.github.io/cerbia/docs/gate)
-- [Score aggregators](https://inditextech.github.io/cerbia/docs/components/score-aggregators)
-- [Internationalization](https://inditextech.github.io/cerbia/docs/i18n)
-- [Packages](https://inditextech.github.io/cerbia/docs/packages)
-- [Logging](https://inditextech.github.io/cerbia/docs/logging)
+- [Getting started](https://inditextech.github.io/cerbia/latest/main/quickstart/)
+- [Architecture](https://inditextech.github.io/cerbia/latest/main/architecture/)
+- [Configuration](https://inditextech.github.io/cerbia/latest/main/configuration/)
+- [CLI reference](https://inditextech.github.io/cerbia/latest/main/cli/)
+- [Loaders](https://inditextech.github.io/cerbia/latest/main/components/loaders/)
+- [Preprocessors](https://inditextech.github.io/cerbia/latest/main/components/preprocessors/)
+- [Scanners](https://inditextech.github.io/cerbia/latest/main/components/scanners/)
+- [Gate behavior](https://inditextech.github.io/cerbia/latest/main/gate/)
+- [Score aggregators](https://inditextech.github.io/cerbia/latest/main/components/score-aggregators/)
+- [Internationalization](https://inditextech.github.io/cerbia/latest/main/i18n/)
+- [Packages](https://inditextech.github.io/cerbia/latest/main/packages/)
+- [Logging](https://inditextech.github.io/cerbia/latest/main/logging/)
 - [Examples](examples/README.md)
-- [Custom components](https://inditextech.github.io/cerbia/docs/components/custom-components)
+- [Custom components](https://inditextech.github.io/cerbia/latest/main/components/custom-components/)
 
 ## Contributing
 
