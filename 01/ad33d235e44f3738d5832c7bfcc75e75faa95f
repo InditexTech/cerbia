@@ -1,0 +1,22 @@
+CONTRIBUTING.md
+  h_d6d31939214ddd 112,131-159
+docs/.release-version
+  h_d6d31939214ddd 1
+docs/antora-playbook.yml
+  h_d6d31939214ddd 14,44
+docs/scripts/fix-search-index.mjs
+  h_d6d31939214ddd 10-11,172,176-183
+docs/scripts/fix-search-index.test.mjs
+  h_d6d31939214ddd 8,11-12,14,19,31,56,73-103,105-119,121-126,129-141,144,148-149,160,181-184
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "01ad33d235e44f3738d5832c7bfcc75e75faa95f",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
