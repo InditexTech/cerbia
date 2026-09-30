@@ -146,7 +146,7 @@ jobs:
           fi
           {
             echo "tool_versions<<EOF"
-            cat .tool-versions
+            awk '1' .tool-versions
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -603,7 +603,7 @@ jobs:
           fi
           {
             echo "tool_versions<<EOF"
-            cat .tool-versions
+            awk '1' .tool-versions
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -678,7 +678,7 @@ jobs:
           fi
           {
             echo "tool_versions<<EOF"
-            cat .tool-versions
+            awk '1' .tool-versions
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
