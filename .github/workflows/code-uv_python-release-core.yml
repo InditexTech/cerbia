@@ -21,11 +21,11 @@ on:
     secrets:
       APP_PRIVATE_KEY:
         required: true
-      RELEASE_GPG_PRIVATE_KEY:
+      CI_GPG_SECRET_KEY:
         description: Armored GPG secret key signing release commits and tags.
         required: false
-      RELEASE_GPG_PASSPHRASE:
-        description: Passphrase protecting RELEASE_GPG_PRIVATE_KEY.
+      CI_GPG_SECRET_KEY_PASSWORD:
+        description: Passphrase protecting CI_GPG_SECRET_KEY.
         required: false
 
 permissions:
@@ -529,8 +529,8 @@ jobs:
         uses: InditexTech/gh-actions/configure-release-git@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
         with:
           token: ${{ steps.app-token.outputs.token }}
-          gpg-secret-key: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
-          gpg-passphrase: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
+          gpg-secret-key: ${{ secrets.CI_GPG_SECRET_KEY }}
+          gpg-passphrase: ${{ secrets.CI_GPG_SECRET_KEY_PASSWORD }}
 
       - name: Commit and stage release
         if: steps.release-plan.outputs.resume != 'true'
@@ -694,8 +694,8 @@ jobs:
         uses: InditexTech/gh-actions/configure-release-git@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
         with:
           token: ${{ steps.app-token.outputs.token }}
-          gpg-secret-key: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
-          gpg-passphrase: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
+          gpg-secret-key: ${{ secrets.CI_GPG_SECRET_KEY }}
+          gpg-passphrase: ${{ secrets.CI_GPG_SECRET_KEY_PASSWORD }}
 
       - name: Promote the release to the default branch
         id: promote
