@@ -1,0 +1,21 @@
+docs/src/modules/main/pages/contributing.adoc
+  s_293fa87ba58851::t_1f71fdfd1ab4e6 1-36
+docs/src/modules/main/pages/guides-overview.adoc
+  s_293fa87ba58851::t_3d36dd06810370 1-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "465b6a94ca8e9650803361820fca2c4fadbf33bf",
+  "prompts": {},
+  "sessions": {
+    "s_293fa87ba58851": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f17721381ffegUGXZypnjaI2yQ",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

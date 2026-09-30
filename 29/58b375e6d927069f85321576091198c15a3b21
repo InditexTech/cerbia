@@ -1,0 +1,19 @@
+docs/src/antora.yml
+  s_293fa87ba58851::t_0bf80bb534a54e 8-13,17-41,44-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2958b375e6d927069f85321576091198c15a3b21",
+  "prompts": {},
+  "sessions": {
+    "s_293fa87ba58851": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f17721381ffegUGXZypnjaI2yQ",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

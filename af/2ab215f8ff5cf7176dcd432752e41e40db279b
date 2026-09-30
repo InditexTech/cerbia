@@ -1,0 +1,14 @@
+docs/src/modules/main/pages/components/custom-components.adoc
+  h_d6d31939214ddd 1-185
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "af2ab215f8ff5cf7176dcd432752e41e40db279b",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

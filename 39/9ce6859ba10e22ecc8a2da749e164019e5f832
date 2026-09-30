@@ -1,0 +1,16 @@
+docs/scripts/migration/check-redirects.mjs
+  h_d6d31939214ddd 6,31
+docs/scripts/migration/redirects.test.mjs
+  h_d6d31939214ddd 105-114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "399ce6859ba10e22ecc8a2da749e164019e5f832",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

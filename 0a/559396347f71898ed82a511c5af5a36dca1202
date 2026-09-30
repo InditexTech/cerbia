@@ -1,0 +1,16 @@
+docs/scripts/migration/fix-search-index.mjs
+  h_d6d31939214ddd 1-213
+docs/scripts/migration/regression.test.mjs
+  h_d6d31939214ddd 3,95-242
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0a559396347f71898ed82a511c5af5a36dca1202",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

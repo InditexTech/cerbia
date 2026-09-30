@@ -1,0 +1,19 @@
+docs/scripts/migration/legacy-routes.json
+  s_4dd1a85a78fc25::t_c567758181cc02 1-576
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6e833d2c9894cd17d9bdbf9f7e200b2acb847f62",
+  "prompts": {},
+  "sessions": {
+    "s_4dd1a85a78fc25": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f17a65143ffeUZ4gUlJkCAzNTZ",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

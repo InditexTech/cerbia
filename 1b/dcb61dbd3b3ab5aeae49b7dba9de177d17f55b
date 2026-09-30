@@ -1,0 +1,18 @@
+packages/cerbia-ml/README.md
+  h_d6d31939214ddd 9
+packages/cerbia-presidio/README.md
+  h_d6d31939214ddd 9
+packages/cerbia-protectai/README.md
+  h_d6d31939214ddd 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1bdcb61dbd3b3ab5aeae49b7dba9de177d17f55b",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+docs/package.json
+  s_54a72eedeb9fb3::t_15fce3e9163358 18-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d667c2dd2a3e51269399b3aec3d8b8a669f92f97",
+  "prompts": {},
+  "sessions": {
+    "s_54a72eedeb9fb3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f17a43a0affeoeAhOCSe1Gyj1u",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

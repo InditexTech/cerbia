@@ -1,0 +1,16 @@
+docs/antora-playbook.local.yml
+  h_d6d31939214ddd 40
+docs/antora-playbook.yml
+  h_d6d31939214ddd 41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5f937e9c34dba2e37116999e887b7312fbd064ef",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
