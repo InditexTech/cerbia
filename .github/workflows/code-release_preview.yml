@@ -60,7 +60,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Set up governed Python toolchain
-        uses: InditexTech/gh-actions/python-toolchain@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
+        uses: InditexTech/gh-actions/python-toolchain@80ca79bcb04379e4fed8b91a55aa15dc6b8b638a
         with:
           tool-versions: ${{ steps.tool-versions.outputs.tool_versions }}
           asdf-version: ${{ env.ASDF_BRANCH_VERSION }}
