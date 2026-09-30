@@ -14,6 +14,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-30
+
 ## [0.1.0] - 2026-09-30
 
 ### Added
@@ -24,6 +26,8 @@ and this project adheres to
 
 ### Fixed
 
-[Unreleased]: https://github.com/InditexTech/cerbia/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/InditexTech/cerbia/compare/0.2.0...HEAD
+
+[0.2.0]: https://github.com/InditexTech/cerbia/compare/0.1.0...0.2.0
 
 [0.1.0]: https://github.com/InditexTech/cerbia/releases/tag/0.1.0
