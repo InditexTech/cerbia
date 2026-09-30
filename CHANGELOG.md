@@ -14,6 +14,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-30
+
 ### Added
 
 ### Changed
@@ -21,3 +23,7 @@ and this project adheres to
 - Adopted centrally governed CI workflows.
 
 ### Fixed
+
+[Unreleased]: https://github.com/InditexTech/cerbia/compare/0.1.0...HEAD
+
+[0.1.0]: https://github.com/InditexTech/cerbia/releases/tag/0.1.0
