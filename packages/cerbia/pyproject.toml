@@ -1,6 +1,6 @@
 [project]
 name = "cerbia"
-version = "0.2.0"
+version = "0.3.0"
 description = "Reusable LLM security scanning library — language-agnostic guardrails for AI agents"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -24,18 +24,18 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
-dependencies = ["cerbia-core==0.2.0"]
+dependencies = ["cerbia-core==0.3.0"]
 
 [project.optional-dependencies]
-cli = ["cerbia-cli==0.2.0"]
-ml = ["cerbia-ml==0.2.0"]
-presidio = ["cerbia-presidio==0.2.0"]
-protectai = ["cerbia-protectai==0.2.0"]
+cli = ["cerbia-cli==0.3.0"]
+ml = ["cerbia-ml==0.3.0"]
+presidio = ["cerbia-presidio==0.3.0"]
+protectai = ["cerbia-protectai==0.3.0"]
 all = [
-    "cerbia-cli==0.2.0",
-    "cerbia-ml==0.2.0",
-    "cerbia-presidio==0.2.0",
-    "cerbia-protectai==0.2.0",
+    "cerbia-cli==0.3.0",
+    "cerbia-ml==0.3.0",
+    "cerbia-presidio==0.3.0",
+    "cerbia-protectai==0.3.0",
 ]
 
 [project.urls]

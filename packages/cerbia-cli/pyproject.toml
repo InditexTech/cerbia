@@ -1,6 +1,6 @@
 [project]
 name = "cerbia-cli"
-version = "0.2.0"
+version = "0.3.0"
 description = "CerbIA Command-line interface"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -25,7 +25,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "cerbia-core==0.2.0",
+    "cerbia-core==0.3.0",
     "typer~=0.27",
 ]
 

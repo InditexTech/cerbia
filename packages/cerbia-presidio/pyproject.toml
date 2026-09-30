@@ -1,6 +1,6 @@
 [project]
 name = "cerbia-presidio"
-version = "0.2.0"
+version = "0.3.0"
 description = "CerbIA Presidio extension library."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -25,7 +25,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "cerbia-core==0.2.0",
+    "cerbia-core==0.3.0",
     "en-core-web-sm",
     "presidio-analyzer~=2.2",
 ]

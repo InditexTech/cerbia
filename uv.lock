@@ -124,7 +124,7 @@ wheels = [
 
 [[package]]
 name = "cerbia"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/cerbia" }
 dependencies = [
     { name = "cerbia-core" },
@@ -166,7 +166,7 @@ provides-extras = ["cli", "ml", "presidio", "protectai", "all"]
 
 [[package]]
 name = "cerbia-cli"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/cerbia-cli" }
 dependencies = [
     { name = "cerbia-core" },
@@ -181,7 +181,7 @@ requires-dist = [
 
 [[package]]
 name = "cerbia-core"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/cerbia-core" }
 dependencies = [
     { name = "pydantic" },
@@ -192,7 +192,7 @@ requires-dist = [{ name = "pydantic", specifier = "~=2.13" }]
 
 [[package]]
 name = "cerbia-ml"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/cerbia-ml" }
 dependencies = [
     { name = "cerbia-core" },
@@ -207,7 +207,7 @@ requires-dist = [
 
 [[package]]
 name = "cerbia-presidio"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/cerbia-presidio" }
 dependencies = [
     { name = "cerbia-core" },
@@ -224,7 +224,7 @@ requires-dist = [
 
 [[package]]
 name = "cerbia-protectai"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/cerbia-protectai" }
 dependencies = [
     { name = "cerbia-core" },
