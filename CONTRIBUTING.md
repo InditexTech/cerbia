@@ -109,7 +109,7 @@ npm run check-links
 npm run dev
 ```
 
-`make docs-build` uses the production playbook (`main` and `docs/stable`) and leaves
+`make docs-build` uses the production playbook (`main` and `docs/v*`) and leaves
 `docs/build/site` for the generated Linkinator checker and gh-pages publisher.
 Stop `npm run dev` before building: the live server owns that output while running.
 The checker fails on broken external links and warns on local or configured
@@ -128,12 +128,35 @@ node --test scripts/fix-search-index.test.mjs
 Run the generated checker in a temporary repository copy with its own
 `build/site` to avoid crawling or modifying the live server's output.
 
-Docouture publishes the prerelease from `main` and the stable version from the
-`docs/stable` tag. The production playbook retains CerbIA's site URL, branding,
-UI, extensions, and modules; only its content refs align with that standalone
-policy. The production build runs the search-index fixer over every generated
-index because Docouture 1.1.1 omits `/cerbia/` from search record URLs. The
-standalone release does not require `docs/.release-version`.
+Docouture uses full-history versioning: `main` stays `version: prerelease` with
+`prerelease: true` in `docs/src/antora.yml`, while `docs/vX.Y.Z` tags supply numbered
+documentation versions. With no release tags, the site contains only prerelease.
+The production build runs the search-index fixer over every generated index
+because Docouture 1.1.1 omits `/cerbia/` from search record URLs.
+
+To release documentation, merge a PR into `main` with the `docs/release` label;
+the workflow reads the target SemVer from `docs/.release-version` (initially
+`0.1.0`, matching the product package). Alternatively, run `docouture-release`
+manually against `main` and supply the desired version instead of its standalone
+default `stable`. SemVer prerelease and build-metadata suffixes are supported.
+The workflow builds the exact release descriptor before tagging, then calls the
+original gh-pages publisher. Do not change the descriptor on `main` to release.
+
+After a new version, the workflow commits the next patch target to
+`docs/.release-version` on `main`. Set that file explicitly in a reviewed PR when
+planning a different next target, such as a new minor. To republish an existing
+version, manually supply its version: the workflow **force-recreates and pushes
+the existing `docs/v…` tag**, and skips the next-target bump. These tags are not
+guaranteed immutable; a republish changes the documentation at that numbered URL.
+
+Production enables `duplicate_latest_version` on the Antora extension. Once a
+non-prerelease release exists, `/cerbia/latest/` serves an independent copy of
+Antora's latest released pages, images, and attachments, not redirects or
+symlinks. Numbered versions remain available. The copy retains the source
+version's canonical URLs and shared search index; search results go to numbered
+`/cerbia/<version>/` URLs, not `/latest/`. No `ROOT-latest.json` is generated, and
+prerelease-only builds have no latest copy. HEAD-only QA uses the local playbook
+without this duplication option.
 
 The build does not check diagram count or SVG accessibility. Kroki failures may
 fall back to raw Mermaid without failing Antora; a successful build is not proof

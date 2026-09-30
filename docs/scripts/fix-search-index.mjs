@@ -7,7 +7,8 @@ import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 // TEMPORARY WORKAROUND: Docouture 1.1.1 search records omit site.url's project prefix.
 // Remove this post-step when upstream emits once-prefixed URLs for every built version.
 const basePath = '/cerbia/';
-const versionPattern = /^(?:prerelease|stable)$/;
+// Same SemVer 2.0.0 grammar as docouture-release.yml, including prerelease/build metadata.
+const versionPattern = /^(?:prerelease|(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?)$/;
 const urlOrigin = 'https://cerbia.invalid';
 
 function inspectPath(path, kind, siteRoot) {
@@ -168,8 +169,17 @@ function main() {
   const versions = indexes.map((name) => name.slice(5, -5));
   for (const version of versions) assert.ok(versionPattern.test(version), `unsupported version: ${version}`);
   for (const entry of readdirSync(siteRoot)) {
+    assert.notEqual(entry, 'stable', 'unsupported full-history channel: stable');
     if (versionPattern.test(entry)) {
       assert.ok(versions.includes(entry), `missing generated search index: ROOT-${entry}.json`);
+    }
+    if (entry === 'latest') {
+      // Docouture copies HTML unchanged: latest uses the real release's shared index.
+      inspectPath(join(siteRoot, entry), 'directory', siteRoot);
+      const home = inspectPath(join(siteRoot, entry, 'index.html'), 'file', siteRoot);
+      const source = readIndex(home).contents.match(/data-search-index="ROOT-([^"/]+)\.json"/)?.[1];
+      assert.ok(source && source !== 'prerelease' && versions.includes(source),
+        'latest copy must reference an existing release search index');
     }
   }
 
