@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import { constants } from 'node:fs';
-import { lstatSync, openSync, realpathSync, readFileSync, closeSync, fstatSync, ftruncateSync, writeSync } from 'node:fs';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { lstatSync, openSync, realpathSync, readFileSync, readdirSync, closeSync, fstatSync, ftruncateSync, writeSync } from 'node:fs';
+import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+// TEMPORARY WORKAROUND: Docouture 1.1.1 search records omit site.url's project prefix.
+// Remove this post-step when upstream emits once-prefixed URLs for every built version.
 const basePath = '/cerbia/';
-const versions = ['prerelease', 'stable'];
+const versionPattern = /^(?:prerelease|stable)$/;
 const urlOrigin = 'https://cerbia.invalid';
 
 function inspectPath(path, kind, siteRoot) {
@@ -151,26 +151,36 @@ function validateAssetPath(path, url) {
 }
 
 function parseArgs(args) {
-  assert.ok(args.length === 4 || args.length === 5, 'usage: fix-search-index.mjs --site-dir OUTPUT --version VERSION [--allow-build-dir]');
-  assert.equal(args[0], '--site-dir');
-  assert.equal(args[2], '--version');
-  assert.ok(versions.includes(args[3]), `unsupported version: ${args[3]}`);
-  assert.ok(args.length === 4 || args[4] === '--allow-build-dir', 'unexpected search-index fixer option');
-  return { siteDir: resolve(args[1]), version: args[3], allowBuildDir: args.length === 5 };
+  assert.ok(args.length === 0 || args.length === 2, 'usage: fix-search-index.mjs [--site-dir OUTPUT]');
+  if (args.length) assert.equal(args[0], '--site-dir');
+  return resolve(args[1] ?? 'build/site');
 }
 
 function main() {
-  const { siteDir, version: selectedVersion, allowBuildDir } = parseArgs(process.argv.slice(2));
-  const buildSiteDir = join(repoRoot, 'docs/build/site');
-  if (allowBuildDir) {
-    assert.equal(siteDir, buildSiteDir, '--allow-build-dir only permits the standard docs/build/site output');
-  } else {
-    assert.ok(siteDir !== join(repoRoot, 'docs/build') && !siteDir.startsWith(`${join(repoRoot, 'docs/build')}/`),
-      'never rewrite docs/build during verification; pass an isolated Antora output directory');
+  const siteDir = parseArgs(process.argv.slice(2));
+  const siteInfo = lstatSync(siteDir);
+  assert.ok(!siteInfo.isSymbolicLink() && siteInfo.isDirectory(), `site output must be a real directory, not a symlink: ${siteDir}`);
+  const siteRoot = realpathSync(siteDir);
+  inspectPath(join(siteRoot, '_'), 'directory', siteRoot);
+  const searchDir = inspectPath(join(siteRoot, '_', 'search'), 'directory', siteRoot);
+  const indexes = readdirSync(searchDir).filter((name) => name.startsWith('ROOT-') && name.endsWith('.json'));
+  assert.ok(indexes.length > 0, 'no generated ROOT search indexes found');
+  const versions = indexes.map((name) => name.slice(5, -5));
+  for (const version of versions) assert.ok(versionPattern.test(version), `unsupported version: ${version}`);
+  for (const entry of readdirSync(siteRoot)) {
+    if (versionPattern.test(entry)) {
+      assert.ok(versions.includes(entry), `missing generated search index: ROOT-${entry}.json`);
+    }
   }
-  const { siteRoot, indexPath } = inspectSearchPaths(siteDir, selectedVersion);
 
+  const updatedRecords = versions.reduce((total, version) => total + normalizeIndex(siteDir, version), 0);
+  console.log(`SEARCH_INDEX_BASEPATH_OK files=${versions.length} updatedRecords=${updatedRecords} versions=${versions.join(',')} mount=${basePath} site=${siteRoot}`);
+}
+
+function normalizeIndex(siteDir, selectedVersion) {
   let updatedRecords = 0;
+  const siteRoot = realpathSync(siteDir);
+  const { indexPath } = inspectSearchPaths(siteDir, selectedVersion);
   const original = readIndex(indexPath);
   const index = JSON.parse(original.contents);
   assert.ok(Array.isArray(index.records), `invalid Docouture search index: ${indexPath}`);
@@ -201,13 +211,13 @@ function main() {
   } finally {
     closeSync(descriptor);
   }
-
-  console.log(`SEARCH_INDEX_BASEPATH_OK files=1 updatedRecords=${updatedRecords} version=${selectedVersion} mount=${basePath} site=${siteRoot}`);
+  return updatedRecords;
 }
 
 try {
   main();
 } catch (error) {
+  if (!(error instanceof Error)) throw error;
   console.error(`SEARCH_INDEX_BASEPATH_FAILED: ${error.message}`);
   process.exitCode = 1;
 }

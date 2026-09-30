@@ -69,11 +69,11 @@ reuse: ## Check repository REUSE compliance
 docs-install: ## Install locked Docouture/Antora dependencies
 	@npm --prefix docs ci
 
-docs-build: ## Build Docouture into isolated output and fix search URLs (no diagram check)
-	@npm --prefix docs run build:site:isolated
+docs-build: ## Build persistent versioned Docouture output (stop live dev first)
+	@npm --prefix docs run build
 
 docs-serve: ## Serve Docouture locally with live reload
-	@npm --prefix docs run dev:site
+	@npm --prefix docs run dev
 
 bump-version: ## Set every package and internal dependency to one version
 	$(call header,Bumping version to $(BUMP_VERSION))
