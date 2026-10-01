@@ -501,7 +501,7 @@ jobs:
           changelog: ${{ env.WORKING_DIRECTORY }}/CHANGELOG.md
           fail-on-empty-release-notes: false
           keep-unreleased-section: true
-          tag-prefix: ""
+          tag-prefix: "v"
       - name: Reconcile CHANGELOG version with release
         if: steps.release-plan.outputs.resume != 'true'
         env:
@@ -520,12 +520,11 @@ jobs:
             echo "::notice title=CHANGELOG version reconciled::keep-a-changelog wrote ${cl_ver}; re-anchoring to uv release ${RELEASE_VERSION}."
             cl_ver_re="${cl_ver//./\\.}"
             sed -i -E "s@^## \[${cl_ver_re}\]( - )@## [${RELEASE_VERSION}]\1@" "$cl"
-            sed -i -E "s@^(\[Unreleased\]: .*/compare/)${cl_ver_re}(\.\.\.HEAD)@\1${RELEASE_VERSION}\2@" "$cl"
-            sed -i -E "s@^\[${cl_ver_re}\]: (.*/)(compare/[^ ]*\.\.\.|releases/tag/)${cl_ver_re}@[${RELEASE_VERSION}]: \1\2${RELEASE_VERSION}@" "$cl"
+            sed -i -E "s@^(\[Unreleased\]: .*/compare/v)${cl_ver_re}(\.\.\.HEAD)@\1${RELEASE_VERSION}\2@" "$cl"
+            sed -i -E "s@^\[${cl_ver_re}\]: (.*/)(compare/[^ ]*\.\.\.|releases/tag/)v${cl_ver_re}@[${RELEASE_VERSION}]: \1\2v${RELEASE_VERSION}@" "$cl"
           fi
 
       - name: Configure release git signing
-        if: steps.release-plan.outputs.resume != 'true'
         uses: InditexTech/gh-actions/configure-release-git@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
         with:
           token: ${{ steps.app-token.outputs.token }}
@@ -690,7 +689,6 @@ jobs:
           working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Configure release git signing
-        if: needs.build-distributions.result == 'success' || needs.build-distributions.result == 'skipped'
         uses: InditexTech/gh-actions/configure-release-git@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
         with:
           token: ${{ steps.app-token.outputs.token }}
