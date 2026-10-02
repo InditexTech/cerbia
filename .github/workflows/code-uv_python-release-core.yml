@@ -192,6 +192,7 @@ jobs:
           BASELINE_BRANCH: ${{ steps.release-context.outputs.baseline_branch }}
           DEVELOPMENT_FLOW: ${{ vars.DEVELOPMENT_FLOW }}
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_EVENT: ${{ github.event_name }}
           RELEASE_LABELS: ${{ steps.release-context.outputs.release_labels }}
           RELEASE_REF: ${{ steps.release-context.outputs.release_ref }}
         working-directory: ${{ env.WORKING_DIRECTORY }}
@@ -383,6 +384,21 @@ jobs:
           }
 
           if [[ "$resume" == "false" ]]; then
+            # A workflow_dispatch never passes through the Release Preview
+            # CHANGELOG gate, so a fresh cut must prove there is something to
+            # release: refuse an Unreleased section without a content entry.
+            if [[ "$RELEASE_EVENT" == "workflow_dispatch" ]]; then
+              if [[ ! -f CHANGELOG.md ]] || ! awk '
+                $0 ~ /^##[[:space:]]+\[Unreleased\][[:space:]]*$/ { unreleased = 1; next }
+                unreleased && $0 ~ /^##[[:space:]]/ { exit }
+                unreleased && $0 ~ /^[[:space:]]*([-*+]|[0-9]+\.)[[:space:]]+/ { entry = 1 }
+                END { exit !(unreleased && entry) }
+              ' CHANGELOG.md; then
+                echo "::error title=No CHANGELOG changes::A dispatched release needs a substantive entry under ## [Unreleased]."
+                exit 1
+              fi
+            fi
+
             # Target versions derive from the release tags actually published on
             # the remote, not from the versions currently declared in the working
             # tree: a dispatch that names a bump type must consume the latest
