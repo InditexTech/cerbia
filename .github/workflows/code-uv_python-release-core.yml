@@ -146,7 +146,7 @@ jobs:
           fi
           {
             echo "tool_versions<<EOF"
-            cat .tool-versions
+            awk '1' .tool-versions
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -192,6 +192,7 @@ jobs:
           BASELINE_BRANCH: ${{ steps.release-context.outputs.baseline_branch }}
           DEVELOPMENT_FLOW: ${{ vars.DEVELOPMENT_FLOW }}
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_EVENT: ${{ github.event_name }}
           RELEASE_LABELS: ${{ steps.release-context.outputs.release_labels }}
           RELEASE_REF: ${{ steps.release-context.outputs.release_ref }}
         working-directory: ${{ env.WORKING_DIRECTORY }}
@@ -383,6 +384,21 @@ jobs:
           }
 
           if [[ "$resume" == "false" ]]; then
+            # A workflow_dispatch never passes through the Release Preview
+            # CHANGELOG gate, so a fresh cut must prove there is something to
+            # release: refuse an Unreleased section without a content entry.
+            if [[ "$RELEASE_EVENT" == "workflow_dispatch" ]]; then
+              if [[ ! -f CHANGELOG.md ]] || ! awk '
+                $0 ~ /^##[[:space:]]+\[Unreleased\][[:space:]]*$/ { unreleased = 1; next }
+                unreleased && $0 ~ /^##[[:space:]]/ { exit }
+                unreleased && $0 ~ /^[[:space:]]*([-*+]|[0-9]+\.)[[:space:]]+/ { entry = 1 }
+                END { exit !(unreleased && entry) }
+              ' CHANGELOG.md; then
+                echo "::error title=No CHANGELOG changes::A dispatched release needs a substantive entry under ## [Unreleased]."
+                exit 1
+              fi
+            fi
+
             # Target versions derive from the release tags actually published on
             # the remote, not from the versions currently declared in the working
             # tree: a dispatch that names a bump type must consume the latest
@@ -501,7 +517,7 @@ jobs:
           changelog: ${{ env.WORKING_DIRECTORY }}/CHANGELOG.md
           fail-on-empty-release-notes: false
           keep-unreleased-section: true
-          tag-prefix: ""
+          tag-prefix: "v"
       - name: Reconcile CHANGELOG version with release
         if: steps.release-plan.outputs.resume != 'true'
         env:
@@ -520,12 +536,11 @@ jobs:
             echo "::notice title=CHANGELOG version reconciled::keep-a-changelog wrote ${cl_ver}; re-anchoring to uv release ${RELEASE_VERSION}."
             cl_ver_re="${cl_ver//./\\.}"
             sed -i -E "s@^## \[${cl_ver_re}\]( - )@## [${RELEASE_VERSION}]\1@" "$cl"
-            sed -i -E "s@^(\[Unreleased\]: .*/compare/)${cl_ver_re}(\.\.\.HEAD)@\1${RELEASE_VERSION}\2@" "$cl"
-            sed -i -E "s@^\[${cl_ver_re}\]: (.*/)(compare/[^ ]*\.\.\.|releases/tag/)${cl_ver_re}@[${RELEASE_VERSION}]: \1\2${RELEASE_VERSION}@" "$cl"
+            sed -i -E "s@^(\[Unreleased\]: .*/compare/v)${cl_ver_re}(\.\.\.HEAD)@\1${RELEASE_VERSION}\2@" "$cl"
+            sed -i -E "s@^\[${cl_ver_re}\]: (.*/)(compare/[^ ]*\.\.\.|releases/tag/)v${cl_ver_re}@[${RELEASE_VERSION}]: \1\2v${RELEASE_VERSION}@" "$cl"
           fi
 
       - name: Configure release git signing
-        if: steps.release-plan.outputs.resume != 'true'
         uses: InditexTech/gh-actions/configure-release-git@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
         with:
           token: ${{ steps.app-token.outputs.token }}
@@ -603,7 +618,7 @@ jobs:
           fi
           {
             echo "tool_versions<<EOF"
-            cat .tool-versions
+            awk '1' .tool-versions
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -678,7 +693,7 @@ jobs:
           fi
           {
             echo "tool_versions<<EOF"
-            cat .tool-versions
+            awk '1' .tool-versions
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -690,7 +705,6 @@ jobs:
           working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Configure release git signing
-        if: needs.build-distributions.result == 'success' || needs.build-distributions.result == 'skipped'
         uses: InditexTech/gh-actions/configure-release-git@ca5ff3f7d69ee5a3cb026ac5585d680f083d8f7b
         with:
           token: ${{ steps.app-token.outputs.token }}
