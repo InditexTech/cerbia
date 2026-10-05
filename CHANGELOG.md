@@ -18,6 +18,8 @@ and this project adheres to
 
 - Restored the `code-uv_python-release-core` workflow to its golden bytes after
   a release attempt clobbered it (#13).
+- Hardened the `docouture-*` workflows to least-privilege tokens, resolving
+  the Scorecard Token-Permissions alerts on `main` (#20).
 
 ## [0.3.0] - 2026-09-30
 
