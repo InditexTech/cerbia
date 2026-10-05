@@ -36,10 +36,9 @@ on:
 # Least-privilege default: this job only checks out the PR's own HEAD,
 # builds it, and checks links — it never writes to the repository, comments
 # on the PR, or otherwise uses GITHUB_TOKEN, so it never needs more than
-# read access. Declared explicitly rather than left to inherit whatever the
-# repository/organization's default token permissions happen to be.
-permissions:
-  contents: read
+# read access. The workflow grants nothing and the job asks for exactly that,
+# the same shape every InditexTech governed workflow uses.
+permissions: {}
 
 concurrency:
   group: docouture-pr-verify-${{ github.event.pull_request.number }}
@@ -48,8 +47,10 @@ concurrency:
 jobs:
   verify:
     name: Verify
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: read
     # `docouture new` scaffolds this site's package.json, antora-playbook.yml
     # etc. under docs/ (not the repository root) — see the docs-site-package
     # skill's reference/versioning-modes.md. Every step below runs from
@@ -61,6 +62,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -123,16 +126,8 @@ jobs:
           mapfile -t images < <(docker compose -f "$compose_file" config --images)
           docker save -o /tmp/kroki-images.tar "${images[@]}"
 
-      # TEMPORARY WORKAROUND BEGIN: explicit warn threshold and project search prefix.
-      # Upstream original:
-      # - name: Build
-      #   run: npx antora --fetch antora-playbook.local.yml
-      # Remove when upstream honors warn failure level and prefixes all search URLs.
       - name: Build
-        run: |
-          npx antora --fetch --log-failure-level warn antora-playbook.local.yml
-          node scripts/fix-search-index.mjs
-      # TEMPORARY WORKAROUND END
+        run: npx antora --fetch antora-playbook.local.yml
 
       # Antora's own `runtime.log.failure_level: warn` (see
       # antora-playbook.yml's own comment) already fails the Build step above
