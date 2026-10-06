@@ -1,0 +1,19 @@
+docs/package.json
+  s_b83534820adfeb::t_5dcb8336ec150d 33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "615c4fd0cd8107acdfbb63aaab1c14b5a81a5c2a",
+  "prompts": {},
+  "sessions": {
+    "s_b83534820adfeb": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_eefd7eee2ffeZQUt2txrX0933G",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
