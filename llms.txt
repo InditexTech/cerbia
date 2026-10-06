@@ -3,30 +3,37 @@
 ## CerbIA
 
 - [Home](/prerelease/): Security gates for AI agents' inputs and outputs. Check prompts, files, instructions, configurations, and agent interactions before application, CI/CD, or local use.
+- [Home](/0.3.0/): Security gates for AI agents' inputs and outputs. Check prompts, files, instructions, configurations, and agent interactions before application, CI/CD, or local use.
 
 ## cerbia
 
 - [cerbia](/prerelease/cerbia/): Install CerbIA core and select optional capabilities with package extras.
+- [cerbia](/0.3.0/cerbia/): Install CerbIA core and select optional capabilities with package extras.
 
 ## cerbia-cli
 
 - [cerbia-cli](/prerelease/cerbia-cli/): Install and use the cerbia executable to validate configurations and scan content.
+- [cerbia-cli](/0.3.0/cerbia-cli/): Install and use the cerbia executable to validate configurations and scan content.
 
 ## cerbia-core
 
 - [cerbia-core](/prerelease/cerbia-core/): Use the core Python API for entries, pipeline components, configuration models, Runner, and SecurityGate.
+- [cerbia-core](/0.3.0/cerbia-core/): Use the core Python API for entries, pipeline components, configuration models, Runner, and SecurityGate.
 
 ## cerbia-ml
 
 - [cerbia-ml](/prerelease/cerbia-ml/): Load pinned model artifacts and connect text-classification adapters through the optional cerbia.ml package.
+- [cerbia-ml](/0.3.0/cerbia-ml/): Load pinned model artifacts and connect text-classification adapters through the optional cerbia.ml package.
 
 ## cerbia-presidio
 
 - [cerbia-presidio](/prerelease/cerbia-presidio/): Add the optional Presidio and spaCy integration for English NLP-based PII scanning.
+- [cerbia-presidio](/0.3.0/cerbia-presidio/): Add the optional Presidio and spaCy integration for English NLP-based PII scanning.
 
 ## cerbia-protectai
 
 - [cerbia-protectai](/prerelease/cerbia-protectai/): Add the optional ProtectAI classifier integration for prompt-injection scanning with local model artifacts.
+- [cerbia-protectai](/0.3.0/cerbia-protectai/): Add the optional ProtectAI classifier integration for prompt-injection scanning with local model artifacts.
 
 ## Documentation
 
@@ -67,3 +74,40 @@
 - [Maximum score with bonus](/prerelease/main/components/score-aggregators/max-with-bonus/): Combine the highest blocking score with a configurable bonus for each additional blocking finding.
 - [Maximum score aggregator](/prerelease/main/components/score-aggregators/max/): Use the highest severity-weighted blocking score as the aggregate gate score.
 - [Mean score aggregator](/prerelease/main/components/score-aggregators/mean/): Average all severity-weighted blocking scores to produce the aggregate gate score.
+- [About CerbIA](/0.3.0/main/about/): Security gates for AI agents' inputs and outputs.
+- [Additional information](/0.3.0/main/additional-information/): CerbIA change history, support, and security reporting information.
+- [Architecture](/0.3.0/main/architecture/): Trace an entry through loading, preprocessing, scanning, aggregation, and result construction.
+- [Configuration](/0.3.0/main/configuration/): Configure a CerbIA security gate in YAML, including component classes, initialization arguments, and validation rules.
+- [Contributing](/0.3.0/main/contributing/): Ways to contribute to CerbIA and links to its contribution rules.
+- [Gate behavior](/0.3.0/main/gate/): Understand how SecurityGate combines scanner findings, actions, scores, and thresholds into a verdict.
+- [Guides](/0.3.0/main/guides-overview/): Guided paths for trying and extending CerbIA security gates.
+- [Logging](/0.3.0/main/logging/): Configure host application logging for CerbIA's standard-library logger namespace and levels.
+- [Packages](/0.3.0/main/packages/): Choose a CerbIA distribution and open its package module for installation and API details.
+- [Prerequisites](/0.3.0/main/prerequisites/): Requirements and installation steps before using CerbIA.
+- [Reference](/0.3.0/main/reference-overview/): CerbIA configuration, command, component, and package reference.
+- [CLI reference](/0.3.0/main/cli/): Use the CerbIA CLI to validate YAML pipelines and scan text or files from the command line.
+- [Getting started](/0.3.0/main/quickstart/): Build and run a first CerbIA pipeline from loaders, scanners, and a YAML configuration.
+- [Custom components](/0.3.0/main/components/custom-components/): Define and load custom pipeline components from fully qualified Python classes in configuration.
+- [Loaders](/0.3.0/main/components/loaders/): Load inline text or local files into entries for the CerbIA processing pipeline.
+- [Preprocessors](/0.3.0/main/components/preprocessors/): Transform loaded entries before scanning with decoding and whitespace-normalization preprocessors.
+- [Score aggregators](/0.3.0/main/components/score-aggregators/): Choose how severity-weighted blocking findings become the score compared with the gate threshold.
+- [Internationalization](/0.3.0/main/i18n/): Register and select language-specific pattern packs for CerbIA's built-in scanners.
+- [Scanners](/0.3.0/main/components/scanners/): Browse scanners for hidden text, prompt injection, PII, secrets, URLs, keywords, and other findings.
+- [TextLoader](/0.3.0/main/components/loaders/text-loader/): Load one string or an ordered list of inline strings as CerbIA entries.
+- [Speculative decoding](/0.3.0/main/components/preprocessors/speculative-decoding/): Recover plausible encoded or obfuscated text before scanners inspect an entry.
+- [Whitespace normalization](/0.3.0/main/components/preprocessors/whitespace-normalization/): Normalize spaced, tabbed, and repeated whitespace patterns while preserving entry lineage.
+- [Maximum score with bonus](/0.3.0/main/components/score-aggregators/max-with-bonus/): Combine the highest blocking score with a configurable bonus for each additional blocking finding.
+- [Maximum score aggregator](/0.3.0/main/components/score-aggregators/max/): Use the highest severity-weighted blocking score as the aggregate gate score.
+- [Mean score aggregator](/0.3.0/main/components/score-aggregators/mean/): Average all severity-weighted blocking scores to produce the aggregate gate score.
+- [Keyword scanner](/0.3.0/main/components/scanners/keyword/): Match multilingual and code-oriented suspicious patterns after Unicode and leetspeak normalization.
+- [Canary leak scanner](/0.3.0/main/components/scanners/canary-leak/): Find configured canary tokens and partial leaks, including encoded or zero-width representations.
+- [Presidio PII scanner](/0.3.0/main/components/scanners/pii-presidio/): Detect English PII entities with the optional Presidio analyzer and spaCy model integration.
+- [PII scanners](/0.3.0/main/components/scanners/pii/): Detect common personally identifiable information with built-in or custom regular expressions.
+- [ProtectAI prompt injection scanner](/0.3.0/main/components/scanners/prompt-injection-protectai/): Classify text for prompt injection with the optional ProtectAI DeBERTa-v3 integration.
+- [Prompt injection scanner](/0.3.0/main/components/scanners/prompt-injection/): Detect multilingual prompt-injection patterns such as instruction override, exfiltration, and role hijacking.
+- [Secret scanner](/0.3.0/main/components/scanners/secrets/): Detect configured credential patterns and optionally flag unmatched high-entropy values.
+- [Malicious URL scanner](/0.3.0/main/components/scanners/url-malicious/): Apply local heuristics to extracted URLs, including risky domains, shorteners, and lookalike patterns.
+- [XSS scanner](/0.3.0/main/components/scanners/xss/): Detect encoded HTML and script injection vectors with optional markup-context awareness.
+- [FileLoader](/0.3.0/main/components/loaders/file-loader/): Load UTF-8 text from files or recursively discovered directory trees, with optional suffix filters.
+- [Invisible text scanner](/0.3.0/main/components/scanners/invisible-text/): Detect zero-width, bidirectional, format-control, and other hard-to-see Unicode characters.
+- [URL allowlist scanner](/0.3.0/main/components/scanners/url-allowlist/): Allow only URLs that match configured full-URL wildcard patterns.
