@@ -30,7 +30,7 @@
       "ignore": [
         "*/edit/HEAD/*",
         "https://github.com/InditexTech/cerbia",
-        "https://inditextech.github.io/cerbia/prerelease/*"
+        "https://inditextech.github.io/cerbia/*"
       ]
     }
   }
