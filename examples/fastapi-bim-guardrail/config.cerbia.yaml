@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2026 Jose Manuel Caamaño González (jmcaamanog)
+# SPDX-FileCopyrightText: 2026 INDUSTRIA DE DISEÑO TEXTIL S.A. (INDITEX S.A.)
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: bim-cde-security-gate
+
+fail_fast: false
+on_scanner_error: block
+
+scanners:
+  - scanner: cerbia.core.scanners.InvisibleTextScanner
+  - scanner: cerbia.core.scanners.PromptInjectionScanner
+  - scanner: cerbia.core.scanners.KeywordScanner
+  - scanner: cerbia.core.scanners.SecretScanner
+  - scanner: cerbia.core.scanners.PiiScanner
+  - scanner: cerbia.core.scanners.MaliciousUrlScanner
+
+score_aggregator:
+  score_aggregator: cerbia.core.score_aggregators.MaxWithBonusScoreAggregator
