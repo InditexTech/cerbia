@@ -23,6 +23,14 @@
 |`content_types`
 |`[TEXT]`
 |Accepted content types.
+
+|`validate_checksums`
+|`false`
+|When `true`, candidate matches failing checksum validation are discarded (e.g. Modulo 23 for Spanish DNI/NIE, Luhn for credit cards, and Modulo 97 for IBAN). This reduces noise but can also miss sensitive identifiers with typos.
+
+|`custom_validators`
+|`null`
+|Optional dictionary mapping pattern names to custom validator callables `(str) -> bool`.
 |===
 
 [source,yaml]
@@ -31,6 +39,7 @@ scanners:
   - scanner: cerbia.core.scanners.PiiScanner
     init_args:
       action: block
+      validate_checksums: true
       extra_patterns:
         - ["Employee ID", "EMP-[0-9]{6}"]
 ----
