@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from typing import TypedDict
 from unittest.mock import call
@@ -245,7 +246,8 @@ def test_scan_help_describes_a_single_yaml_config_file() -> None:
     result = CliRunner().invoke(app, ["scan", "--help"])
 
     assert result.exit_code == 0
-    assert "single YAML configuration file" in result.output
+    cleaned_output = " ".join(result.output.replace("│", " ").split())
+    assert "single YAML configuration file" in cleaned_output
     assert "directory" not in result.output.lower()
     assert "DEBUG/INFO/WARNING/ERROR/CRITICAL" in result.output
 
@@ -397,9 +399,10 @@ def test_scan_uses_real_cli_text_and_file_loaders(tmp_path: Path) -> None:
     )
 
     assert result.exit_code == 0
-    payload = output_path.read_text(encoding="utf-8")
-    assert "inline[0]" in payload
-    assert str(input_path.resolve()) in payload
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+    sources = [entry["entry"]["source"] for entry in payload["entry_results"]]
+    assert "inline[0]" in sources
+    assert str(input_path.resolve()) in sources
 
 
 def test_scan_applies_the_cli_threshold_override(tmp_path: Path) -> None:
