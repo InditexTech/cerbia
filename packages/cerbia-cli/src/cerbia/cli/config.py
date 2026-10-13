@@ -44,6 +44,9 @@ def load_config_from_yaml(path: Path, output_console: Console) -> CerbIAConfig:
         output_console.print(f"[red]Error:[/red] config path is a directory: {path}")
         raise typer.Exit(code=2) from exc
     except PermissionError as exc:
+        if path.is_dir():
+            output_console.print(f"[red]Error:[/red] config path is a directory: {path}")
+            raise typer.Exit(code=2) from exc
         output_console.print(f"[red]Error:[/red] permission denied reading config file: {path}")
         raise typer.Exit(code=2) from exc
     except YAMLError as exc:
