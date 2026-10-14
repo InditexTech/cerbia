@@ -14,6 +14,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added `TenderDataScanner` to `cerbia-core` for detecting confidential architectural and construction tender records (FIEBDC-3/BC3 line entries, PEM/PBL budgets, contractor margins, official procurement dockets, and sub-meter geographic coordinates).
+
 ### Fixed
 
 - Restored the `code-uv_python-release-core` workflow to its golden bytes after

@@ -11,6 +11,7 @@ from cerbia.core.scanners import (
     PromptInjectionScanner,
     Scanner,
     SecretScanner,
+    TenderDataScanner,
     UrlAllowlistScanner,
     XssScanner,
 )
@@ -58,6 +59,7 @@ def test_scanner_factory_builds_configured_scanner() -> None:
             {"allowed_domains": ["https://example.com/*"]},
             UrlAllowlistScanner,
         ),
+        ("cerbia.core.scanners.tender.TenderDataScanner", {}, TenderDataScanner),
         ("cerbia.core.scanners.xss.XssScanner", {}, XssScanner),
     ],
     ids=[
@@ -68,6 +70,7 @@ def test_scanner_factory_builds_configured_scanner() -> None:
         "pii",
         "prompt_injection",
         "secret",
+        "tender_data",
         "url_allowlist",
         "xss",
     ],
