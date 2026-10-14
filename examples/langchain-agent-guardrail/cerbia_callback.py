@@ -14,59 +14,25 @@ Provides multi-boundary guardrail scanning for autonomous agents and LLM chains:
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
 from typing import Any
 
 from cerbia.core.security_gate import GateVerdict, SecurityGate
 from cerbia.core.types import ContentType
+from cerbia_middleware import (
+    CerbiaAgentMiddleware,
+    CerbiaSecurityException,
+    ScanAuditRecord,
+    _extract_text_content,
+)
+from langchain_core.callbacks.base import BaseCallbackHandler
 
-try:
-    from langchain_core.callbacks.base import BaseCallbackHandler  # type: ignore[import-untyped]
-except ImportError:  # pragma: no cover
-    # Duck-typed fallback base when langchain_core is not installed
-    class BaseCallbackHandler:  # type: ignore[no-redef]
-        """Lightweight fallback base class compatible with LangChain callback signatures."""
-
-        def on_llm_start(self, serialized: dict[str, Any], prompts: list[str], **kwargs: Any) -> Any:
-            """Hook called when LLM starts running."""
-
-        def on_chat_model_start(
-            self,
-            serialized: dict[str, Any],
-            messages: list[list[Any]],
-            **kwargs: Any,
-        ) -> Any:
-            """Hook called when chat model starts running."""
-
-        def on_llm_end(self, response: Any, **kwargs: Any) -> Any:
-            """Hook called when LLM ends running."""
-
-        def on_tool_start(self, serialized: dict[str, Any], input_str: str, **kwargs: Any) -> Any:
-            """Hook called when tool starts running."""
-
-        def on_tool_end(self, output: Any, **kwargs: Any) -> Any:
-            """Hook called when tool ends running."""
-
-
-class CerbiaSecurityException(Exception):
-    """Raised when a CerbIA security gate intercepts an unsafe prompt, response, or tool input."""
-
-    def __init__(self, message: str, boundary: str, verdict: GateVerdict) -> None:
-        super().__init__(message)
-        self.boundary = boundary
-        self.verdict = verdict
-
-
-@dataclass
-class ScanAuditRecord:
-    """Audit record capturing the security scan verdict at a specific agent boundary."""
-
-    timestamp: float
-    boundary: str
-    is_safe: bool
-    score: float
-    rationale: str
-    metadata: dict[str, Any] = field(default_factory=dict)
+__all__ = [
+    "CerbiaAgentMiddleware",
+    "CerbiaCallbackHandler",
+    "CerbiaSecurityException",
+    "ScanAuditRecord",
+    "_extract_text_content",
+]
 
 
 class CerbiaCallbackHandler(BaseCallbackHandler):
@@ -139,7 +105,7 @@ class CerbiaCallbackHandler(BaseCallbackHandler):
         for idx, prompt in enumerate(prompts):
             self._evaluate(
                 gate=self.input_gate,
-                content=prompt,
+                content=_extract_text_content(prompt),
                 boundary="input",
                 metadata={"prompt_index": idx, "caller": "llm"},
             )
@@ -154,12 +120,8 @@ class CerbiaCallbackHandler(BaseCallbackHandler):
         for msg_group in messages:
             for msg in msg_group:
                 # Handle LangChain BaseMessage objects (msg.content) or raw strings/dicts
-                if hasattr(msg, "content"):
-                    text = str(msg.content)
-                elif isinstance(msg, dict):
-                    text = str(msg.get("content", ""))
-                else:
-                    text = str(msg)
+                content = getattr(msg, "content", msg.get("content") if isinstance(msg, dict) else msg)
+                text = _extract_text_content(content)
 
                 self._evaluate(
                     gate=self.input_gate,
@@ -176,11 +138,13 @@ class CerbiaCallbackHandler(BaseCallbackHandler):
             for generation_group in response.generations:
                 for gen in generation_group:
                     if hasattr(gen, "text"):
-                        texts_to_check.append(gen.text)
+                        texts_to_check.append(_extract_text_content(gen.text))
                     elif hasattr(gen, "message") and hasattr(gen.message, "content"):
-                        texts_to_check.append(str(gen.message.content))
+                        texts_to_check.append(_extract_text_content(gen.message.content))
         elif isinstance(response, str):
             texts_to_check.append(response)
+        elif hasattr(response, "content"):
+            texts_to_check.append(_extract_text_content(response.content))
 
         for text in texts_to_check:
             self._evaluate(
@@ -200,14 +164,14 @@ class CerbiaCallbackHandler(BaseCallbackHandler):
         tool_name = serialized.get("name", "unknown_tool") if isinstance(serialized, dict) else "unknown_tool"
         self._evaluate(
             gate=self.tool_gate,
-            content=str(input_str),
+            content=_extract_text_content(input_str),
             boundary="tool_input",
             metadata={"tool_name": tool_name},
         )
 
     def on_tool_end(self, output: Any, **kwargs: Any) -> None:
         """Scan tool outputs before feeding back to context (prevents indirect injection)."""
-        output_str = str(output)
+        output_str = _extract_text_content(output)
         self._evaluate(
             gate=self.tool_output_gate,
             content=output_str,
