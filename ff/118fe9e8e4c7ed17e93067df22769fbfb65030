@@ -1,0 +1,14 @@
+docs/package.json
+  h_d6d31939214ddd 33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ff118fe9e8e4c7ed17e93067df22769fbfb65030",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

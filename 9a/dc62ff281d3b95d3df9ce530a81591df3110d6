@@ -1,0 +1,29 @@
+.github/workflows/docouture-kroki-cache-warm.yml
+  s_16ad186f2d3033::t_770357d0b736e1 27-31,44,62-64,73,75-76,88-89,120-121
+.github/workflows/docouture-pr-verify.yml
+  s_16ad186f2d3033::t_192e80bba8f151 39-41,50,52-53,65-66,130
+.github/workflows/docouture-publish-prerelease.yml
+  s_16ad186f2d3033::t_85ba98471fa10d 41-45,50,59-62,66-70,75,77-80,83-97,103-107,121-124,126,140-142,144,146-147
+.github/workflows/docouture-publish.yml
+  s_16ad186f2d3033::t_c72d74679f7f33 31-43,45-49,52-53,61-62,64,81,89-91,96-99,120-122,129-131,133-136
+.github/workflows/docouture-release-preview.yml
+  s_16ad186f2d3033::t_c82513add970fd 8,24-27,33-34,36-37,44-45,48,55-65,71-72,74-75,87-88,136-140,144-145,147,150,155,163-165,172,186,203,209-210,212,215-218,220,228-229,231,234-237,239
+.github/workflows/docouture-release.yml
+  s_16ad186f2d3033::t_6e8c0f38bb36d5 71-82,100,109-112,125-126,137,151-152,154,180-182,245-247,380,505-506,508-509
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9adc62ff281d3b95d3df9ce530a81591df3110d6",
+  "prompts": {},
+  "sessions": {
+    "s_16ad186f2d3033": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5a417566-bd6c-4a91-96b8-a5f32ac707af",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "Ivan Alvarez Sabin <ivanasabi@ext.inditex.com>"
+    }
+  }
+}

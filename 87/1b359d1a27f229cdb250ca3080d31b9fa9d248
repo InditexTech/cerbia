@@ -1,0 +1,19 @@
+.github/workflows/code-uv_python-release-core.yml
+  s_824f3cef3c90c4::t_55ab56ea4693c2 149,606,681
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "871b359d1a27f229cdb250ca3080d31b9fa9d248",
+  "prompts": {},
+  "sessions": {
+    "s_824f3cef3c90c4": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "s_824f3cef3c90c4",
+        "model": "unknown"
+      },
+      "human_author": "Ivan Alvarez Sabin <ivanasabi@ext.inditex.com>"
+    }
+  }
+}
