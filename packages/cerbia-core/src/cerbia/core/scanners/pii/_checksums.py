@@ -132,6 +132,24 @@ def validate_cpf_checksum(value: str) -> bool:
     return digits[10] == d10
 
 
+def validate_imei_checksum(value: str) -> bool:
+    """Validate an International Mobile Equipment Identity (IMEI) using the Luhn algorithm.
+
+    Args:
+        value (str): IMEI string (optional 'IMEI:' label, spaces and hyphens will be ignored).
+
+    Returns:
+        bool: True if the 15-digit IMEI satisfies the Luhn checksum, False otherwise.
+    """
+    match = re.match(r"(?i)^\s*imei\s*[:#]?\s*(.+)$", value)
+    payload = match.group(1) if match else value
+    cleaned = re.sub(r"[\s-]", "", payload)
+    if len(cleaned) != 15 or not (cleaned.isascii() and cleaned.isdigit()):
+        return False
+
+    return validate_luhn_checksum(cleaned)
+
+
 CHECKSUM_VALIDATORS: dict[str, Callable[[str], bool]] = {
     "DNI (Spain)": validate_dni_checksum,
     "NIE (Spain)": validate_nie_checksum,
@@ -143,5 +161,5 @@ CHECKSUM_VALIDATORS: dict[str, Callable[[str], bool]] = {
     "Credit Card (JCB)": validate_luhn_checksum,
     "Credit Card (Diners Club)": validate_luhn_checksum,
     "CPF (Brazil)": validate_cpf_checksum,
-    "IMEI": validate_luhn_checksum,
+    "IMEI": validate_imei_checksum,
 }

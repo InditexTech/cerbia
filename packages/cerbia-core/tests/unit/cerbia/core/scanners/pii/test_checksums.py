@@ -4,6 +4,7 @@ from cerbia.core.scanners.pii._checksums import (
     validate_cpf_checksum,
     validate_dni_checksum,
     validate_iban_checksum,
+    validate_imei_checksum,
     validate_luhn_checksum,
     validate_nie_checksum,
 )
@@ -183,3 +184,66 @@ def test_pii_scanner_with_custom_validators() -> None:
 def test_pii_scanner_initialization_attributes() -> None:
     scanner = PiiScanner(validate_checksums=True)
     assert scanner.validate_checksums is True
+
+
+@pytest.mark.parametrize(
+    ("imei", "expected"),
+    [
+        ("IMEI: 490154203237518", True),
+        ("imei 490154203237518", True),
+        ("IMEI#490154203237518", True),
+        ("490154203237518", True),
+        ("49-015420-323751-8", True),
+        ("IMEI: 490154203237519", False),
+        ("IMEI: 49015420323751", False),
+        ("IMEI: 4901542032375188", False),
+        ("IMEI: 49015420323751A", False),
+        ("IMEI: ⁴⁹⁰¹⁵⁴²⁰³²³⁷⁵¹⁸", False),
+        ("", False),
+    ],
+)
+def test_validate_imei_checksum(imei: str, expected: bool) -> None:
+    assert validate_imei_checksum(imei) is expected
+
+
+def test_pii_scanner_imei_labeled_checksum() -> None:
+    scanner = PiiScanner(validate_checksums=True)
+
+    # Valid labeled IMEI must be detected with checksum enabled
+    text_valid = "Device IMEI: 490154203237518 registered"
+    res_valid = scanner.scan(text_valid)
+    assert res_valid.risk_score == 0.85
+    assert "IMEI" in res_valid.rationale
+    assert len(res_valid.matches) == 1
+    assert text_valid[res_valid.matches[0].start : res_valid.matches[0].end] == "IMEI: 490154203237518"
+
+    # Invalid checksum labeled IMEI must be discarded when validate_checksums=True
+    text_invalid = "Device IMEI: 490154203237519 registered"
+    res_invalid = scanner.scan(text_invalid)
+    assert res_invalid.risk_score == 0.0
+    assert res_invalid.matches == []
+
+
+@pytest.mark.parametrize(
+    "iban",
+    [
+        "ES9121000418450200051332",
+        "ES91 21000418450200051332",
+        "ES91 2100 0418 4502 0005 1332",
+        "ES91-2100-0418-4502-0005-1332",
+        "DE89370400440532013000",
+        "DE89 3704 0044 0532 0130 00",
+        "GB29NWBK60161331926819",
+        "GB29 NWBK 6016 1331 9268 19",
+        "IQ90BAPI000000000000123",
+        "IQ90 BAPI 0000 0000 0000 123",
+    ],
+)
+def test_pii_scanner_iban_formats_and_spacing_followed_by_text(iban: str) -> None:
+    scanner = PiiScanner(validate_checksums=True)
+    text = f"{iban} hello"
+    res = scanner.scan(text)
+    assert res.risk_score == 0.92
+    assert len(res.matches) == 1
+    assert "IBAN" in res.rationale
+    assert text[res.matches[0].start : res.matches[0].end] == iban

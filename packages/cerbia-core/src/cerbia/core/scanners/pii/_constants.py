@@ -5,101 +5,119 @@ _OCTET = r"(?:25[0-5]|2[0-4]\d|[01]?\d\d?)"
 _AT_BLOCK = r"\s*[(\[]\s*(?:at|arroba)\s*[)\]]\s*"
 _DOT_BLOCK = r"\s*[(\[]\s*(?:dot|punto)\s*[)\]]\s*"
 
-_IBAN_COUNTRY_LENGTHS: dict[str, int] = {
-    "AL": 28,
-    "AD": 24,
-    "AT": 20,
-    "AZ": 28,
-    "BH": 22,
-    "BY": 28,
-    "BE": 16,
-    "BA": 20,
-    "BR": 29,
-    "BG": 22,
-    "CR": 22,
-    "HR": 21,
-    "CY": 28,
-    "CZ": 24,
-    "DK": 18,
-    "DO": 28,
-    "EE": 20,
-    "FO": 18,
-    "FI": 18,
-    "FR": 27,
-    "GE": 22,
-    "DE": 22,
-    "GI": 23,
-    "GR": 27,
-    "GL": 18,
-    "GT": 28,
-    "HU": 28,
-    "IS": 26,
-    "IE": 22,
-    "IL": 23,
-    "IT": 27,
-    "JO": 30,
-    "KZ": 20,
-    "XK": 20,
-    "KW": 30,
-    "LV": 21,
-    "LB": 28,
-    "LI": 21,
-    "LT": 20,
-    "LU": 20,
-    "MK": 19,
-    "MT": 31,
-    "MR": 27,
-    "MU": 30,
-    "MD": 24,
-    "MC": 27,
-    "ME": 22,
-    "NL": 18,
-    "NO": 15,
-    "PK": 24,
-    "PS": 29,
-    "PL": 28,
-    "PT": 25,
-    "QA": 29,
-    "RO": 24,
-    "LC": 32,
-    "SM": 27,
-    "ST": 25,
-    "SA": 24,
-    "RS": 22,
-    "SC": 31,
-    "SK": 24,
-    "SI": 19,
-    "ES": 24,
-    "SE": 24,
-    "CH": 21,
-    "TL": 23,
-    "TN": 24,
-    "TR": 26,
-    "UA": 29,
-    "AE": 23,
-    "GB": 22,
-    "VA": 22,
-    "VG": 24,
+_IBAN_COUNTRY_SPECS: dict[str, tuple[tuple[int, str], ...]] = {
+    "AL": ((8, "n"), (16, "c")),
+    "AD": ((8, "n"), (12, "c")),
+    "AT": ((16, "n"),),
+    "AZ": ((4, "a"), (20, "c")),
+    "BH": ((4, "a"), (14, "c")),
+    "BY": ((4, "c"), (4, "n"), (16, "c")),
+    "BE": ((12, "n"),),
+    "BA": ((16, "n"),),
+    "BR": ((23, "n"), (1, "a"), (1, "c")),
+    "BG": ((4, "a"), (6, "n"), (8, "c")),
+    "BI": ((23, "n"),),
+    "CR": ((18, "n"),),
+    "HR": ((17, "n"),),
+    "CY": ((8, "n"), (16, "c")),
+    "CZ": ((20, "n"),),
+    "DK": ((14, "n"),),
+    "DJ": ((23, "n"),),
+    "DO": ((4, "c"), (20, "n")),
+    "EG": ((25, "n"),),
+    "EE": ((16, "n"),),
+    "FK": ((2, "a"), (12, "n")),
+    "FO": ((14, "n"),),
+    "FI": ((14, "n"),),
+    "FR": ((10, "n"), (11, "c"), (2, "n")),
+    "GE": ((2, "a"), (16, "n")),
+    "DE": ((18, "n"),),
+    "GI": ((4, "a"), (15, "c")),
+    "GR": ((7, "n"), (16, "c")),
+    "GL": ((14, "n"),),
+    "GT": ((4, "c"), (20, "c")),
+    "HN": ((4, "a"), (20, "n")),
+    "HU": ((24, "n"),),
+    "IS": ((22, "n"),),
+    "IE": ((4, "c"), (14, "n")),
+    "IL": ((19, "n"),),
+    "IT": ((1, "a"), (10, "n"), (12, "c")),
+    "IQ": ((4, "a"), (15, "n")),
+    "JO": ((4, "a"), (22, "n")),
+    "KZ": ((3, "n"), (13, "c")),
+    "XK": ((16, "n"),),
+    "KW": ((4, "a"), (22, "c")),
+    "LV": ((4, "a"), (13, "c")),
+    "LB": ((4, "n"), (20, "c")),
+    "LI": ((5, "n"), (12, "c")),
+    "LT": ((16, "n"),),
+    "LU": ((3, "n"), (13, "c")),
+    "LY": ((21, "n"),),
+    "MK": ((3, "n"), (10, "c"), (2, "n")),
+    "MT": ((4, "a"), (5, "n"), (18, "c")),
+    "MR": ((23, "n"),),
+    "MU": ((4, "a"), (19, "n"), (3, "a")),
+    "MD": ((2, "c"), (18, "c")),
+    "MC": ((10, "n"), (11, "c"), (2, "n")),
+    "ME": ((18, "n"),),
+    "MN": ((16, "n"),),
+    "NL": ((4, "a"), (10, "n")),
+    "NI": ((4, "a"), (24, "n")),
+    "NO": ((11, "n"),),
+    "OM": ((3, "c"), (16, "n")),
+    "PK": ((4, "c"), (16, "n")),
+    "PS": ((4, "c"), (21, "n")),
+    "PL": ((24, "n"),),
+    "PT": ((21, "n"),),
+    "QA": ((4, "a"), (21, "c")),
+    "RO": ((4, "a"), (16, "c")),
+    "RU": ((14, "n"), (15, "c")),
+    "LC": ((4, "a"), (24, "c")),
+    "SM": ((1, "a"), (10, "n"), (12, "c")),
+    "ST": ((21, "n"),),
+    "SA": ((2, "n"), (18, "c")),
+    "RS": ((18, "n"),),
+    "SC": ((4, "a"), (20, "n"), (3, "a")),
+    "SD": ((14, "n"),),
+    "SK": ((20, "n"),),
+    "SI": ((15, "n"),),
+    "SO": ((19, "n"),),
+    "ES": ((20, "n"),),
+    "SE": ((20, "n"),),
+    "CH": ((5, "n"), (12, "c")),
+    "SV": ((4, "a"), (20, "n")),
+    "TL": ((19, "n"),),
+    "TN": ((20, "n"),),
+    "TR": ((5, "n"), (17, "c")),
+    "UA": ((6, "n"), (19, "c")),
+    "AE": ((19, "n"),),
+    "GB": ((4, "a"), (14, "n")),
+    "VA": ((18, "n"),),
+    "VG": ((4, "a"), (16, "n")),
+    "YE": ((4, "a"), (22, "n")),
 }
 
 
 def _build_iban_pattern() -> re.Pattern[str]:
-    by_len: dict[int, list[str]] = {}
-    for country, length in _IBAN_COUNTRY_LENGTHS.items():
-        by_len.setdefault(length, []).append(country)
+    grouped: dict[tuple[tuple[int, str], ...], list[str]] = {}
+    for country, spec in _IBAN_COUNTRY_SPECS.items():
+        grouped.setdefault(spec, []).append(country)
+
+    type_map = {
+        "n": r"\d",
+        "a": r"[a-z]",
+        "c": r"[a-z0-9]",
+    }
 
     clauses: list[str] = []
-    for length, countries in sorted(by_len.items()):
-        countries_re = "|".join(countries)
-        rem = length - 4
-        num_blocks = rem // 4
-        remainder = rem % 4
-        if remainder == 0:
-            spaced = rf"(?:[ -][a-z0-9]{{4}}){{{num_blocks}}}"
-        else:
-            spaced = rf"(?:[ -][a-z0-9]{{4}}){{{num_blocks}}}[ -][a-z0-9]{{{remainder}}}"
-        compact = rf"[a-z0-9]{{{rem}}}"
-        clauses.append(rf"(?:{countries_re})\d{{2}}(?:{compact}|{spaced})")
+    for spec, countries in grouped.items():
+        countries_re = "|".join(sorted(countries))
+        bban_parts: list[str] = []
+        for count, char_type in spec:
+            regex_char = type_map[char_type]
+            bban_parts.append(rf"(?:[ -]?{regex_char}){{{count}}}")
+        bban_pattern = "".join(bban_parts)
+        clauses.append(rf"(?:{countries_re})[ -]?\d{{2}}{bban_pattern}")
 
     pattern = rf"(?i)(?<![a-z0-9])(?:{'|'.join(clauses)})(?![a-z0-9])"
     return re.compile(pattern)
