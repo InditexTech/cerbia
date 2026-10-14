@@ -1,0 +1,47 @@
+THIRD-PARTY-LICENSES/GPL-3.0-or-later.txt
+  s_789e75b15f310a::t_81a90d61713009 1-232
+THIRD-PARTY-LICENSES/MIT.txt
+  s_789e75b15f310a::t_1550d10c9e2ffa 1-18
+README.md
+  s_1c75c67c4de164::t_6d974d92251f14 118-152
+THIRD-PARTY-LICENSES/Apache-2.0.txt
+  s_789e75b15f310a::t_8375130294ab0e 1-73
+THIRD-PARTY-LICENSES/BSD-2-Clause.txt
+  s_789e75b15f310a::t_f860dd5b67db7e 1-9
+THIRD-PARTY-LICENSES/ISC.txt
+  s_789e75b15f310a::t_c73514f83fb79e 1-7
+THIRD-PARTY-LICENSES/CC-BY-SA-4.0.txt
+  s_789e75b15f310a::t_594f86e7637c56 1-170
+THIRD-PARTY-LICENSES/MPL-2.0.txt
+  s_789e75b15f310a::t_b5ac01d00126ce 1-373
+THIRD-PARTY-LICENSES/BSD-3-Clause.txt
+  s_789e75b15f310a::t_f5fc9ae5f11ef4 1-11
+THIRD-PARTY-LICENSES/CC0-1.0.txt
+  s_789e75b15f310a::t_5c11b7d718fcd2 1-121
+THIRD-PARTY-LICENSES/PSF-2.0.txt
+  s_789e75b15f310a::t_97b509172a1ae1 1-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5f4891a4730b7e7e9c068a0a95b3edd725a5012e",
+  "prompts": {},
+  "sessions": {
+    "s_1c75c67c4de164": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "8a3a0d73-26b1-47c4-b831-834dffae5cb4",
+        "model": "zai-org/GLM-5.3-Flash"
+      },
+      "human_author": "amagan <andreamr@ext.zara.com>"
+    },
+    "s_789e75b15f310a": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "670820ee-e33b-472f-8e41-d178fcdb44bf",
+        "model": "zai-org/GLM-5.3-Flash"
+      },
+      "human_author": "amagan <andreamr@ext.zara.com>"
+    }
+  }
+}
