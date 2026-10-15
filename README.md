@@ -115,4 +115,28 @@ This project is licensed under the [Apache-2.0](./LICENSE) license.
 
 © 2026 INDUSTRIA DE DISEÑO TEXTIL S.A. (INDITEX S.A.)
 
+### Third-Party Notices
+
+Depending on the optional features installed, this project uses the following third-party Python dependencies. These dependencies are provided as separate packages and their source code is not incorporated into or modified by this project.
+
+<details>
+<summary>Third-party dependency licenses</summary>
+
+Full third-party license texts are available under the [`THIRD-PARTY-LICENSES/`](THIRD-PARTY-LICENSES/) directory:
+
+- [Apache-2.0](THIRD-PARTY-LICENSES/Apache-2.0.txt)
+- [BSD-2-Clause](THIRD-PARTY-LICENSES/BSD-2-Clause.txt)
+- [BSD-3-Clause](THIRD-PARTY-LICENSES/BSD-3-Clause.txt)
+- [CC-BY-SA-4.0](THIRD-PARTY-LICENSES/CC-BY-SA-4.0.txt)
+- [CC0-1.0](THIRD-PARTY-LICENSES/CC0-1.0.txt)
+- [GPL-3.0-or-later](THIRD-PARTY-LICENSES/GPL-3.0-or-later.txt)
+- [ISC](THIRD-PARTY-LICENSES/ISC.txt)
+- [MIT](THIRD-PARTY-LICENSES/MIT.txt)
+- [MPL-2.0](THIRD-PARTY-LICENSES/MPL-2.0.txt)
+- [PSF-2.0](THIRD-PARTY-LICENSES/PSF-2.0.txt)
+- [LicenseRef-scancode-free-unknown](THIRD-PARTY-LICENSES/LicenseRef-scancode-free-unknown.txt)
+- [LicenseRef-scancode-proprietary-license](THIRD-PARTY-LICENSES/LicenseRef-scancode-proprietary-license.txt)
+
+</details>
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
