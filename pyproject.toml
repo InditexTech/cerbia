@@ -16,9 +16,12 @@ dev = [
     "ty==0.0.62",
     "typer==0.27.0",
 ]
+
 examples = [
     "fastapi",
     "httpx",
+    "langchain",
+    "langchain-core",
     "uvicorn",
 ]
 
