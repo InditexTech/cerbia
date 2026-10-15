@@ -1606,12 +1606,15 @@ Source: /prerelease/main/components/scanners/pii/
 | `severity` | `HIGH` | Finding severity. |
 | `action` | `WARN` | Findings are visible but do not contribute to blocking aggregation unless changed. |
 | `content_types` | `[TEXT]` | Accepted content types. |
+| `validate_checksums` | `false` | When `true`, candidate matches failing checksum validation are discarded (e.g. Modulo 23 for Spanish DNI/NIE, Luhn for credit cards, and Modulo 97 for IBAN). This reduces noise but can also miss sensitive identifiers with typos. |
+| `custom_validators` | `null` | Optional dictionary mapping pattern names to custom validator callables `(str) → bool`. |
 
 ```
 scanners:
   - scanner: cerbia.core.scanners.PiiScanner
     init_args:
       action: block
+      validate_checksums: true
       extra_patterns:
         - ["Employee ID", "EMP-[0-9]{6}"]
 ```
@@ -1871,6 +1874,90 @@ score_aggregator:
 
 ---
 
+# Home
+
+Source: /0.3.0/
+
+CerbIA is a Python library and command-line interface for reusable security gates around AI agents' inputs and outputs. Review prompts, files, instructions, configurations, and other agent interactions before application, CI/CD, or local use.
+
+Define reviewable pipelines in YAML, then run the same gate in an application, from the command line, or in a deployment pipeline. The gate loads content, optionally preprocesses it, applies scanners, and aggregates findings into a risk verdict.
+
+## Get started
+
+Install CerbIA with CLI support, validate the example configuration, and scan text:
+
+```
+pip install "cerbia[cli]"
+cerbia validate examples/cli-usage/config.cerbia.yaml
+cerbia scan --config examples/cli-usage/config.cerbia.yaml --text "A short message"
+```
+
+The commands above use the [CLI example configuration](https://github.com/inditextech/cerbia/blob/main/examples/cli-usage/config.cerbia.yaml). Follow the [prerequisites](main/prerequisites/) to get ready, or read [about CerbIA](main/about/) for its scope and limitations.
+
+## Use it where you work
+
+- **Python library:** evaluate agent interactions from application code with a native Python API.
+- **Command line:** scan text, files, and configurations locally with the `cerbia` command before deployment.
+- **CI/CD pipelines:** automate checks with the same CLI and declarative YAML configuration used during local development.
+
+## Declarative evaluation
+
+YAML-first configuration makes a pipeline reviewable, versionable, and distributable. Each gate composes four stages:
+
+1. **Load** content from inline text or file inputs.
+2. **Normalize** extracted data before inspection.
+3. **Inspect** with pattern-based scanners and optional local ML integrations.
+4. **Decide** by aggregating risk into a block or allow verdict.
+
+## Extend it and run it anywhere
+
+Add custom loaders, preprocessors, scanners, and score aggregators without forking the codebase. Configure fully qualified Python components and their initialization arguments in YAML. Register language-specific patterns for built-in scanners using ISO-639-1 language codes and the `@i18n_pattern` decorator; built-in packs support English, Spanish, and Galician.
+
+For example, a custom scanner can be selected by its Python class path and configured with initialization arguments:
+
+```
+scanners:
+  - scanner: your_package.components.CompanyPolicyScanner
+    init_args:
+      blocked_phrase: "internal only"
+```
+
+Layer fast pattern-based checks for suspicious instructions, secrets, PII, URLs, and hidden text with optional local ML-backed integrations for selected scenarios. Run the same declarative gate across applications, environments, and CI/CD pipelines.
+
+## Start scanning in three steps
+
+Install CerbIA
+
+```
+pip install "cerbia[cli]"
+```
+
+Validate configuration
+
+```
+cerbia validate examples/cli-usage/config.cerbia.yaml
+```
+
+Scan content
+
+```
+cerbia scan --config examples/cli-usage/config.cerbia.yaml --text "A short message"
+```
+
+## Free and open source
+
+CerbIA is licensed under the [Apache-2.0 License](https://github.com/inditextech/cerbia/blob/main/LICENSE). Contributions that add scanners, preprocessors, and integrations are welcome.
+
+Explore the source, report an issue, or contribute to CerbIA.
+
+[View the CerbIA repository](https://github.com/inditextech/cerbia)
+
+## Important limitations
+
+Scanner results are heuristic or model-based signals, not a security certification. Evaluate them for your threat model and retain defense-in-depth controls. Read the [product overview](main/about/) before using the results to make security decisions.
+
+---
+
 # cerbia
 
 Source: /0.3.0/cerbia/
@@ -1897,6 +1984,30 @@ After installing an extra, use the import namespace it supplies: `cerbia.core`, 
 ## Next steps
 
 Start with the product-wide [installation requirements](../main/prerequisites/) and [quickstart](../main/quickstart/). For an overview of all distributions, open the [package directory](../main/packages/).
+
+---
+
+# cerbia-cli
+
+Source: /0.3.0/cerbia-cli/
+
+`cerbia-cli` provides the `cerbia` executable for validating configuration files and running configured pipelines. Install the distribution directly or select the `cli` extra from `cerbia`.
+
+## Install and run
+
+```
+pip install cerbia-cli
+cerbia validate config.yaml
+cerbia scan --config config.yaml --text "Text to scan"
+```
+
+`validate` parses the YAML file and constructs its pipeline without scanning entries. `scan` runs the configured pipeline, with optional `--text` or `--file` overrides for input.
+
+## Command outcomes
+
+`scan` exits with status `0` for a safe result, status `1` for an unsafe result, and status `2` for usage, configuration, or handled execution errors. `validate` exits with status `0` when the pipeline can be constructed. Both commands accept log-level and log-file options.
+
+Use the CLI for repeatable command-line runs. For Python applications that construct and run pipelines directly, see [cerbia-core](../cerbia-core/). The product-wide [CLI reference](../main/cli/) documents command behavior; the [quickstart](../main/quickstart/) shows the maintained example configuration in use.
 
 ---
 
@@ -1943,30 +2054,6 @@ result = Runner(config).scan()
 ## Find component details
 
 Use the product-wide references for the [pipeline lifecycle](../main/architecture/), [configuration format](../main/configuration/), [loaders](../main/components/loaders/), [preprocessors](../main/components/preprocessors/), [scanners](../main/components/scanners/), and [score aggregators](../main/components/score-aggregators/). The [quickstart](../main/quickstart/) walks through a working CLI example.
-
----
-
-# cerbia-cli
-
-Source: /0.3.0/cerbia-cli/
-
-`cerbia-cli` provides the `cerbia` executable for validating configuration files and running configured pipelines. Install the distribution directly or select the `cli` extra from `cerbia`.
-
-## Install and run
-
-```
-pip install cerbia-cli
-cerbia validate config.yaml
-cerbia scan --config config.yaml --text "Text to scan"
-```
-
-`validate` parses the YAML file and constructs its pipeline without scanning entries. `scan` runs the configured pipeline, with optional `--text` or `--file` overrides for input.
-
-## Command outcomes
-
-`scan` exits with status `0` for a safe result, status `1` for an unsafe result, and status `2` for usage, configuration, or handled execution errors. `validate` exits with status `0` when the pipeline can be constructed. Both commands accept log-level and log-file options.
-
-Use the CLI for repeatable command-line runs. For Python applications that construct and run pipelines directly, see [cerbia-core](../cerbia-core/). The product-wide [CLI reference](../main/cli/) documents command behavior; the [quickstart](../main/quickstart/) shows the maintained example configuration in use.
 
 ---
 
@@ -2091,90 +2178,6 @@ See [cerbia-ml](../cerbia-ml/) for artifact behavior and the [ProtectAI scanner 
 
 ---
 
-# Home
-
-Source: /0.3.0/
-
-CerbIA is a Python library and command-line interface for reusable security gates around AI agents' inputs and outputs. Review prompts, files, instructions, configurations, and other agent interactions before application, CI/CD, or local use.
-
-Define reviewable pipelines in YAML, then run the same gate in an application, from the command line, or in a deployment pipeline. The gate loads content, optionally preprocesses it, applies scanners, and aggregates findings into a risk verdict.
-
-## Get started
-
-Install CerbIA with CLI support, validate the example configuration, and scan text:
-
-```
-pip install "cerbia[cli]"
-cerbia validate examples/cli-usage/config.cerbia.yaml
-cerbia scan --config examples/cli-usage/config.cerbia.yaml --text "A short message"
-```
-
-The commands above use the [CLI example configuration](https://github.com/inditextech/cerbia/blob/main/examples/cli-usage/config.cerbia.yaml). Follow the [prerequisites](main/prerequisites/) to get ready, or read [about CerbIA](main/about/) for its scope and limitations.
-
-## Use it where you work
-
-- **Python library:** evaluate agent interactions from application code with a native Python API.
-- **Command line:** scan text, files, and configurations locally with the `cerbia` command before deployment.
-- **CI/CD pipelines:** automate checks with the same CLI and declarative YAML configuration used during local development.
-
-## Declarative evaluation
-
-YAML-first configuration makes a pipeline reviewable, versionable, and distributable. Each gate composes four stages:
-
-1. **Load** content from inline text or file inputs.
-2. **Normalize** extracted data before inspection.
-3. **Inspect** with pattern-based scanners and optional local ML integrations.
-4. **Decide** by aggregating risk into a block or allow verdict.
-
-## Extend it and run it anywhere
-
-Add custom loaders, preprocessors, scanners, and score aggregators without forking the codebase. Configure fully qualified Python components and their initialization arguments in YAML. Register language-specific patterns for built-in scanners using ISO-639-1 language codes and the `@i18n_pattern` decorator; built-in packs support English, Spanish, and Galician.
-
-For example, a custom scanner can be selected by its Python class path and configured with initialization arguments:
-
-```
-scanners:
-  - scanner: your_package.components.CompanyPolicyScanner
-    init_args:
-      blocked_phrase: "internal only"
-```
-
-Layer fast pattern-based checks for suspicious instructions, secrets, PII, URLs, and hidden text with optional local ML-backed integrations for selected scenarios. Run the same declarative gate across applications, environments, and CI/CD pipelines.
-
-## Start scanning in three steps
-
-Install CerbIA
-
-```
-pip install "cerbia[cli]"
-```
-
-Validate configuration
-
-```
-cerbia validate examples/cli-usage/config.cerbia.yaml
-```
-
-Scan content
-
-```
-cerbia scan --config examples/cli-usage/config.cerbia.yaml --text "A short message"
-```
-
-## Free and open source
-
-CerbIA is licensed under the [Apache-2.0 License](https://github.com/inditextech/cerbia/blob/main/LICENSE). Contributions that add scanners, preprocessors, and integrations are welcome.
-
-Explore the source, report an issue, or contribute to CerbIA.
-
-[View the CerbIA repository](https://github.com/inditextech/cerbia)
-
-## Important limitations
-
-Scanner results are heuristic or model-based signals, not a security certification. Evaluate them for your threat model and retain defense-in-depth controls. Read the [product overview](main/about/) before using the results to make security decisions.
-
----
-
 # About CerbIA
 
 Source: /0.3.0/main/about/
@@ -2219,6 +2222,83 @@ The repository’s [CHANGELOG.md](https://github.com/InditexTech/cerbia/blob/mai
 Do not report security vulnerabilities through public issues. Follow the [security policy](https://github.com/InditexTech/cerbia/blob/main/SECURITY.md) and submit a report through the Inditex [disclosure submission program](https://vdp.inditex.com).
 
 For the product’s exact command, configuration, and package details, see the [Reference overview](../reference-overview/).
+
+---
+
+# CLI reference
+
+Source: /0.3.0/main/cli/
+
+Install the command-line interface with `pip install "cerbia[cli]"`. The executable provides `scan` and `validate`.
+
+## `cerbia validate CONFIG.yaml`
+
+Validate one YAML configuration file, construct its `Runner`, and print the configured pipeline. This command does not load entries or execute scanners.
+
+```
+cerbia validate examples/cli-usage/config.cerbia.yaml
+```
+
+| Input | Meaning |
+| --- | --- |
+| `config` | Required path to one YAML configuration file. Directories are not supported. |
+| `--log-level` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL`. |
+| `--log-file` | Write logs to this path instead of standard error. |
+
+Exit code `0` means the file parsed and its pipeline could be constructed. Missing or malformed configuration files exit `2`; a configuration that parses but cannot construct its pipeline exits `1` for `CerbIAError` or `2` for `TypeError`.
+
+## `cerbia scan --config CONFIG.yaml`
+
+Run one configured pipeline and render a result for each loaded entry.
+
+```
+cerbia scan --config examples/cli-usage/config.cerbia.yaml --text "Text to scan"
+```
+
+| Option | Meaning |
+| --- | --- |
+| `--config`, `-c` | Required path to one YAML configuration file. |
+| `--text`, `-t` | Repeatable inline input. Any supplied values replace configured loaders. |
+| `--file`, `-f` | Repeatable file input. Any supplied values replace configured loaders. |
+| `--output`, `-o` | Write JSON results to a path ending in `.json`. |
+| `--threshold` | Override the YAML threshold for this invocation. |
+| `--unsafe-only` | Show and serialize only unsafe entry results. It does not change scanner execution. |
+| `--log-level` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL`. At `INFO`, scan logs the fixed `Starting scan` milestone. |
+| `--log-file` | Write logs to this path instead of standard error. |
+
+The `--unsafe-only` option filters console output and `entry_results` in JSON; it does not change scan execution or exit codes.
+
+Inline text and file options replace every loader configured in YAML. When no override is supplied, the configuration’s loaders are used. The command rejects a run with no loaders after this selection.
+
+`FileLoader` treats missing paths and extension-filtered paths as no entries, so a `--file` value can produce an empty, safe result rather than an error. With no explicit logging options, the standalone command preserves the host logging setup when one exists. In a standalone process with no root handlers it installs an `INFO` stderr handler for that CLI process; if a root handler already exists, it installs nothing. This CLI-owned behavior differs from reusing CerbIA as a library import, which has no logging-configuration side effects. Explicit logging options control that CLI invocation.
+
+## Output and exit codes
+
+The terminal output groups findings by entry. Each scanner row shows its outcome; skipped scanners are retained in the entry result so routing and error policy decisions remain visible.
+
+`--output` serializes a `ScanResult` with `entry_results`, `is_safe`, `total_findings`, and `unsafe_entries`. Every entry result includes the entry metadata, `aggregated_score`, rationale, findings, and skipped scanners. Raw entry text is included in the serialized entry, so treat JSON output as potentially sensitive and store it accordingly.
+
+| Exit code | Meaning |
+| --- | --- |
+| `0` | Every resulting entry is safe, including an empty result set. |
+| `1` | At least one resulting entry is unsafe. |
+| `2` | Usage, configuration, input selection, output-path, or handled execution error. |
+
+## Examples
+
+```
+# Use loaders from the configuration.
+cerbia scan --config examples/cli-usage/config.cerbia.yaml
+
+# Scan two inline values instead of configured loaders.
+cerbia scan -c examples/cli-usage/config.cerbia.yaml -t "first input" -t "second input"
+
+# Scan local files and write only unsafe entry results to JSON.
+cerbia scan -c examples/cli-usage/config.cerbia.yaml -f input.txt --unsafe-only -o results.json
+
+# Inspect a configuration before running it.
+cerbia validate examples/cli-usage/config.cerbia.yaml --log-level DEBUG
+```
 
 ---
 
@@ -2696,83 +2776,6 @@ The package pages describe each distribution and its optional dependencies:
 
 ---
 
-# CLI reference
-
-Source: /0.3.0/main/cli/
-
-Install the command-line interface with `pip install "cerbia[cli]"`. The executable provides `scan` and `validate`.
-
-## `cerbia validate CONFIG.yaml`
-
-Validate one YAML configuration file, construct its `Runner`, and print the configured pipeline. This command does not load entries or execute scanners.
-
-```
-cerbia validate examples/cli-usage/config.cerbia.yaml
-```
-
-| Input | Meaning |
-| --- | --- |
-| `config` | Required path to one YAML configuration file. Directories are not supported. |
-| `--log-level` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL`. |
-| `--log-file` | Write logs to this path instead of standard error. |
-
-Exit code `0` means the file parsed and its pipeline could be constructed. Missing or malformed configuration files exit `2`; a configuration that parses but cannot construct its pipeline exits `1` for `CerbIAError` or `2` for `TypeError`.
-
-## `cerbia scan --config CONFIG.yaml`
-
-Run one configured pipeline and render a result for each loaded entry.
-
-```
-cerbia scan --config examples/cli-usage/config.cerbia.yaml --text "Text to scan"
-```
-
-| Option | Meaning |
-| --- | --- |
-| `--config`, `-c` | Required path to one YAML configuration file. |
-| `--text`, `-t` | Repeatable inline input. Any supplied values replace configured loaders. |
-| `--file`, `-f` | Repeatable file input. Any supplied values replace configured loaders. |
-| `--output`, `-o` | Write JSON results to a path ending in `.json`. |
-| `--threshold` | Override the YAML threshold for this invocation. |
-| `--unsafe-only` | Show and serialize only unsafe entry results. It does not change scanner execution. |
-| `--log-level` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL`. At `INFO`, scan logs the fixed `Starting scan` milestone. |
-| `--log-file` | Write logs to this path instead of standard error. |
-
-The `--unsafe-only` option filters console output and `entry_results` in JSON; it does not change scan execution or exit codes.
-
-Inline text and file options replace every loader configured in YAML. When no override is supplied, the configuration’s loaders are used. The command rejects a run with no loaders after this selection.
-
-`FileLoader` treats missing paths and extension-filtered paths as no entries, so a `--file` value can produce an empty, safe result rather than an error. With no explicit logging options, the standalone command preserves the host logging setup when one exists. In a standalone process with no root handlers it installs an `INFO` stderr handler for that CLI process; if a root handler already exists, it installs nothing. This CLI-owned behavior differs from reusing CerbIA as a library import, which has no logging-configuration side effects. Explicit logging options control that CLI invocation.
-
-## Output and exit codes
-
-The terminal output groups findings by entry. Each scanner row shows its outcome; skipped scanners are retained in the entry result so routing and error policy decisions remain visible.
-
-`--output` serializes a `ScanResult` with `entry_results`, `is_safe`, `total_findings`, and `unsafe_entries`. Every entry result includes the entry metadata, `aggregated_score`, rationale, findings, and skipped scanners. Raw entry text is included in the serialized entry, so treat JSON output as potentially sensitive and store it accordingly.
-
-| Exit code | Meaning |
-| --- | --- |
-| `0` | Every resulting entry is safe, including an empty result set. |
-| `1` | At least one resulting entry is unsafe. |
-| `2` | Usage, configuration, input selection, output-path, or handled execution error. |
-
-## Examples
-
-```
-# Use loaders from the configuration.
-cerbia scan --config examples/cli-usage/config.cerbia.yaml
-
-# Scan two inline values instead of configured loaders.
-cerbia scan -c examples/cli-usage/config.cerbia.yaml -t "first input" -t "second input"
-
-# Scan local files and write only unsafe entry results to JSON.
-cerbia scan -c examples/cli-usage/config.cerbia.yaml -f input.txt --unsafe-only -o results.json
-
-# Inspect a configuration before running it.
-cerbia validate examples/cli-usage/config.cerbia.yaml --log-level DEBUG
-```
-
----
-
 # Getting started
 
 Source: /0.3.0/main/quickstart/
@@ -2972,6 +2975,32 @@ Preprocessing is conservative. An entry that needs no change is passed through u
 
 ---
 
+# Scanners
+
+Source: /0.3.0/main/components/scanners/
+
+Scanners inspect one entry at a time and return a `ScanOutcome` with a risk score, rationale, and optional match spans. The pipeline adds each scanner’s configured severity and action to form a finding. Only `BLOCK` findings affect the aggregate verdict; other findings remain visible for review.
+
+Every scanner accepts `severity`, `action`, and `content_types`, although their defaults differ. `content_types: null` accepts every entry type. An incompatible scanner is skipped and recorded rather than executed.
+
+| Reference | Primary use | Default action |
+| --- | --- | --- |
+| [Canary leak](canary-leak/) | Detect protected marker tokens. | `BLOCK` |
+| [Invisible text](invisible-text/) | Find hidden Unicode instructions. | `BLOCK` |
+| [Keyword](keyword/) | Match suspicious patterns and code-oriented keywords. | `BLOCK` |
+| [PII](pii/) | Detect regex-based personal-data patterns. | `WARN` |
+| [Presidio PII](pii-presidio/) | Detect English NLP entities. | `BLOCK` |
+| [Prompt injection](prompt-injection/) | Detect pattern-based injection attempts. | `BLOCK` |
+| [ProtectAI prompt injection](prompt-injection-protectai/) | Classify injection with an optional local model. | `BLOCK` |
+| [Secret](secrets/) | Detect credentials and high-entropy values. | `BLOCK` |
+| [Malicious URL](url-malicious/) | Apply suspicious-URL heuristics. | `BLOCK` |
+| [URL allowlist](url-allowlist/) | Require URLs to match approved patterns. | `BLOCK` |
+| [XSS](xss/) | Detect HTML and script injection vectors. | `BLOCK` |
+
+Run preprocessors before scanners when text may use encoding or whitespace to hide its content. See [Configuration](../../configuration/) for scanner records and [Gate behavior](../../gate/) for verdict calculation.
+
+---
+
 # Score aggregators
 
 Source: /0.3.0/main/components/score-aggregators/
@@ -3086,32 +3115,6 @@ Use raw Python strings for expressions. `@i18n_pattern` compiles every returned 
 - Avoid overly broad alternatives that increase false positives.
 - Include positive and negative test cases for every non-trivial expression.
 - Add `defensive_context` patterns only for phrases that genuinely indicate a defensive or explanatory use near a potential match.
-
----
-
-# Scanners
-
-Source: /0.3.0/main/components/scanners/
-
-Scanners inspect one entry at a time and return a `ScanOutcome` with a risk score, rationale, and optional match spans. The pipeline adds each scanner’s configured severity and action to form a finding. Only `BLOCK` findings affect the aggregate verdict; other findings remain visible for review.
-
-Every scanner accepts `severity`, `action`, and `content_types`, although their defaults differ. `content_types: null` accepts every entry type. An incompatible scanner is skipped and recorded rather than executed.
-
-| Reference | Primary use | Default action |
-| --- | --- | --- |
-| [Canary leak](canary-leak/) | Detect protected marker tokens. | `BLOCK` |
-| [Invisible text](invisible-text/) | Find hidden Unicode instructions. | `BLOCK` |
-| [Keyword](keyword/) | Match suspicious patterns and code-oriented keywords. | `BLOCK` |
-| [PII](pii/) | Detect regex-based personal-data patterns. | `WARN` |
-| [Presidio PII](pii-presidio/) | Detect English NLP entities. | `BLOCK` |
-| [Prompt injection](prompt-injection/) | Detect pattern-based injection attempts. | `BLOCK` |
-| [ProtectAI prompt injection](prompt-injection-protectai/) | Classify injection with an optional local model. | `BLOCK` |
-| [Secret](secrets/) | Detect credentials and high-entropy values. | `BLOCK` |
-| [Malicious URL](url-malicious/) | Apply suspicious-URL heuristics. | `BLOCK` |
-| [URL allowlist](url-allowlist/) | Require URLs to match approved patterns. | `BLOCK` |
-| [XSS](xss/) | Detect HTML and script injection vectors. | `BLOCK` |
-
-Run preprocessors before scanners when text may use encoding or whitespace to hide its content. See [Configuration](../../configuration/) for scanner records and [Gate behavior](../../gate/) for verdict calculation.
 
 ---
 
@@ -3299,6 +3302,33 @@ See [Whitespace normalization](../whitespace-normalization/) for the other core 
 
 ---
 
+# Canary leak scanner
+
+Source: /0.3.0/main/components/scanners/canary-leak/
+
+`cerbia.core.scanners.CanaryLeakScanner` looks for configured marker tokens in text, including normalized representations that hide a token with HTML entities, URL encoding, or zero-width characters. Use it to detect a marker that should never appear in generated content.
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `canary_tokens` | `null` | Tokens to monitor. An empty list produces no findings. |
+| `min_partial_length` | `8` | Minimum contiguous token fragment considered a partial leak. |
+| `case_insensitive` | `false` | Compare tokens after lowercasing. |
+| `severity` | `CRITICAL` | Finding severity. |
+| `action` | `BLOCK` | Finding action. |
+| `content_types` | `null` | Accepted content types; `null` accepts every type. |
+
+An exact token yields risk `1.0`; a partial fragment without an exact match yields risk `0.75`. The scanner returns match spans for detected fragments.
+
+```
+scanners:
+  - scanner: cerbia.core.scanners.CanaryLeakScanner
+    init_args:
+      canary_tokens: ["marker-12345678"]
+      case_insensitive: true
+```
+
+---
+
 # Whitespace normalization
 
 Source: /0.3.0/main/components/preprocessors/whitespace-normalization/
@@ -3326,67 +3356,28 @@ Run this preprocessor before text-oriented scanners when inputs can contain lett
 
 ---
 
-# Maximum score with bonus
+# Invisible text scanner
 
-Source: /0.3.0/main/components/score-aggregators/max-with-bonus/
+Source: /0.3.0/main/components/scanners/invisible-text/
 
-`cerbia.core.score_aggregators.MaxWithBonusScoreAggregator` starts with the largest severity-weighted blocking score and adds a bonus for every additional blocking score. The result is capped at `1.0`.
-
-```
-aggregate = min(1.0, max(scores) + bonus × (len(scores) - 1))
-```
+`cerbia.core.scanners.InvisibleTextScanner` detects Unicode characters that are easy for a person to miss but can change how downstream text is interpreted. It counts zero-width characters, bidi overrides, format controls, tag characters, and private-use or unassigned code points.
 
 | Parameter | Default | Meaning |
 | --- | --- | --- |
-| `bonus` | `0.05` | Increment added for each score after the first. |
+| `threshold` | `3` | Number of detected invisible characters allowed before high-risk handling. |
+| `languages` | all registered | Language packs used for suspicious-keyword context after characters are removed. |
+| `severity` | `CRITICAL` | Finding severity. |
+| `action` | `BLOCK` | Finding action. |
+| `content_types` | `null` | Accepted content types; `null` accepts every type. |
 
-Negative values are accepted and can lower the result below zero; the implementation only caps the upper bound.
-
-For `[0.80, 0.60, 0.40]` and `bonus: 0.05`, the aggregate is `0.90`. An empty list produces `0.0`.
-
-```
-score_aggregator:
-  score_aggregator: cerbia.core.score_aggregators.MaxWithBonusScoreAggregator
-  init_args:
-    bonus: 0.05
-```
-
----
-
-# Maximum score aggregator
-
-Source: /0.3.0/main/components/score-aggregators/max/
-
-`cerbia.core.score_aggregators.MaxScoreAggregator` implements worst-case aggregation: the aggregate is the largest severity-weighted blocking score.
+No hidden characters yields risk `0.0`. Counts at or below `threshold` produce risk `0.2`; larger counts begin at `0.7 + count × 0.03`, capped at `1.0`. If the cleaned text matches a suspicious keyword pattern, the score receives an additional `0.15` bonus.
 
 ```
-aggregate = max(scores)
-```
-
-For example, `[0.20, 0.85, 0.45]` produces `0.85`. An empty list produces `0.0`. This is the simplest choice when one high-confidence blocking finding is enough to determine the result.
-
-```
-score_aggregator:
-  score_aggregator: cerbia.core.score_aggregators.MaxScoreAggregator
-```
-
----
-
-# Mean score aggregator
-
-Source: /0.3.0/main/components/score-aggregators/mean/
-
-`cerbia.core.score_aggregators.MeanScoreAggregator` averages every severity-weighted blocking score.
-
-```
-aggregate = sum(scores) / len(scores)
-```
-
-For example, `[0.20, 0.80]` produces `0.50`; an empty list produces `0.0`. This strategy reduces the effect of one isolated score, so choose a threshold that matches the desired tolerance for individual high-risk findings.
-
-```
-score_aggregator:
-  score_aggregator: cerbia.core.score_aggregators.MeanScoreAggregator
+scanners:
+  - scanner: cerbia.core.scanners.InvisibleTextScanner
+    init_args:
+      threshold: 3
+      languages: ["en", "es"]
 ```
 
 ---
@@ -3419,33 +3410,6 @@ scanners:
 ```
 
 See [Internationalization](../../../i18n/) for language-pack selection.
-
----
-
-# Canary leak scanner
-
-Source: /0.3.0/main/components/scanners/canary-leak/
-
-`cerbia.core.scanners.CanaryLeakScanner` looks for configured marker tokens in text, including normalized representations that hide a token with HTML entities, URL encoding, or zero-width characters. Use it to detect a marker that should never appear in generated content.
-
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `canary_tokens` | `null` | Tokens to monitor. An empty list produces no findings. |
-| `min_partial_length` | `8` | Minimum contiguous token fragment considered a partial leak. |
-| `case_insensitive` | `false` | Compare tokens after lowercasing. |
-| `severity` | `CRITICAL` | Finding severity. |
-| `action` | `BLOCK` | Finding action. |
-| `content_types` | `null` | Accepted content types; `null` accepts every type. |
-
-An exact token yields risk `1.0`; a partial fragment without an exact match yields risk `0.75`. The scanner returns match spans for detected fragments.
-
-```
-scanners:
-  - scanner: cerbia.core.scanners.CanaryLeakScanner
-    init_args:
-      canary_tokens: ["marker-12345678"]
-      case_insensitive: true
-```
 
 ---
 
@@ -3597,6 +3561,38 @@ scanners:
 
 ---
 
+# URL allowlist scanner
+
+Source: /0.3.0/main/components/scanners/url-allowlist/
+
+`cerbia.core.scanners.UrlAllowlistScanner` extracts URLs from text and compares each one with an approved full-URL wildcard pattern. It is intended to prevent unexpected destinations in generated or configured text.
+
+## Parameters
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `allowed_domains` | required | Full-URL wildcard patterns registered for this scanner. |
+| `severity` | `HIGH` | Finding severity. |
+| `action` | `BLOCK` | Finding action. |
+| `content_types` | `[TEXT, URL, CODE]` | Accepted content types. |
+
+Patterns match normalized complete URLs, including scheme and path. Use `https://example.com/` to allow only the normalized root URL, or `https://example.com/*` to allow descendant paths. Query strings and fragments do not form part of the normalized comparison.
+
+```
+scanners:
+  - scanner: cerbia.core.scanners.UrlAllowlistScanner
+    init_args:
+      allowed_domains:
+        - "https://example.com/*"
+        - "https://docs.example.com/*"
+```
+
+When text contains no URL, the scanner returns risk `0.0`. When every extracted URL matches a pattern, it also returns risk `0.0`; otherwise it returns `0.95` and a rationale listing up to five non-allowlisted URLs.
+
+The runner shares a URL registry among configured scanners, so URL-aware components observe the same registered patterns during one run.
+
+---
+
 # Malicious URL scanner
 
 Source: /0.3.0/main/components/scanners/url-malicious/
@@ -3653,6 +3649,71 @@ scanners:
 
 ---
 
+# Maximum score with bonus
+
+Source: /0.3.0/main/components/score-aggregators/max-with-bonus/
+
+`cerbia.core.score_aggregators.MaxWithBonusScoreAggregator` starts with the largest severity-weighted blocking score and adds a bonus for every additional blocking score. The result is capped at `1.0`.
+
+```
+aggregate = min(1.0, max(scores) + bonus × (len(scores) - 1))
+```
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `bonus` | `0.05` | Increment added for each score after the first. |
+
+Negative values are accepted and can lower the result below zero; the implementation only caps the upper bound.
+
+For `[0.80, 0.60, 0.40]` and `bonus: 0.05`, the aggregate is `0.90`. An empty list produces `0.0`.
+
+```
+score_aggregator:
+  score_aggregator: cerbia.core.score_aggregators.MaxWithBonusScoreAggregator
+  init_args:
+    bonus: 0.05
+```
+
+---
+
+# Maximum score aggregator
+
+Source: /0.3.0/main/components/score-aggregators/max/
+
+`cerbia.core.score_aggregators.MaxScoreAggregator` implements worst-case aggregation: the aggregate is the largest severity-weighted blocking score.
+
+```
+aggregate = max(scores)
+```
+
+For example, `[0.20, 0.85, 0.45]` produces `0.85`. An empty list produces `0.0`. This is the simplest choice when one high-confidence blocking finding is enough to determine the result.
+
+```
+score_aggregator:
+  score_aggregator: cerbia.core.score_aggregators.MaxScoreAggregator
+```
+
+---
+
+# Mean score aggregator
+
+Source: /0.3.0/main/components/score-aggregators/mean/
+
+`cerbia.core.score_aggregators.MeanScoreAggregator` averages every severity-weighted blocking score.
+
+```
+aggregate = sum(scores) / len(scores)
+```
+
+For example, `[0.20, 0.80]` produces `0.50`; an empty list produces `0.0`. This strategy reduces the effect of one isolated score, so choose a threshold that matches the desired tolerance for individual high-risk findings.
+
+```
+score_aggregator:
+  score_aggregator: cerbia.core.score_aggregators.MeanScoreAggregator
+```
+
+---
+
 # FileLoader
 
 Source: /0.3.0/main/components/loaders/file-loader/
@@ -3683,61 +3744,3 @@ loaders:
 ```
 
 See [TextLoader](../text-loader/) for inline input and [Configuration](../../../configuration/) for component records.
-
----
-
-# Invisible text scanner
-
-Source: /0.3.0/main/components/scanners/invisible-text/
-
-`cerbia.core.scanners.InvisibleTextScanner` detects Unicode characters that are easy for a person to miss but can change how downstream text is interpreted. It counts zero-width characters, bidi overrides, format controls, tag characters, and private-use or unassigned code points.
-
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `threshold` | `3` | Number of detected invisible characters allowed before high-risk handling. |
-| `languages` | all registered | Language packs used for suspicious-keyword context after characters are removed. |
-| `severity` | `CRITICAL` | Finding severity. |
-| `action` | `BLOCK` | Finding action. |
-| `content_types` | `null` | Accepted content types; `null` accepts every type. |
-
-No hidden characters yields risk `0.0`. Counts at or below `threshold` produce risk `0.2`; larger counts begin at `0.7 + count × 0.03`, capped at `1.0`. If the cleaned text matches a suspicious keyword pattern, the score receives an additional `0.15` bonus.
-
-```
-scanners:
-  - scanner: cerbia.core.scanners.InvisibleTextScanner
-    init_args:
-      threshold: 3
-      languages: ["en", "es"]
-```
-
----
-
-# URL allowlist scanner
-
-Source: /0.3.0/main/components/scanners/url-allowlist/
-
-`cerbia.core.scanners.UrlAllowlistScanner` extracts URLs from text and compares each one with an approved full-URL wildcard pattern. It is intended to prevent unexpected destinations in generated or configured text.
-
-## Parameters
-
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `allowed_domains` | required | Full-URL wildcard patterns registered for this scanner. |
-| `severity` | `HIGH` | Finding severity. |
-| `action` | `BLOCK` | Finding action. |
-| `content_types` | `[TEXT, URL, CODE]` | Accepted content types. |
-
-Patterns match normalized complete URLs, including scheme and path. Use `https://example.com/` to allow only the normalized root URL, or `https://example.com/*` to allow descendant paths. Query strings and fragments do not form part of the normalized comparison.
-
-```
-scanners:
-  - scanner: cerbia.core.scanners.UrlAllowlistScanner
-    init_args:
-      allowed_domains:
-        - "https://example.com/*"
-        - "https://docs.example.com/*"
-```
-
-When text contains no URL, the scanner returns risk `0.0`. When every extracted URL matches a pattern, it also returns risk `0.0`; otherwise it returns `0.95` and a rationale listing up to five non-allowlisted URLs.
-
-The runner shares a URL registry among configured scanners, so URL-aware components observe the same registered patterns during one run.
