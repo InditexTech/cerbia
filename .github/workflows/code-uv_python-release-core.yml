@@ -185,15 +185,108 @@ jobs:
               ;;
           esac
 
+      - name: Resolve release type
+        id: release-type
+        env:
+          DEVELOPMENT_FLOW: ${{ vars.DEVELOPMENT_FLOW }}
+          RELEASE_LABELS: ${{ steps.release-context.outputs.release_labels }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          case ",$RELEASE_LABELS," in
+            *",release-type/major,"*) release_bump="major" ;;
+            *",release-type/minor,"*) release_bump="minor" ;;
+            *",release-type/hotfix,"*|*",release-type/multi-hotfix,"*|*",release-type/patch,"*)
+              release_bump="patch"
+              ;;
+            *)
+              if [[ "$DEVELOPMENT_FLOW" == "trunk-based-development" ]]; then
+                release_bump="minor"
+              else
+                echo "::error title=Missing release type::git-flow releases require a release-type label."
+                exit 1
+              fi
+              ;;
+          esac
+
+          echo "release_bump=$release_bump" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve release packages
+        id: release-packages
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          descriptor="$GITHUB_WORKSPACE/.github/inditextech-ci-python.json"
+          if [[ "$PROJECT_TYPE" == "single" ]]; then
+            release_strategy=single
+            name="$(python3 - <<'PY'
+          from pathlib import Path
+          import tomllib
+
+          with Path("pyproject.toml").open("rb") as handle:
+              name = tomllib.load(handle).get("project", {}).get("name")
+          if not isinstance(name, str) or not name:
+              raise SystemExit("pyproject.toml must declare project.name")
+          print(name)
+          PY
+          )"
+            declared="$(uv version --short)"
+            packages="$(jq -cn --arg name "$name" --arg declared "$declared" \
+              '[{name: $name, "tag-prefix": "", "declared-version": $declared}]')"
+          elif [[ "$PROJECT_TYPE" == "workspaces" ]]; then
+            release_strategy="$(jq -er '.release.strategy' "$descriptor")"
+            names="$(jq -er '.release.packages[]' "$descriptor")"
+            entries="$RUNNER_TEMP/python-release-version-packages.jsonl"
+            : > "$entries"
+            while IFS= read -r package; do
+              declared="$(uv version --package "$package" --short)"
+              jq -cn --arg name "$package" --arg declared "$declared" \
+                '{name: $name, "tag-prefix": "\($name)-v", "declared-version": $declared}' >> "$entries"
+            done <<< "$names"
+            case "$release_strategy" in
+              independent)
+                packages="$(jq -cs . "$entries")"
+                ;;
+              locked-step)
+                packages="$(jq -cs '[{name: (map(.name) | join(", ")), "tag-prefix": "", "declared-version": .[0]."declared-version"}]' "$entries")"
+                ;;
+              *)
+                echo "::error title=Invalid release strategy::.release.strategy must be locked-step or independent."
+                exit 1
+                ;;
+            esac
+          else
+            echo "::error title=Invalid project type::PROJECT_TYPE must be single or workspaces."
+            exit 1
+          fi
+
+          {
+            echo "strategy=$release_strategy"
+            echo "packages=$packages"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Compute release version
+        id: release-version
+        uses: InditexTech/gh-actions/release-version@ab7978dfa118776238a6982e445707a1ae6c0668 # v1.2.0
+        with:
+          release-type: ${{ steps.release-type.outputs.release_bump }}
+          tag-format: v
+          strategy: ${{ steps.release-packages.outputs.strategy }}
+          packages: ${{ steps.release-packages.outputs.packages }}
+          dev-suffix: .dev0
+
       - name: Plan release metadata
         id: release-plan
         env:
           APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
           BASELINE_BRANCH: ${{ steps.release-context.outputs.baseline_branch }}
-          DEVELOPMENT_FLOW: ${{ vars.DEVELOPMENT_FLOW }}
+          COMPUTED_RELEASES: ${{ steps.release-version.outputs.releases }}
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_BUMP: ${{ steps.release-type.outputs.release_bump }}
           RELEASE_EVENT: ${{ github.event_name }}
-          RELEASE_LABELS: ${{ steps.release-context.outputs.release_labels }}
           RELEASE_REF: ${{ steps.release-context.outputs.release_ref }}
         working-directory: ${{ env.WORKING_DIRECTORY }}
         shell: bash
@@ -230,21 +323,7 @@ jobs:
             resume="true"
           fi
 
-          case ",$RELEASE_LABELS," in
-            *",release-type/major,"*) release_bump="major" ;;
-            *",release-type/minor,"*) release_bump="minor" ;;
-            *",release-type/hotfix,"*|*",release-type/multi-hotfix,"*|*",release-type/patch,"*)
-              release_bump="patch"
-              ;;
-            *)
-              if [[ "$DEVELOPMENT_FLOW" == "trunk-based-development" ]]; then
-                release_bump="minor"
-              else
-                echo "::error title=Missing release type::git-flow releases require a release-type label."
-                exit 1
-              fi
-              ;;
-          esac
+          release_bump="$RELEASE_BUMP"
 
           if [[ "$PROJECT_TYPE" == "single" ]]; then
             python3 - <<'PY' > "$packages_file"
@@ -383,6 +462,18 @@ jobs:
             done < "$packages_file"
           }
 
+          attach_computed_releases() {
+            if ! jq -e --argjson computed "$COMPUTED_RELEASES" '
+              length == ($computed | length)
+              and ([range(0; length) as $i
+                | .[$i].version == $computed[$i].version and .[$i].tag == $computed[$i].tag]
+                | all)' <<< "$releases" > /dev/null; then
+              echo "::error title=Release version mismatch::Release records $(jq -c 'map({tag, version})' <<< "$releases") do not match the computed releases $(jq -c 'map({tag, version})' <<< "$COMPUTED_RELEASES")."
+              exit 1
+            fi
+            releases="$(jq -c --argjson computed "$COMPUTED_RELEASES" '[range(0; length) as $i | $computed[$i] + .[$i]]' <<< "$releases")"
+          }
+
           if [[ "$resume" == "false" ]]; then
             # A workflow_dispatch never passes through the Release Preview
             # CHANGELOG gate, so a fresh cut must prove there is something to
@@ -399,70 +490,40 @@ jobs:
               fi
             fi
 
-            # Target versions derive from the release tags actually published on
-            # the remote, not from the versions currently declared in the working
-            # tree: a dispatch that names a bump type must consume the latest
-            # real release. A repository with no release yet cuts its first
-            # release at the versions the packages already declare.
-            latest_release_tags="$(git ls-remote --tags --refs origin 'v*-*' 'v*' | awk '{print $2}' | sed 's@^refs/tags/@@' || true)"
-            if [[ -z "$latest_release_tags" ]]; then
-              release_version=""
-            else
-              release_version="$(sed -E 's/^v(([0-9]+)\.([0-9]+)\.([0-9]+)).*/\1/' <<< "$latest_release_tags" | sort -V | tail -1)"
-              if [[ ! "$release_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                echo "::error title=Unrecognized release tag design::Latest release tag '${release_version}' is not vX.Y.Z."
+            if ! jq -e 'type == "array" and length > 0 and all(.[]; (.version | type == "string") and (.version | test("^[0-9]+\\.[0-9]+\\.[0-9]+$")))' <<< "$COMPUTED_RELEASES" > /dev/null; then
+              echo "::error title=Invalid computed release::The release-version action returned no X.Y.Z release version."
+              exit 1
+            fi
+
+            if [[ "$release_strategy" == "locked-step" ]] && jq -e '.[0].first_release' <<< "$COMPUTED_RELEASES" > /dev/null; then
+              declared_count="$(while IFS= read -r package; do uv version --package "$package" --short; done < "$packages_file" | sort -u | wc -l | tr -d ' ')"
+              if [[ "$declared_count" -ne 1 ]]; then
+                echo "::error title=Invalid first release workspace::All release packages must declare the same starting version."
                 exit 1
               fi
             fi
 
-            if [[ -z "$release_version" ]]; then
-              if [[ "$release_strategy" == "single" ]]; then
-                release_target="$(uv version --short)"
-              else
-                if [[ "$release_strategy" == "locked-step" ]]; then
-                  declare -a target_packages=()
-                  while IFS= read -r package; do
-                    target_packages+=("$package")
-                  done < "$packages_file"
-                else
-                  declare -a target_packages=()
-                  while IFS= read -r package; do
-                    target_packages+=("$package")
-                  done < "$packages_file"
-                fi
-                release_target="$(uv version --package "${target_packages[0]}" --short)"
-                for package in "${target_packages[@]}"; do
-                  if [[ "$(uv version --package "$package" --short)" != "$release_target" ]]; then
-                    echo "::error title=Invalid first release workspace::All release packages must declare the same starting version."
-                    exit 1
-                  fi
-                done
-              fi
-            else
-              IFS=. read -r v_major v_minor v_patch <<< "$release_version"
-              case "$release_bump" in
-                major) release_target="$((v_major + 1)).0.0" ;;
-                minor) release_target="$v_major.$((v_minor + 1)).0" ;;
-                patch) release_target="$v_major.$v_minor.$((v_patch + 1))" ;;
-                *)
-                  echo "::error title=Invalid release type::Unsupported bump '$release_bump'."
-                  exit 1
-                  ;;
-              esac
-            fi
-
             if [[ "$release_strategy" == "single" ]]; then
+              release_target="$(jq -r '.[0].version' <<< "$COMPUTED_RELEASES")"
               uv version "$release_target"
-            else
+            elif [[ "$release_strategy" == "locked-step" ]]; then
+              release_target="$(jq -r '.[0].version' <<< "$COMPUTED_RELEASES")"
               while IFS= read -r package; do
                 uv version --package "$package" "$release_target"
               done < "$packages_file"
+              reconcile_internal_pins
+            else
+              release_targets="$(jq -r '.[] | [.package, .version] | @tsv' <<< "$COMPUTED_RELEASES")"
+              while IFS=$'\t' read -r package release_target; do
+                uv version --package "$package" "$release_target"
+              done <<< "$release_targets"
               reconcile_internal_pins
             fi
             uv lock
             uv lock --check
             write_records
             releases="$(jq -cs . "$records_file")"
+            attach_computed_releases
 
             while IFS= read -r tag; do
               if git show-ref --tags --verify --quiet "refs/tags/$tag"; then
@@ -474,7 +535,7 @@ jobs:
             # A first release that target==declared produces no versioning diff
             # here; the CHANGELOG bump below supplies the commit content, and
             # the commit step still fails closed on an empty tree.
-            if [[ -n "$release_version" ]]; then
+            if jq -e 'any(.[]; .first_release | not)' <<< "$releases" > /dev/null; then
               git -C "$GITHUB_WORKSPACE" add --update -- "$WORKING_DIRECTORY"
               if git diff --cached --quiet; then
                 echo "::error title=Missing release metadata::Versioning did not produce changes to commit."
@@ -485,7 +546,6 @@ jobs:
             primary_version="$(jq -r '.[0].version' <<< "$releases")"
             {
               echo "RELEASE_VERSION=$primary_version"
-              echo "RELEASE_TARGET=$release_target"
               echo "RELEASE_BUMP=$release_bump"
             } >> "$GITHUB_ENV"
           else
@@ -498,6 +558,7 @@ jobs:
                 exit 1
               fi
             done < <(jq -r '.[].tag' <<< "$releases")
+            attach_computed_releases
           fi
 
           {
@@ -754,8 +815,8 @@ jobs:
           done < <(jq -c '.[]' <<< "$RELEASES")
           git push --atomic origin "${RELEASE_COMMIT}:${EXPECTED_REF}" "${tag_refs[@]}"
 
-      - name: Next development iteration and sync PR
-        if: steps.promote.outcome == 'success' && vars.DEVELOPMENT_FLOW == 'git-flow'
+      - name: Next development iteration
+        if: steps.promote.outcome == 'success'
         env:
           APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
           BASELINE_BRANCH: ${{ github.event.pull_request.base.ref || github.ref_name }}
@@ -770,26 +831,38 @@ jobs:
 
           if [[ "$(git rev-parse HEAD)" != "$RELEASE_COMMIT" ]]; then
             echo "::notice title=Next-dev skipped::Branch already advanced past the release commit."
-          else
-            descriptor="$GITHUB_WORKSPACE/.github/inditextech-ci-python.json"
-            if [[ "$PROJECT_TYPE" == "single" ]]; then
-              uv version --bump minor
-              uv version "$(uv version --short).dev0"
-            else
-              packages="$(jq -er '.release.packages[]' "$descriptor")" || {
-                echo "::error title=Invalid descriptor::Could not read .release.packages from $descriptor."
-                exit 1
-              }
-              while IFS= read -r package; do
-                uv version --package "$package" --bump minor
-                uv version --package "$package" "$(uv version --package "$package" --short).dev0"
-              done <<< "$packages"
-            fi
-            uv lock
-            git add --update -- .
-            git commit -m "[python-release] prepare for next development iteration"
-            git push origin "HEAD:refs/heads/$BASELINE_BRANCH"
+            exit 0
           fi
+
+          if ! jq -e 'type == "array" and length > 0 and all(.[]; (.next_dev | type == "string") and (.next_dev | test("^[0-9]+\\.[0-9]+\\.[0-9]+\\.dev0$")))' <<< "$RELEASES" > /dev/null; then
+            echo "::error title=Invalid next development version::Every release record must carry a next_dev X.Y.Z.dev0 from the release-version action."
+            exit 1
+          fi
+          if [[ "$PROJECT_TYPE" == "single" ]]; then
+            uv version "$(jq -r '.[0].next_dev' <<< "$RELEASES")"
+          else
+            next_versions="$(jq -r '.[] | .next_dev as $next_dev | .packages[] | [., $next_dev] | @tsv' <<< "$RELEASES")"
+            while IFS=$'\t' read -r package next_dev; do
+              uv version --package "$package" "$next_dev"
+            done <<< "$next_versions"
+          fi
+          uv lock
+          git add --update -- .
+          git commit -m "[python-release] prepare for next development iteration"
+          git push origin "HEAD:refs/heads/$BASELINE_BRANCH"
+
+      - name: Sync release to develop
+        if: steps.promote.outcome == 'success' && vars.DEVELOPMENT_FLOW == 'git-flow'
+        env:
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          BASELINE_BRANCH: ${{ github.event.pull_request.base.ref || github.ref_name }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASES: ${{ needs.prepare-release.outputs.releases }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh auth setup-git
 
           version="$(jq -r '.[0].version' <<< "$RELEASES")"
           develop_branch="${BASELINE_BRANCH/main/develop}"
