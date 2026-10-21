@@ -14,12 +14,35 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Optional checksum validation and custom validators for `PiiScanner`, disabled
+  by default (#25) (thanks @jmcaamanog).
+- FastAPI BIM guardrail example with input and output security gates (#24) (thanks @jmcaamanog).
+- LangChain agent guardrail example with middleware and callbacks for prompts,
+  responses, and tool inputs and outputs (#26) (thanks @jmcaamanog).
+- Third-party dependency notices and license texts (#28).
+
 ### Fixed
 
 - Restored the `code-uv_python-release-core` workflow to its golden bytes after
   a release attempt clobbered it (#13).
 - Hardened the `docouture-*` workflows to least-privilege tokens, resolving
   the Scorecard Token-Permissions alerts on `main` (#20).
+- Corrected CLI errors when a configuration path is a directory on Windows (#23) (thanks @jmcaamanog).
+- Matched IBANs using country-specific formats without consuming following
+  text (#25) (thanks @jmcaamanog).
+
+### Security
+
+- Updated locked `urllib3` to 2.8.0 for HTTPS proxy TLS and streaming security
+  fixes (#14).
+- Updated locked `virtualenv` to 21.7.13 for activation command-injection
+  fixes (#21).
+- Updated documentation dependency `handlebars` to 4.7.10 for upstream security
+  fixes (#29).
+- Updated locked `certifi` to 2026.10.19 and repository `uv` pins to 0.13.4 to
+  mitigate the eMudhra CA compromise (#31).
 
 ## [0.3.0] - 2026-09-30
 
