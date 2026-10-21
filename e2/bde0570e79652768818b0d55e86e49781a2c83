@@ -1,0 +1,28 @@
+.tool-versions
+  h_d6d31939214ddd 2
+.github/actions/setup-python-project/action.yml
+  h_d6d31939214ddd 21
+uv.lock
+  s_fa4fb7a715ab3e::t_6950bce1009a0e 249,251,253
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e2bde0570e79652768818b0d55e86e49781a2c83",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  },
+  "sessions": {
+    "s_fa4fb7a715ab3e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ea267b0efffeOiGygGdokVPhDe",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
