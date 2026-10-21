@@ -1,0 +1,14 @@
+CHANGELOG.md
+  h_d6d31939214ddd 17-25,32-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7ee5b4961b05e6f6b1de424ef62755133f3d0b87",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
