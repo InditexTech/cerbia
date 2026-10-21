@@ -14,6 +14,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-21
+
 ### Added
 
 - Optional checksum validation and custom validators for `PiiScanner`, disabled
@@ -76,7 +78,9 @@ and this project adheres to
 - Normalized the trailing newline when reading `.tool-versions` inside release
   heredocs (#11).
 
-[Unreleased]: https://github.com/InditexTech/cerbia/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/InditexTech/cerbia/compare/v0.4.0...HEAD
+
+[0.4.0]: https://github.com/InditexTech/cerbia/compare/v0.3.0...v0.4.0
 
 [0.3.0]: https://github.com/InditexTech/cerbia/compare/v0.2.0...v0.3.0
 
