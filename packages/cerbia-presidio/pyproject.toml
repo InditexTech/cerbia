@@ -1,6 +1,6 @@
 [project]
 name = "cerbia-presidio"
-version = "0.4.0"
+version = "0.4.1.dev0"
 description = "CerbIA Presidio extension library."
 readme = "README.md"
 requires-python = ">=3.12"
