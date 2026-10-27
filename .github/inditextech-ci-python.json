@@ -1,4 +1,5 @@
 {
+  "dependency_ecosystem": "pip",
   "project_type": "monorepo",
   "release": {
     "packages": [
