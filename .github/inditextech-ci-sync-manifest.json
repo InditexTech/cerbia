@@ -6,6 +6,7 @@
       "publish"
     ],
     "parameters": {
+      "dependency_ecosystem": "pip",
       "project_type": "monorepo",
       "release": {
         "packages": [
@@ -24,7 +25,7 @@
   "creation_year": 2026,
   "integrity": {
     "algorithm": "hmac-sha256",
-    "signature": "3cff40703b7c6d72b8ce21228bc516ba24ce52b7acad047b4c10f17f1be6a68e"
+    "signature": "6975ed952922fb8042bced9860596c42822c1d4523eb6210f67e1b41e3e86257"
   },
   "managed_by": "InditexTech CI governance",
   "managed_paths": {
@@ -33,8 +34,9 @@
     ".github/ISSUE_TEMPLATE/3-other.yml": "5a839b39a98704036210dee498146f51bd5a6c057228685680e02004ff063a9a",
     ".github/ISSUE_TEMPLATE/config.yml": "10e5dee4d49aa9e7792ceb4c986160c61f95da1ba00a64bf06e5f1f636cd17ec",
     ".github/PULL_REQUEST_TEMPLATE.md": "23a0b0ac79a9020ccac9c013582a01f86e2df2ae7f914673583b9a3368313041",
-    ".github/inditextech-ci-python.json": "65bc6510d446c10115e689b580a1995b34b825e117ec041cb56baa87b9ab3ca2",
-    ".github/workflows/code-release_preview.yml": "f051548b3d82c943ff566f43e3e6da2ee6221ac768c723bb7798de9128d40d33",
+    ".github/dependabot.yml": "0915f2f9dd05c803125fdeabc74bcd7a3791e8fab3db571e90eb741b6477fd46",
+    ".github/inditextech-ci-python.json": "82b665a7103f38e9b13f4d9ff8fe3918b7e3567d17c35b9d0c8854b74d5d4b1e",
+    ".github/workflows/code-release_preview.yml": "9006d833c978e5fbd3dbad97cf69a4f84da26b86831dc65728210fe87922f2d8",
     ".github/workflows/code-uv_python-PR_verify.yml": "dec4108c0f466546a191e6834cddc9e89a8b44de98c006dfa9ece4dac881c9b4",
     ".github/workflows/code-uv_python-build_snapshot.yml": "1dfd945b2f3956094fb9c7d78d290a03323c805ef90ebaad7e15c2bdd832567f",
     ".github/workflows/code-uv_python-release-core.yml": "d1dec9376a784a5625d24d4ee3e04a890817277e65fac4a05cbcbcf2d0be741e",
@@ -60,6 +62,6 @@
   "schema_version": 2,
   "source_digests": {
     "base": "b5d5302dc47b88e363dd1b3adb1c043f85923a8480b8ce057928657fe049872c",
-    "python": "4a6e94b07ab8ac00c12b10340fcb996845556fdb2e9239a04299280480140e04"
+    "python": "75b6939b20e69448f7a2863efb9c2a8790b7c84c1ca13390d6a3b07a9082178a"
   }
 }
