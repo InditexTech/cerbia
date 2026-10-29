@@ -25,7 +25,7 @@
   "creation_year": 2026,
   "integrity": {
     "algorithm": "hmac-sha256",
-    "signature": "a5c3f79a96b25f0280832b67654183fedaf1a373dc6501beaabd4adbe985a602"
+    "signature": "6975ed952922fb8042bced9860596c42822c1d4523eb6210f67e1b41e3e86257"
   },
   "managed_by": "InditexTech CI governance",
   "managed_paths": {
@@ -34,7 +34,7 @@
     ".github/ISSUE_TEMPLATE/3-other.yml": "5a839b39a98704036210dee498146f51bd5a6c057228685680e02004ff063a9a",
     ".github/ISSUE_TEMPLATE/config.yml": "10e5dee4d49aa9e7792ceb4c986160c61f95da1ba00a64bf06e5f1f636cd17ec",
     ".github/PULL_REQUEST_TEMPLATE.md": "23a0b0ac79a9020ccac9c013582a01f86e2df2ae7f914673583b9a3368313041",
-    ".github/dependabot.yml": "fc40b5f976af4cb141899fae0a21e8cd08aa350dc9f5e9c8e26f73110774f668",
+    ".github/dependabot.yml": "0915f2f9dd05c803125fdeabc74bcd7a3791e8fab3db571e90eb741b6477fd46",
     ".github/inditextech-ci-python.json": "82b665a7103f38e9b13f4d9ff8fe3918b7e3567d17c35b9d0c8854b74d5d4b1e",
     ".github/workflows/code-release_preview.yml": "9006d833c978e5fbd3dbad97cf69a4f84da26b86831dc65728210fe87922f2d8",
     ".github/workflows/code-uv_python-PR_verify.yml": "dec4108c0f466546a191e6834cddc9e89a8b44de98c006dfa9ece4dac881c9b4",
