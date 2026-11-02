@@ -30,7 +30,7 @@ scanners:
       severity: critical
       action: block
 
-  - scanner: cerbia.core.scanners.UrlAllowlistScanner
+  - scanner: cerbia.core.scanners.UrlAllowListScanner
     init_args:
       allowed_domains:
         - "https://opencode.ai/config.json"
