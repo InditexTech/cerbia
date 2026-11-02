@@ -2,8 +2,8 @@ import re
 
 _OCTET = r"(?:25[0-5]|2[0-4]\d|[01]?\d\d?)"
 
-_AT_BLOCK = r"\s*[(\[]\s*(?:at|arroba)\s*[)\]]\s*"
-_DOT_BLOCK = r"\s*[(\[]\s*(?:dot|punto)\s*[)\]]\s*"
+AT_BLOCK = r"\s*[(\[]\s*(?:at|arroba)\s*[)\]]\s*"
+DOT_BLOCK = r"\s*[(\[]\s*(?:dot|punto)\s*[)\]]\s*"
 
 _IBAN_COUNTRY_SPECS: dict[str, tuple[tuple[int, str], ...]] = {
     "AL": ((8, "n"), (16, "c")),
@@ -125,7 +125,7 @@ def _build_iban_pattern() -> re.Pattern[str]:
 
 PII_PATTERNS: list[tuple[str, re.Pattern[str], float]] = [
     ("Email", re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"), 0.90),
-    ("Email (obfuscated)", re.compile(rf"(?i)[a-z0-9._%+-]+{_AT_BLOCK}[a-z0-9.-]+{_DOT_BLOCK}[a-z]{{2,}}"), 0.85),
+    ("Email (obfuscated)", re.compile(rf"(?i)[a-z0-9._%+-]+{AT_BLOCK}[a-z0-9.-]+{DOT_BLOCK}[a-z]{{2,}}"), 0.85),
     ("Phone (International)", re.compile(r"\+\d{1,3}[\s.-]?\d{2,4}[\s.-]?\d{3,4}[\s.-]?\d{3,4}"), 0.80),
     (
         "Phone (North American)",
