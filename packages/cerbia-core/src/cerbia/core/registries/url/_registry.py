@@ -34,6 +34,7 @@ class UrlRegistry:
         if not normalized:
             return
 
+        compiled = compile_url_pattern(normalized)
         patterns = self._denied_patterns if denied else self._patterns
         for existing_pattern, _ in patterns:
             if pattern_covers(existing_pattern, normalized):
@@ -44,7 +45,7 @@ class UrlRegistry:
             for existing_pattern, compiled_pattern in patterns
             if not pattern_covers(normalized, existing_pattern)
         ]
-        patterns.append((normalized, compile_url_pattern(normalized)))
+        patterns.append((normalized, compiled))
 
     def register_file(self, file: str | Path, *, denied: bool = False) -> None:
         """Register full-URL wildcard pattern from a .txt file.
