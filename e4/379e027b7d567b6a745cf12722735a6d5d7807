@@ -1,0 +1,14 @@
+packages/cerbia/tests/integration/test_distribution.py
+  h_d6d31939214ddd 3,9,17-20,27,39-118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "e4379e027b7d567b6a745cf12722735a6d5d7807",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
