@@ -108,6 +108,17 @@ class PiiScanner:
         continuation = EMAIL_DOMAIN_CONTINUATION.match(match.string, match.end())
         return domain.lower() in self._email_domains and continuation is None
 
+    @staticmethod
+    def _matches_ipv6(index: int, name: str, match: re.Match[str]) -> bool:
+        if index >= len(PII_PATTERNS) or name != "IPv6":
+            return True
+
+        try:
+            IPv6Address(match.group())
+        except AddressValueError:
+            return False
+        return True
+
     def scan(self, text: str) -> ScanOutcome:
         """Scan text for personally identifiable information.
 
@@ -124,11 +135,8 @@ class PiiScanner:
             for match in pattern.finditer(text):
                 if not self._matches_email_domain(index, name, match):
                     continue
-                if index < len(PII_PATTERNS) and name == "IPv6":
-                    try:
-                        IPv6Address(match.group())
-                    except AddressValueError:
-                        continue
+                if not self._matches_ipv6(index, name, match):
+                    continue
                 if (
                     self.validate_checksums
                     and (validator := self._validators.get(name)) is not None
