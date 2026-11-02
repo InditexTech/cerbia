@@ -135,18 +135,26 @@ class SecretScanner:
     ) -> tuple[list[MatchSpan], list[tuple[str, float]]]:
         hits: list[tuple[str, float]] = []
         matches: list[MatchSpan] = []
+        sorted_spans = sorted(pattern_matches, key=lambda span: span.start)
+        span_index = 0
+        max_end = -1
 
         for match in HIGH_ENTROPY_PATTERN.finditer(text):
             candidate = match.group()
             if len(candidate) < ENTROPY_MIN_LENGTH:
                 continue
 
-            if any(span.start <= match.start() and match.end() <= span.end for span in pattern_matches):
+            while span_index < len(sorted_spans) and sorted_spans[span_index].start <= match.start():
+                max_end = max(max_end, sorted_spans[span_index].end)
+                span_index += 1
+
+            if max_end >= match.end():
                 continue
 
             is_hex = all(c in HEX_CHARS for c in candidate)
-            charset = HEX_CHARS if is_hex else BASE64_CHARS
-            threshold = HEX_ENTROPY_THRESHOLD if is_hex else BASE64_ENTROPY_THRESHOLD
+            charset, threshold = (
+                (HEX_CHARS, HEX_ENTROPY_THRESHOLD) if is_hex else (BASE64_CHARS, BASE64_ENTROPY_THRESHOLD)
+            )
             entropy = charset_entropy(candidate, charset)
 
             if entropy >= threshold:

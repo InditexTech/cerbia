@@ -1,4 +1,5 @@
 import pytest
+from cerbia.core.models.scans import MatchSpan
 from cerbia.core.scanners.secret import SecretScanner
 from cerbia.core.types import Action, ContentType, Severity
 
@@ -264,6 +265,70 @@ def test_secret_scanner_skips_unmatched_entropy_when_detection_is_disabled(use_d
     assert [(match.start, match.end) for match in result.matches] == [(0, 5)]
     assert result.risk_score == 0.6
     assert result.rationale == "Secret(s) detected (1): Known"
+
+
+def test_secret_scanner_preserves_order_when_regex_spans_are_unsorted_and_nested() -> None:
+    # Given
+    token = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef"
+    scanner = SecretScanner(
+        patterns=[
+            ("Later", rf"(?<=\] ){token}", 0.5),
+            ("Outer", r"\[[^]]+\]", 0.6),
+            ("Nested", r"(?<=\[AB)CDEFGHIJ", 0.4),
+        ],
+        entropy_detection=True,
+    )
+
+    # When
+    result = scanner.scan(f"[{token} {token}] {token} {token}")
+
+    # Then
+    assert [(match.start, match.end) for match in result.matches] == [(68, 100), (0, 67), (3, 11), (101, 133)]
+    assert result.risk_score == 0.7
+    assert result.rationale == "Secret(s) detected (4): Later; Outer; Nested; High Entropy (base64, 5.0)"
+
+
+def test_secret_scanner_keeps_entropy_when_only_union_of_regex_spans_covers_candidate() -> None:
+    # Given
+    scanner = SecretScanner(
+        patterns=[("Left", r"ABCDEFGHIJKLMNOPQRST", 0.5), ("Right", r"MNOPQRSTUVWXYZabcdef", 0.6)],
+        entropy_detection=True,
+    )
+
+    # When
+    result = scanner.scan("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef")
+
+    # Then
+    assert [(match.start, match.end) for match in result.matches] == [(0, 20), (12, 32), (0, 32)]
+    assert result.risk_score == 0.7
+    assert result.rationale == "Secret(s) detected (3): Left; Right; High Entropy (base64, 5.0)"
+
+
+@pytest.mark.parametrize("count", [128, 256, 2000])
+def test_secret_scanner_bounds_span_reads_when_many_candidates_are_already_matched(
+    count: int, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Given
+    scanner = SecretScanner(entropy_detection=True)
+    token = "AKIA" + "A" * 16
+    text = " ".join([token] * count)
+    spans = [MatchSpan(start=index * 21, end=index * 21 + 20) for index in range(count)]
+    starts = {id(span): span.start for span in spans}
+    reads: list[None] = []
+
+    def read_start(span: MatchSpan) -> int:
+        reads.append(None)
+        return starts[id(span)]
+
+    monkeypatch.setattr(MatchSpan, "start", property(read_start), raising=False)
+
+    # When
+    matches, hits = scanner._scan_entropy(text, spans)
+
+    # Then
+    assert matches == []
+    assert hits == []
+    assert len(reads) <= 8 * count
 
 
 @pytest.mark.parametrize(
