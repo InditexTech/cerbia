@@ -1,0 +1,14 @@
+docs/src/modules/main/pages/architecture.adoc
+  h_d6d31939214ddd 165-169
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "7dc2f80d436a8875985c1b06607cc2ca6d231831",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
