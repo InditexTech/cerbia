@@ -70,12 +70,11 @@
       })()
     </script>
 
-<title>URL allowlist scanner | CerbIA</title>
+<title>URL denylist scanner | CerbIA</title>
 
-    <link rel="canonical" href="https://inditextech.github.io/cerbia/0.3.1/main/components/scanners/url-allowlist/">
-    <link rel="prev" href="../url-malicious/">
+    <link rel="prev" href="../url-allow-list/">
     <link rel="next" href="../xss/">
-    <meta name="description" content="Allow only URLs that match configured full-URL wildcard patterns.">
+    <meta name="description" content="Flag extracted URLs that match configured deny rules.">
     <meta name="generator" content="Antora 3.2.0">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -125,11 +124,11 @@
       <span class="version__label">prerelease</span>
       <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
     </span>
-    <a class="version" href="../../../../../0.3.1/main/components/scanners/url-allowlist/">
+    <a class="version is-missing" href="../../../../../0.3.1/">
       <span class="version__label">0.3.1</span>
       <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
           </a>
-    <a class="version" href="../../../../../0.3.0/main/components/scanners/url-allowlist/">
+    <a class="version is-missing" href="../../../../../0.3.0/">
       <span class="version__label">0.3.0</span>
     </a>
   </div>
@@ -625,8 +624,17 @@
   <li class="side-menu__item">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="./" aria-current="page">
+        href="../url-allow-list/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">URL allowlist</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="./" aria-current="page">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">URL denylist</span></span>
       </a>
     </div>
 
@@ -722,11 +730,11 @@
       <span class="version__label">prerelease</span>
       <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
     </span>
-    <a class="version" href="../../../../../0.3.1/main/components/scanners/url-allowlist/">
+    <a class="version is-missing" href="../../../../../0.3.1/">
       <span class="version__label">0.3.1</span>
       <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
           </a>
-    <a class="version" href="../../../../../0.3.0/main/components/scanners/url-allowlist/">
+    <a class="version is-missing" href="../../../../../0.3.0/">
       <span class="version__label">0.3.0</span>
     </a>
   </div>
@@ -744,10 +752,10 @@
 
 <nav class="dt-breadcrumbs" aria-label="Breadcrumb">
   <a class="dt-breadcrumb-item dt-breadcrumb-item--link" href="../../../../"><span class="dt-breadcrumb-item__content">CerbIA</span></a>
-  <div class="dt-breadcrumb-item dt-breadcrumb-item--active" aria-current="page"><span class="dt-breadcrumb-item__content">URL allowlist</span></div>
+  <div class="dt-breadcrumb-item dt-breadcrumb-item--active" aria-current="page"><span class="dt-breadcrumb-item__content">URL denylist</span></div>
 </nav>
-        <h1 class="hero__title dt-text dt-text--title-xl">URL allowlist scanner</h1>
-        <p class="hero__excerpt dt-text dt-text--body-l">Allow only URLs that match configured full-URL wildcard patterns.</p>
+        <h1 class="hero__title dt-text dt-text--title-xl">URL denylist scanner</h1>
+        <p class="hero__excerpt dt-text dt-text--body-l">Flag extracted URLs that match configured deny rules.</p>
         <div class="hero__tags">
           <div class="dt-label dt-label--grey">
             <span class="dt-label__content">Reference</span>
@@ -777,7 +785,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p><code>cerbia.core.scanners.UrlAllowlistScanner</code> extracts URLs from text and compares each one with an approved full-URL wildcard pattern. It is intended to prevent unexpected destinations in generated or configured text.</p>
+<p><code>cerbia.core.scanners.UrlDenyListScanner</code> extracts URLs from text and reports each URL that matches a blocked full-URL wildcard pattern. Its deny rules live in the runner&#8217;s shared <code>UrlRegistry</code>, separately from allow rules. See <a href="../url-allow-list/" class="xref page">URL allowlist</a> for the shared full-URL matcher and file syntax.</p>
 </div>
 </div>
 </div>
@@ -799,9 +807,9 @@
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>allowed_domains</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>blocked_domains</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">required</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Full-URL wildcard patterns registered for this scanner.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of inline full-URL wildcard patterns, or a path string/<code>Path</code> to a UTF-8 <code>.txt</code> file. An empty list is valid.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>severity</code></p></td>
@@ -811,7 +819,7 @@
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>action</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>BLOCK</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Finding action.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Finding action. A matching URL produces a blocking finding by default.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>content_types</code></p></td>
@@ -821,23 +829,39 @@
 </tbody>
 </table></div></div>
 <div class="paragraph">
-<p>Patterns match normalized complete URLs, including scheme and path. Use <code>https://example.com/</code> to allow only the normalized root URL, or <code>https://example.com/*</code> to allow descendant paths. Query strings and fragments do not form part of the normalized comparison.</p>
+<p>Pass either a list of inline patterns or a file path; the two forms are not combined. The file is read once when the scanner is constructed. Each nonblank line is one pattern; surrounding whitespace is stripped and lines whose first non-whitespace character is <code><mark></code> are comments. Inline comments are not supported, and <code></mark></code> in a rule is retained. Only <code>*</code> is a wildcard; the matcher does not validate strict URL grammar. Relative paths resolve from the process working directory, not the configuration file&#8217;s directory. Files must have a <code>.txt</code> suffix. Missing, unreadable, invalid-encoding, or invalid-rule files raise <code>CerbIAConfigError</code> with path context.</p>
+</div>
+<div class="paragraph">
+<p>An empty or comment-only file adds no deny rules; any findings can only come from other deny rules already in the shared registry. Explicit deny rules win over matching allow rules regardless of source or registration order. <code>UrlRegistry.is_denied</code> checks the deny store directly; <code>is_allowed</code> also returns false for explicitly denied URLs.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="configuration"><a class="anchor" href="#configuration"></a>Configuration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Import the scanner from <code>cerbia.core.scanners</code> and use the <code>url_denylist</code> scanner ID.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="python"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">from</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> cerbia.core.scanners </span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">import</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> UrlDenyListScanner</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">scanner = UrlDenyListScanner(</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">blocked_domains</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">=[</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"https://blocked.example/*"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">])</span></span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For a file-backed list, configure the scanner through the existing scanner <code>init_args</code> mechanism:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
-<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.UrlAllowlistScanner</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.UrlDenyListScanner</span></span>
 <span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
-<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      allowed_domains</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
-<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">        - </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"https://example.com/*"</span></span>
-<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">        - </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"https://docs.example.com/*"</span></span></span></code></pre>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      blocked_domains</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"config/blocked-urls.txt"</span></span></span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>When text contains no URL, the scanner returns risk <code>0.0</code>. When every extracted URL matches a pattern, it also returns risk <code>0.0</code>; otherwise it returns <code>0.95</code> and a rationale listing up to five non-allowlisted URLs.</p>
-</div>
-<div class="paragraph">
-<p>The runner shares a URL registry among configured scanners, so URL-aware components observe the same registered patterns during one run.</p>
+<p>To configure inline rules, pass <code>blocked_domains: ["https://blocked.example/*"]</code>. A standalone scanner can receive an existing shared registry with the keyword-only <code>url_registry</code> argument. See <a href="../../../configuration/" class="xref page">Configuration</a> for scanner records.</p>
 </div>
 </div>
 </div>
@@ -853,10 +877,10 @@
 <div class="dt-grid-layout dt-grid-layout--with-margin pagination">
   <div class="dt-grid-layout__item dt-grid-layout__item--span-full pagination__row">
     <div class="pagination__buttons">
-    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-icon pagination__prev" href="../url-malicious/">
+    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-icon pagination__prev" href="../url-allow-list/">
       <span class="dt-button__content">
         <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-arrow-left"></use></svg></span>
-        <span class="pagination__label-full">Malicious URLs</span>
+        <span class="pagination__label-full">URL allowlist</span>
         <span class="pagination__label-short">Prev</span>
       </span>
     </a>
@@ -879,7 +903,7 @@
       </div>
       <div class="page-footer__contribute-buttons">
 
-<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/edit/main/docs/src/modules/main/pages/components/scanners/url-allowlist.adoc">
+<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/edit/main/docs/src/modules/main/pages/components/scanners/url-deny-list.adoc">
   <span class="dt-button__content">
     Propose a change
     <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-external-link"></use></svg></span>

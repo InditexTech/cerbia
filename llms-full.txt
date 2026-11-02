@@ -401,7 +401,7 @@ After scanning, the gate selects findings eligible for scoring, passes their wei
 
 ## Shared URL registry
 
-While constructing scanners, `Runner` creates one `UrlRegistry` for that runner instance and offers it to scanner factories. A factory forwards it only when the scanner constructor accepts `url_registry`. `UrlAllowlistScanner` registers its configured allowlist patterns there, and URL-aware scanners can consult the same live registry for the lifetime of that runner. Separate runners use separate registries; this is neither global state nor a general dependency container.
+While constructing scanners, `Runner` creates one `UrlRegistry` for that runner instance and passes it through scanner factories to allowlist, denylist, and malicious-URL scanners. The registry keeps allow and deny patterns separately; an explicit deny takes precedence over a matching allow rule, independent of registration order. Separate runners use separate registries; this is neither global state nor a general dependency container.
 
 See [Scanners](../components/scanners/) for scanner-specific URL behavior.
 
@@ -785,6 +785,100 @@ For exact option names and package details, use the [Reference overview](../refe
 
 ---
 
+# Internationalization
+
+Source: /prerelease/main/i18n/
+
+CerbIA’s i18n system is a registry of compiled, case-insensitive regular expressions indexed by language-code and category-key strings. Built-in packs use ISO-639-1 codes and currently provide English (`en`), Spanish (`es`), and Galician (`gl`). Consumers request the keys they need and receive patterns from the selected language packs.
+
+Language packs may provide a subset of categories. Missing categories and unknown language codes contribute no patterns, so validate a deployment’s selected languages and required categories with the registry introspection API.
+
+## Architecture
+
+## Registry and category contract
+
+`cerbia.core.i18n.get_patterns()` returns compiled expressions grouped by category key. With no filters, it merges every registered language and key; `languages` and `keys` limit that merge. Repeated registrations for the same language and key append patterns rather than replacing earlier ones.
+
+```
+from cerbia.core.i18n import get_patterns
+from cerbia.core.registries import i18n_registry
+
+patterns = get_patterns(
+    languages=["en", "es"],
+    keys=["instruction_override", "exfiltration"],
+)
+
+available_languages = i18n_registry.available_languages()
+available_keys = i18n_registry.available_keys()
+```
+
+Use `has_language(code)` and `has_key(key)` as global registry checks. To verify coverage for a particular language and category selection, call `get_patterns(languages=[…​], keys=[…​])` and inspect the result. The registry does not validate language codes or category semantics, and does not require every language pack to implement every category.
+
+### Built-in category inventory
+
+This is the current built-in inventory, not a closed registry enum. Category keys express the kind of text a pattern represents; consumers decide how to interpret matching patterns.
+
+| Category key | Semantic role |
+| --- | --- |
+| `instruction_override` | Attempts to replace, ignore, or supersede instructions. |
+| `exfiltration` | Attempts to reveal protected instructions or send data elsewhere. |
+| `role_hijack` | Attempts to redefine the model, user, or system role. |
+| `context_manipulation` | Prompt or chat-template markers intended to alter context. |
+| `privilege_escalation` | Attempts to obtain elevated access or bypass restrictions. |
+| `fake_authority` | Claims of authority intended to gain trust or special treatment. |
+| `task_deflection` | Attempts to reset, replace, or divert the current task or context. |
+| `keyword_instruction_override` | Short keyword-oriented instruction-override indicators. |
+| `keyword_system_prompt` | References to system, hidden, or original prompts and instructions. |
+| `keyword_exfiltration` | Short keyword-oriented indicators of protected-data disclosure. |
+| `keyword_instruction_manipulation` | Keywords associated with instruction manipulation or evasion. |
+| `keyword_suspicious_keywords` | General suspicious keywords, including environment-file references. |
+| `defensive_context` | Phrases that indicate a defensive or explanatory context near a match. |
+
+## Integrating a consumer
+
+Consumers select the languages and category keys relevant to their purpose, then receive a mapping from each selected key to compiled patterns. They must handle an empty mapping because a language or category may be unknown or not covered by a selected pack.
+
+```
+from cerbia.core.i18n import get_patterns
+
+patterns_by_category = get_patterns(
+    languages=["en", "es"],
+    keys=["instruction_override", "exfiltration"],
+)
+```
+
+Consumer-specific matching, scoring, normalization, and fallback behavior are documented with each consumer rather than defined by the registry. For an example of language selection in configuration, see the [Keyword scanner](../components/scanners/keyword/) and [Prompt injection scanner](../components/scanners/prompt-injection/).
+
+## Adding a language pack
+
+1. Choose an ISO-639-1 language code and create a module under `cerbia.core.i18n`, such as `fr.py`.
+2. Add decorated, zero-argument functions for the categories the pack covers. Each function returns raw regular-expression strings.
+3. Import the module from `cerbia.core.i18n.init` so that registration runs when the package initializes.
+4. Confirm registration with `available_languages()`, `available_keys()`, `has_language()`, and `has_key()`.
+5. Add tests for intended matches, expected non-matches, language selection, and relevant defensive-context false positives.
+
+```
+from cerbia.core.registries import i18n_pattern
+
+@i18n_pattern("fr", "instruction_override")
+def french_instruction_overrides() -> list[str]:
+    return [r"ignorez\s+les\s+instructions"]
+```
+
+Partial coverage is supported: a missing category contributes no patterns. Prefer documenting intentional gaps to adding weak expressions merely for symmetry with another language pack.
+
+## Authoring patterns
+
+Use raw Python strings for expressions. `@i18n_pattern` compiles every returned pattern with `re.IGNORECASE` at import time, so invalid regular expressions prevent the pack from loading.
+
+- Use word boundaries and constrained whitespace deliberately.
+- Cover relevant casing, punctuation, Unicode forms, accents, inflections, and synonyms for the language.
+- Avoid overly broad alternatives that increase false positives.
+- Include positive and negative test cases for every non-trivial expression.
+- Add `defensive_context` patterns only for phrases that genuinely indicate a defensive or explanatory use near a potential match.
+
+---
+
 # Logging
 
 Source: /prerelease/main/logging/
@@ -867,6 +961,38 @@ The repository maintains a YAML gate definition for the CLI walkthrough. Open th
 
 ---
 
+# Getting started
+
+Source: /prerelease/main/quickstart/
+
+CerbIA evaluates content through a configured pipeline:
+
+**loaders → preprocessors → SecurityGate (scanners → score aggregator → verdict)**
+
+| Component | Responsibility |
+| --- | --- |
+| [Loaders](../components/loaders/) | Produce entries from configured input sources. |
+| [Preprocessors](../components/preprocessors/) | Transform or derive entries before scanning. |
+| [SecurityGate](../gate/) | Runs compatible scanners, applies their actions and severities, and returns a verdict for each entry. |
+| [Scanners](../components/scanners/) | Inspect entry content and report a risk score, rationale, and optional match locations. |
+| [Score aggregators](../components/score-aggregators/) | Combine the severity-weighted scores of blocking findings for the gate. |
+
+See [Architecture](../architecture/) for the complete entry lifecycle and result model.
+
+Install the CLI and validate the repository’s example configuration:
+
+```
+pip install "cerbia[cli]"
+cerbia validate examples/cli-usage/config.cerbia.yaml
+cerbia scan --config examples/cli-usage/config.cerbia.yaml --text "A short message"
+```
+
+`scan` needs configured loaders or at least one `--text` or `--file` argument. It exits `0` for safe results, `1` for unsafe results, and `2` for configuration or handled execution failures. A missing `--file` path currently yields no entry, which can result in a safe empty scan.
+
+Continue with [Configuration](../configuration/). [Packages](../packages/) explains the optional ML, Presidio, and ProtectAI boundaries.
+
+---
+
 # Reference
 
 Source: /prerelease/main/reference-overview/
@@ -897,38 +1023,6 @@ The package pages describe each distribution and its optional dependencies:
 - [CerbIA ML](../../cerbia-ml/)
 - [CerbIA Presidio](../../cerbia-presidio/)
 - [CerbIA ProtectAI](../../cerbia-protectai/)
-
----
-
-# Getting started
-
-Source: /prerelease/main/quickstart/
-
-CerbIA evaluates content through a configured pipeline:
-
-**loaders → preprocessors → SecurityGate (scanners → score aggregator → verdict)**
-
-| Component | Responsibility |
-| --- | --- |
-| [Loaders](../components/loaders/) | Produce entries from configured input sources. |
-| [Preprocessors](../components/preprocessors/) | Transform or derive entries before scanning. |
-| [SecurityGate](../gate/) | Runs compatible scanners, applies their actions and severities, and returns a verdict for each entry. |
-| [Scanners](../components/scanners/) | Inspect entry content and report a risk score, rationale, and optional match locations. |
-| [Score aggregators](../components/score-aggregators/) | Combine the severity-weighted scores of blocking findings for the gate. |
-
-See [Architecture](../architecture/) for the complete entry lifecycle and result model.
-
-Install the CLI and validate the repository’s example configuration:
-
-```
-pip install "cerbia[cli]"
-cerbia validate examples/cli-usage/config.cerbia.yaml
-cerbia scan --config examples/cli-usage/config.cerbia.yaml --text "A short message"
-```
-
-`scan` needs configured loaders or at least one `--text` or `--file` argument. It exits `0` for safe results, `1` for unsafe results, and `2` for configuration or handled execution failures. A missing `--file` path currently yields no entry, which can result in a safe empty scan.
-
-Continue with [Configuration](../configuration/). [Packages](../packages/) explains the optional ML, Presidio, and ProtectAI boundaries.
 
 ---
 
@@ -1118,7 +1212,8 @@ Every scanner accepts `severity`, `action`, and `content_types`, although their 
 | [ProtectAI prompt injection](prompt-injection-protectai/) | Classify injection with an optional local model. | `BLOCK` |
 | [Secret](secrets/) | Detect credentials and high-entropy values. | `BLOCK` |
 | [Malicious URL](url-malicious/) | Apply suspicious-URL heuristics. | `BLOCK` |
-| [URL allowlist](url-allowlist/) | Require URLs to match approved patterns. | `BLOCK` |
+| [URL allowlist](url-allow-list/) | Require URLs to match approved patterns. | `BLOCK` |
+| [URL denylist](url-deny-list/) | Flag URLs that match blocked patterns. | `BLOCK` |
 | [XSS](xss/) | Detect HTML and script injection vectors. | `BLOCK` |
 
 Run preprocessors before scanners when text may use encoding or whitespace to hide its content. See [Configuration](../../configuration/) for scanner records and [Gate behavior](../../gate/) for verdict calculation.
@@ -1148,97 +1243,36 @@ All three return `0.0` for an empty input list.
 
 ---
 
-# Internationalization
+# FileLoader
 
-Source: /prerelease/main/i18n/
+Source: /prerelease/main/components/loaders/file-loader/
 
-CerbIA’s i18n system is a registry of compiled, case-insensitive regular expressions indexed by language-code and category-key strings. Built-in packs use ISO-639-1 codes and currently provide English (`en`), Spanish (`es`), and Galician (`gl`). Consumers request the keys they need and receive patterns from the selected language packs.
+`cerbia.core.loaders.FileLoader` reads individual files and directory trees into entries. Use it to scan repositories, configuration directories, and other local text collections.
 
-Language packs may provide a subset of categories. Missing categories and unknown language codes contribute no patterns, so validate a deployment’s selected languages and required categories with the registry introspection API.
+## Parameters
 
-## Architecture
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `paths` | required | One path or a list of file and directory paths. |
+| `extensions` | `null` | Optional list of suffixes to include, such as `['.py', '.yaml']`. |
+| `recursive` | `true` | Whether directory paths are traversed recursively. |
 
-## Registry and category contract
+A single path becomes a one-item list. A direct file is loaded only if its suffix passes the optional extension filter. Directory paths use `*/` when `recursive` is true and `*` otherwise. CerbIA sorts discovered files before loading them.
 
-`cerbia.core.i18n.get_patterns()` returns compiled expressions grouped by category key. With no filters, it merges every registered language and key; `languages` and `keys` limit that merge. Repeated registrations for the same language and key append patterns rather than replacing earlier ones.
+Files are read as UTF-8 with replacement decoding. Invalid byte sequences become replacement characters instead of causing a decoding failure. Each output entry uses the file’s resolved absolute path as its `source`.
 
-```
-from cerbia.core.i18n import get_patterns
-from cerbia.core.registries import i18n_registry
-
-patterns = get_patterns(
-    languages=["en", "es"],
-    keys=["instruction_override", "exfiltration"],
-)
-
-available_languages = i18n_registry.available_languages()
-available_keys = i18n_registry.available_keys()
-```
-
-Use `has_language(code)` and `has_key(key)` as global registry checks. To verify coverage for a particular language and category selection, call `get_patterns(languages=[…​], keys=[…​])` and inspect the result. The registry does not validate language codes or category semantics, and does not require every language pack to implement every category.
-
-### Built-in category inventory
-
-This is the current built-in inventory, not a closed registry enum. Category keys express the kind of text a pattern represents; consumers decide how to interpret matching patterns.
-
-| Category key | Semantic role |
-| --- | --- |
-| `instruction_override` | Attempts to replace, ignore, or supersede instructions. |
-| `exfiltration` | Attempts to reveal protected instructions or send data elsewhere. |
-| `role_hijack` | Attempts to redefine the model, user, or system role. |
-| `context_manipulation` | Prompt or chat-template markers intended to alter context. |
-| `privilege_escalation` | Attempts to obtain elevated access or bypass restrictions. |
-| `fake_authority` | Claims of authority intended to gain trust or special treatment. |
-| `task_deflection` | Attempts to reset, replace, or divert the current task or context. |
-| `keyword_instruction_override` | Short keyword-oriented instruction-override indicators. |
-| `keyword_system_prompt` | References to system, hidden, or original prompts and instructions. |
-| `keyword_exfiltration` | Short keyword-oriented indicators of protected-data disclosure. |
-| `keyword_instruction_manipulation` | Keywords associated with instruction manipulation or evasion. |
-| `keyword_suspicious_keywords` | General suspicious keywords, including environment-file references. |
-| `defensive_context` | Phrases that indicate a defensive or explanatory context near a match. |
-
-## Integrating a consumer
-
-Consumers select the languages and category keys relevant to their purpose, then receive a mapping from each selected key to compiled patterns. They must handle an empty mapping because a language or category may be unknown or not covered by a selected pack.
+Missing paths produce no entries and do not raise an error. A direct file whose suffix does not match also produces no entry, with a warning logged; a directory with no matching files produces no entries. This behavior matters when the CLI uses `--file`: an empty result set is safe by definition.
 
 ```
-from cerbia.core.i18n import get_patterns
-
-patterns_by_category = get_patterns(
-    languages=["en", "es"],
-    keys=["instruction_override", "exfiltration"],
-)
+loaders:
+  - loader: cerbia.core.loaders.FileLoader
+    init_args:
+      paths: ["src", "README.md"]
+      extensions: [".py", ".md"]
+      recursive: true
 ```
 
-Consumer-specific matching, scoring, normalization, and fallback behavior are documented with each consumer rather than defined by the registry. For an example of language selection in configuration, see the [Keyword scanner](../components/scanners/keyword/) and [Prompt injection scanner](../components/scanners/prompt-injection/).
-
-## Adding a language pack
-
-1. Choose an ISO-639-1 language code and create a module under `cerbia.core.i18n`, such as `fr.py`.
-2. Add decorated, zero-argument functions for the categories the pack covers. Each function returns raw regular-expression strings.
-3. Import the module from `cerbia.core.i18n.init` so that registration runs when the package initializes.
-4. Confirm registration with `available_languages()`, `available_keys()`, `has_language()`, and `has_key()`.
-5. Add tests for intended matches, expected non-matches, language selection, and relevant defensive-context false positives.
-
-```
-from cerbia.core.registries import i18n_pattern
-
-@i18n_pattern("fr", "instruction_override")
-def french_instruction_overrides() -> list[str]:
-    return [r"ignorez\s+les\s+instructions"]
-```
-
-Partial coverage is supported: a missing category contributes no patterns. Prefer documenting intentional gaps to adding weak expressions merely for symmetry with another language pack.
-
-## Authoring patterns
-
-Use raw Python strings for expressions. `@i18n_pattern` compiles every returned pattern with `re.IGNORECASE` at import time, so invalid regular expressions prevent the pack from loading.
-
-- Use word boundaries and constrained whitespace deliberately.
-- Cover relevant casing, punctuation, Unicode forms, accents, inflections, and synonyms for the language.
-- Avoid overly broad alternatives that increase false positives.
-- Include positive and negative test cases for every non-trivial expression.
-- Add `defensive_context` patterns only for phrases that genuinely indicate a defensive or explanatory use near a potential match.
+See [TextLoader](../text-loader/) for inline input and [Configuration](../../../configuration/) for component records.
 
 ---
 
@@ -1561,6 +1595,37 @@ scanners:
 
 ---
 
+# PII scanners
+
+Source: /prerelease/main/components/scanners/pii/
+
+`cerbia.core.scanners.PiiScanner` uses built-in regular expressions to locate common personally identifiable information. It reports match spans and uses the highest matching pattern score as its risk score.
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `extra_patterns` | `null` | Additional `(name, regex)` pairs. Extra patterns use risk `0.80`. |
+| `severity` | `HIGH` | Finding severity. |
+| `action` | `WARN` | Findings are visible but do not contribute to blocking aggregation unless changed. |
+| `content_types` | `[TEXT]` | Accepted content types. |
+| `validate_checksums` | `false` | When `true`, candidate matches failing checksum validation are discarded (e.g. Modulo 23 for Spanish DNI/NIE, Luhn for credit cards, and Modulo 97 for IBAN). This reduces noise but can also miss sensitive identifiers with typos. |
+| `custom_validators` | `null` | Optional dictionary mapping pattern names to custom validator callables `(str) → bool`. |
+
+```
+scanners:
+  - scanner: cerbia.core.scanners.PiiScanner
+    init_args:
+      action: block
+      validate_checksums: true
+      extra_patterns:
+        - ["Employee ID", "EMP-[0-9]{6}"]
+```
+
+For NLP-backed English entity recognition, use the optional [PresidioPiiScanner](../pii-presidio/). See the [Presidio package reference](../../../../cerbia-presidio/).
+
+Use `action: block` when detected PII must affect the aggregate verdict. Keep the default `warn` when the pipeline should report PII while allowing the caller to make a separate handling decision from the findings and match spans.
+
+---
+
 # ProtectAI prompt injection scanner
 
 Source: /prerelease/main/components/scanners/prompt-injection-protectai/
@@ -1659,33 +1724,83 @@ scanners:
 
 # URL allowlist scanner
 
-Source: /prerelease/main/components/scanners/url-allowlist/
+Source: /prerelease/main/components/scanners/url-allow-list/
 
-`cerbia.core.scanners.UrlAllowlistScanner` extracts URLs from text and compares each one with an approved full-URL wildcard pattern. It is intended to prevent unexpected destinations in generated or configured text.
+`cerbia.core.scanners.UrlAllowListScanner` extracts URLs from text and compares each one with an approved full-URL wildcard pattern. It is intended to prevent unexpected destinations in generated or configured text.
 
 ## Parameters
 
 | Parameter | Default | Meaning |
 | --- | --- | --- |
-| `allowed_domains` | required | Full-URL wildcard patterns registered for this scanner. |
+| `allowed_domains` | required | List of inline full-URL wildcard patterns, or a path string/`Path` to a UTF-8 `.txt` file. An empty list is valid. |
 | `severity` | `HIGH` | Finding severity. |
 | `action` | `BLOCK` | Finding action. |
 | `content_types` | `[TEXT, URL, CODE]` | Accepted content types. |
 
 Patterns match normalized complete URLs, including scheme and path. Use `https://example.com/` to allow only the normalized root URL, or `https://example.com/*` to allow descendant paths. Query strings and fragments do not form part of the normalized comparison.
 
+Pass either a list of inline patterns or a file path; the two forms are not combined. The file is read once when the scanner is constructed. Each nonblank line is one pattern; surrounding whitespace is stripped and lines whose first non-whitespace character is  are comments. Inline comments are not supported, and `` in a rule is retained. The existing matcher treats only `*` as a wildcard; it does not validate strict URL grammar. A relative path is resolved from the process working directory, not the configuration file’s directory. Files must have a `.txt` suffix. Missing, unreadable, invalid-encoding, or invalid-rule files raise `CerbIAConfigError` with path context.
+
+```
+# Approved sites
+https://example.com/*
+https://docs.example.com/*
+```
+
+An empty or comment-only file adds no allow rules. Extracted URLs are rejected unless a matching allow rule is already in the runner’s shared registry.
+
 ```
 scanners:
-  - scanner: cerbia.core.scanners.UrlAllowlistScanner
+  - scanner: cerbia.core.scanners.UrlAllowListScanner
     init_args:
-      allowed_domains:
-        - "https://example.com/*"
-        - "https://docs.example.com/*"
+      allowed_domains: "config/allowed-urls.txt"
 ```
 
-When text contains no URL, the scanner returns risk `0.0`. When every extracted URL matches a pattern, it also returns risk `0.0`; otherwise it returns `0.95` and a rationale listing up to five non-allowlisted URLs.
+To configure inline rules, pass `allowed_domains: ["https://example.com/*"]`. When text contains no URL, the scanner returns risk `0.0`. When every extracted URL matches a pattern, it also returns risk `0.0`; otherwise it returns `0.95` and a rationale listing up to five non-allowlisted URLs.
 
-The runner shares a URL registry among configured scanners, so URL-aware components observe the same registered patterns during one run.
+`Runner` creates one `UrlRegistry` per runner and shares it with allowlist, denylist, and malicious-URL scanners. The registry keeps allow and deny rules separately; an explicit deny makes `is_allowed` false and cannot be overridden by an allow rule, regardless of registration source or order. Standalone scanners can share a registry through `url_registry`.
+
+---
+
+# URL denylist scanner
+
+Source: /prerelease/main/components/scanners/url-deny-list/
+
+`cerbia.core.scanners.UrlDenyListScanner` extracts URLs from text and reports each URL that matches a blocked full-URL wildcard pattern. Its deny rules live in the runner’s shared `UrlRegistry`, separately from allow rules. See [URL allowlist](../url-allow-list/) for the shared full-URL matcher and file syntax.
+
+## Parameters
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `blocked_domains` | required | List of inline full-URL wildcard patterns, or a path string/`Path` to a UTF-8 `.txt` file. An empty list is valid. |
+| `severity` | `HIGH` | Finding severity. |
+| `action` | `BLOCK` | Finding action. A matching URL produces a blocking finding by default. |
+| `content_types` | `[TEXT, URL, CODE]` | Accepted content types. |
+
+Pass either a list of inline patterns or a file path; the two forms are not combined. The file is read once when the scanner is constructed. Each nonblank line is one pattern; surrounding whitespace is stripped and lines whose first non-whitespace character is  are comments. Inline comments are not supported, and `` in a rule is retained. Only `*` is a wildcard; the matcher does not validate strict URL grammar. Relative paths resolve from the process working directory, not the configuration file’s directory. Files must have a `.txt` suffix. Missing, unreadable, invalid-encoding, or invalid-rule files raise `CerbIAConfigError` with path context.
+
+An empty or comment-only file adds no deny rules; any findings can only come from other deny rules already in the shared registry. Explicit deny rules win over matching allow rules regardless of source or registration order. `UrlRegistry.is_denied` checks the deny store directly; `is_allowed` also returns false for explicitly denied URLs.
+
+## Configuration
+
+Import the scanner from `cerbia.core.scanners` and use the `url_denylist` scanner ID.
+
+```
+from cerbia.core.scanners import UrlDenyListScanner
+
+scanner = UrlDenyListScanner(blocked_domains=["https://blocked.example/*"])
+```
+
+For a file-backed list, configure the scanner through the existing scanner `init_args` mechanism:
+
+```
+scanners:
+  - scanner: cerbia.core.scanners.UrlDenyListScanner
+    init_args:
+      blocked_domains: "config/blocked-urls.txt"
+```
+
+To configure inline rules, pass `blocked_domains: ["https://blocked.example/*"]`. A standalone scanner can receive an existing shared registry with the keyword-only `url_registry` argument. See [Configuration](../../../configuration/) for scanner records.
 
 ---
 
@@ -1715,7 +1830,7 @@ scanners:
       suspicious_tlds: ["top", "loan", "win"]
 ```
 
-Use [URL allowlist](../url-allowlist/) when known destinations should be explicitly approved rather than scored heuristically.
+Use [URL allowlist](../url-allow-list/) when known destinations should be explicitly approved rather than scored heuristically.
 
 ---
 
@@ -1807,70 +1922,6 @@ For example, `[0.20, 0.80]` produces `0.50`; an empty list produces `0.0`. This 
 score_aggregator:
   score_aggregator: cerbia.core.score_aggregators.MeanScoreAggregator
 ```
-
----
-
-# FileLoader
-
-Source: /prerelease/main/components/loaders/file-loader/
-
-`cerbia.core.loaders.FileLoader` reads individual files and directory trees into entries. Use it to scan repositories, configuration directories, and other local text collections.
-
-## Parameters
-
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `paths` | required | One path or a list of file and directory paths. |
-| `extensions` | `null` | Optional list of suffixes to include, such as `['.py', '.yaml']`. |
-| `recursive` | `true` | Whether directory paths are traversed recursively. |
-
-A single path becomes a one-item list. A direct file is loaded only if its suffix passes the optional extension filter. Directory paths use `*/` when `recursive` is true and `*` otherwise. CerbIA sorts discovered files before loading them.
-
-Files are read as UTF-8 with replacement decoding. Invalid byte sequences become replacement characters instead of causing a decoding failure. Each output entry uses the file’s resolved absolute path as its `source`.
-
-Missing paths produce no entries and do not raise an error. A direct file whose suffix does not match also produces no entry, with a warning logged; a directory with no matching files produces no entries. This behavior matters when the CLI uses `--file`: an empty result set is safe by definition.
-
-```
-loaders:
-  - loader: cerbia.core.loaders.FileLoader
-    init_args:
-      paths: ["src", "README.md"]
-      extensions: [".py", ".md"]
-      recursive: true
-```
-
-See [TextLoader](../text-loader/) for inline input and [Configuration](../../../configuration/) for component records.
-
----
-
-# PII scanners
-
-Source: /prerelease/main/components/scanners/pii/
-
-`cerbia.core.scanners.PiiScanner` uses built-in regular expressions to locate common personally identifiable information. It reports match spans and uses the highest matching pattern score as its risk score.
-
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `extra_patterns` | `null` | Additional `(name, regex)` pairs. Extra patterns use risk `0.80`. |
-| `severity` | `HIGH` | Finding severity. |
-| `action` | `WARN` | Findings are visible but do not contribute to blocking aggregation unless changed. |
-| `content_types` | `[TEXT]` | Accepted content types. |
-| `validate_checksums` | `false` | When `true`, candidate matches failing checksum validation are discarded (e.g. Modulo 23 for Spanish DNI/NIE, Luhn for credit cards, and Modulo 97 for IBAN). This reduces noise but can also miss sensitive identifiers with typos. |
-| `custom_validators` | `null` | Optional dictionary mapping pattern names to custom validator callables `(str) → bool`. |
-
-```
-scanners:
-  - scanner: cerbia.core.scanners.PiiScanner
-    init_args:
-      action: block
-      validate_checksums: true
-      extra_patterns:
-        - ["Employee ID", "EMP-[0-9]{6}"]
-```
-
-For NLP-backed English entity recognition, use the optional [PresidioPiiScanner](../pii-presidio/). See the [Presidio package reference](../../../../cerbia-presidio/).
-
-Use `action: block` when detected PII must affect the aggregate verdict. Keep the default `warn` when the pipeline should report PII while allowing the caller to make a separate handling decision from the findings and match spans.
 
 ---
 
@@ -3834,6 +3885,35 @@ Scanner results are heuristic or model-based signals, not a security certificati
 
 ---
 
+# cerbia
+
+Source: /0.3.0/cerbia/
+
+`cerbia` is the metadata-only installation selector for CerbIA. Installing it installs `cerbia-core`; it does not provide a Python import namespace. Import the component package that provides the capability you use.
+
+## Installation choices
+
+Install the base distribution for the core Python pipeline, or choose an extra for an optional integration:
+
+```
+pip install cerbia
+pip install "cerbia[cli]"
+pip install "cerbia[ml]"
+pip install "cerbia[presidio]"
+pip install "cerbia[protectai]"
+pip install "cerbia[all]"
+```
+
+The `cli`, `ml`, `presidio`, and `protectai` extras select their matching distributions. `all` installs every optional package. You can also install a distribution directly, such as `pip install cerbia-cli` or `pip install cerbia-presidio`.
+
+After installing an extra, use the import namespace it supplies: `cerbia.core`, `cerbia.cli`, `cerbia.ml`, `cerbia.presidio`, or `cerbia.protectai`. The `cerbia` executable comes from `cerbia-cli`, not from a top-level Python module.
+
+## Next steps
+
+Start with the product-wide [installation requirements](../main/prerequisites/) and [quickstart](../main/quickstart/). For an overview of all distributions, open the [package directory](../main/packages/).
+
+---
+
 # cerbia-cli
 
 Source: /0.3.0/cerbia-cli/
@@ -3901,35 +3981,6 @@ result = Runner(config).scan()
 ## Find component details
 
 Use the product-wide references for the [pipeline lifecycle](../main/architecture/), [configuration format](../main/configuration/), [loaders](../main/components/loaders/), [preprocessors](../main/components/preprocessors/), [scanners](../main/components/scanners/), and [score aggregators](../main/components/score-aggregators/). The [quickstart](../main/quickstart/) walks through a working CLI example.
-
----
-
-# cerbia
-
-Source: /0.3.0/cerbia/
-
-`cerbia` is the metadata-only installation selector for CerbIA. Installing it installs `cerbia-core`; it does not provide a Python import namespace. Import the component package that provides the capability you use.
-
-## Installation choices
-
-Install the base distribution for the core Python pipeline, or choose an extra for an optional integration:
-
-```
-pip install cerbia
-pip install "cerbia[cli]"
-pip install "cerbia[ml]"
-pip install "cerbia[presidio]"
-pip install "cerbia[protectai]"
-pip install "cerbia[all]"
-```
-
-The `cli`, `ml`, `presidio`, and `protectai` extras select their matching distributions. `all` installs every optional package. You can also install a distribution directly, such as `pip install cerbia-cli` or `pip install cerbia-presidio`.
-
-After installing an extra, use the import namespace it supplies: `cerbia.core`, `cerbia.cli`, `cerbia.ml`, `cerbia.presidio`, or `cerbia.protectai`. The `cerbia` executable comes from `cerbia-cli`, not from a top-level Python module.
-
-## Next steps
-
-Start with the product-wide [installation requirements](../main/prerequisites/) and [quickstart](../main/quickstart/). For an overview of all distributions, open the [package directory](../main/packages/).
 
 ---
 
@@ -5525,6 +5576,33 @@ scanners:
 
 ---
 
+# Maximum score with bonus
+
+Source: /0.3.0/main/components/score-aggregators/max-with-bonus/
+
+`cerbia.core.score_aggregators.MaxWithBonusScoreAggregator` starts with the largest severity-weighted blocking score and adds a bonus for every additional blocking score. The result is capped at `1.0`.
+
+```
+aggregate = min(1.0, max(scores) + bonus × (len(scores) - 1))
+```
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `bonus` | `0.05` | Increment added for each score after the first. |
+
+Negative values are accepted and can lower the result below zero; the implementation only caps the upper bound.
+
+For `[0.80, 0.60, 0.40]` and `bonus: 0.05`, the aggregate is `0.90`. An empty list produces `0.0`.
+
+```
+score_aggregator:
+  score_aggregator: cerbia.core.score_aggregators.MaxWithBonusScoreAggregator
+  init_args:
+    bonus: 0.05
+```
+
+---
+
 # Maximum score aggregator
 
 Source: /0.3.0/main/components/score-aggregators/max/
@@ -5559,33 +5637,6 @@ For example, `[0.20, 0.80]` produces `0.50`; an empty list produces `0.0`. This 
 ```
 score_aggregator:
   score_aggregator: cerbia.core.score_aggregators.MeanScoreAggregator
-```
-
----
-
-# Maximum score with bonus
-
-Source: /0.3.0/main/components/score-aggregators/max-with-bonus/
-
-`cerbia.core.score_aggregators.MaxWithBonusScoreAggregator` starts with the largest severity-weighted blocking score and adds a bonus for every additional blocking score. The result is capped at `1.0`.
-
-```
-aggregate = min(1.0, max(scores) + bonus × (len(scores) - 1))
-```
-
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `bonus` | `0.05` | Increment added for each score after the first. |
-
-Negative values are accepted and can lower the result below zero; the implementation only caps the upper bound.
-
-For `[0.80, 0.60, 0.40]` and `bonus: 0.05`, the aggregate is `0.90`. An empty list produces `0.0`.
-
-```
-score_aggregator:
-  score_aggregator: cerbia.core.score_aggregators.MaxWithBonusScoreAggregator
-  init_args:
-    bonus: 0.05
 ```
 
 ---
