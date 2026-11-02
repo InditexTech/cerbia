@@ -46,8 +46,12 @@ Every scanner accepts `severity`, `action`, and `content_types`, although their 
 |Apply suspicious-URL heuristics.
 |`BLOCK`
 
-|xref:components/scanners/url-allowlist.adoc[URL allowlist]
+|xref:components/scanners/url-allow-list.adoc[URL allowlist]
 |Require URLs to match approved patterns.
+|`BLOCK`
+
+|xref:components/scanners/url-deny-list.adoc[URL denylist]
+|Flag URLs that match blocked patterns.
 |`BLOCK`
 
 |xref:components/scanners/xss.adoc[XSS]
