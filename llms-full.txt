@@ -1609,6 +1609,14 @@ Source: /prerelease/main/components/scanners/pii/
 | `content_types` | `[TEXT]` | Accepted content types. |
 | `validate_checksums` | `false` | When `true`, candidate matches failing checksum validation are discarded (e.g. Modulo 23 for Spanish DNI/NIE, Luhn for credit cards, and Modulo 97 for IBAN). This reduces noise but can also miss sensitive identifiers with typos. |
 | `custom_validators` | `null` | Optional dictionary mapping pattern names to custom validator callables `(str) → bool`. |
+| `email_domains` | `null` | Restrict built-in email detection to exact, case-insensitive domain matches. `null` (Python `None`) preserves detection of all domains; `[]` disables only built-in email detection. Other PII and `extra_patterns` are unchanged. |
+
+```
+from cerbia.core.scanners import PiiScanner
+
+scanner = PiiScanner(email_domains=["example.com", "example.org"])
+result = scanner.scan("jane@example.com")  # Detected
+```
 
 ```
 scanners:
@@ -1616,9 +1624,14 @@ scanners:
     init_args:
       action: block
       validate_checksums: true
+      email_domains: ["example.com", "example.org"]
       extra_patterns:
         - ["Employee ID", "EMP-[0-9]{6}"]
 ```
+
+The listed domains are **detected**, not exempted. For example, the configuration above detects `jane@example.com` and `jane [at] example [dot] org`, but not `jane@other.com`. Subdomains require their own explicit entry: `example.com` does not match `team.example.com`. Domain prefixes and suffixes such as `notexample.com` and `example.com.evil` do not match.
+
+`email_domains` accepts `list[str]` or `None`; list entries must be bare ASCII DNS domains with at least two labels. Each label must contain 1–63 ASCII letters, digits, or hyphens, with no leading or trailing hyphen; the full domain must be at most 253 characters. Domain strings are case-insensitive, but whitespace is not trimmed. Empty strings, whitespace, `@` prefixes, URLs, paths, ports, wildcards, Unicode domains, empty labels, and leading or trailing dots are rejected with `CerbIAConfigError` during construction. Use Python `None` or YAML `null` (or omit the option) to preserve existing behavior. Use `[]` to turn off built-in email detection without affecting other PII or custom patterns, including custom patterns labeled `Email` or `Email (obfuscated)`.
 
 For NLP-backed English entity recognition, use the optional [PresidioPiiScanner](../pii-presidio/). See the [Presidio package reference](../../../../cerbia-presidio/).
 
@@ -5045,39 +5058,6 @@ Use raw Python strings for expressions. `@i18n_pattern` compiles every returned 
 
 ---
 
-# TextLoader
-
-Source: /0.3.0/main/components/loaders/text-loader/
-
-`cerbia.core.loaders.TextLoader` converts inline strings into entries. It is a simple loader for application-provided values, tests, and command-line input.
-
-```
-from cerbia.core.loaders import TextLoader
-
-entries = TextLoader(texts=["first", "second"]).load()
-```
-
-## Parameters
-
-| Parameter | Type | Meaning |
-| --- | --- | --- |
-| `texts` | `str \| list[str]` | One string or an ordered list of strings to load. |
-
-A single string becomes a one-item list. The loader emits exactly one entry for each input string, in order. Each entry uses `inline[index]` as its `source`; it has no field path and uses the default unknown content type.
-
-```
-loaders:
-  - loader: cerbia.core.loaders.TextLoader
-    init_args:
-      texts:
-        - "Text to scan"
-        - "Another entry"
-```
-
-`cerbia scan --text` builds an equivalent loader and replaces configured loaders for that invocation. See [FileLoader](../file-loader/) for filesystem input.
-
----
-
 # Speculative decoding
 
 Source: /0.3.0/main/components/preprocessors/speculative-decoding/
@@ -5253,6 +5233,39 @@ preprocessors:
 ```
 
 Run this preprocessor before text-oriented scanners when inputs can contain letter-spaced words, excessive blank space, or tab-based obfuscation. It preserves entry count and ordering. See [Speculative decoding](../speculative-decoding/) for decoding-based transformations.
+
+---
+
+# TextLoader
+
+Source: /0.3.0/main/components/loaders/text-loader/
+
+`cerbia.core.loaders.TextLoader` converts inline strings into entries. It is a simple loader for application-provided values, tests, and command-line input.
+
+```
+from cerbia.core.loaders import TextLoader
+
+entries = TextLoader(texts=["first", "second"]).load()
+```
+
+## Parameters
+
+| Parameter | Type | Meaning |
+| --- | --- | --- |
+| `texts` | `str \| list[str]` | One string or an ordered list of strings to load. |
+
+A single string becomes a one-item list. The loader emits exactly one entry for each input string, in order. Each entry uses `inline[index]` as its `source`; it has no field path and uses the default unknown content type.
+
+```
+loaders:
+  - loader: cerbia.core.loaders.TextLoader
+    init_args:
+      texts:
+        - "Text to scan"
+        - "Another entry"
+```
+
+`cerbia scan --text` builds an equivalent loader and replaces configured loaders for that invocation. See [FileLoader](../file-loader/) for filesystem input.
 
 ---
 

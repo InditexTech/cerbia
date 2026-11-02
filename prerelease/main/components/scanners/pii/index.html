@@ -830,8 +830,21 @@
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>null</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Optional dictionary mapping pattern names to custom validator callables <code>(str) &#8594; bool</code>.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email_domains</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Restrict built-in email detection to exact, case-insensitive domain matches. <code>null</code> (Python <code>None</code>) preserves detection of all domains; <code>[]</code> disables only built-in email detection. Other PII and <code>extra_patterns</code> are unchanged.</p></td>
+</tr>
 </tbody>
 </table></div></div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="python"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">from</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> cerbia.core.scanners </span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">import</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> PiiScanner</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">scanner = PiiScanner(</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">email_domains</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">=[</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"example.com"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"example.org"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">])</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">result = scanner.scan(</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"jane@example.com"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">)  </span><span style="--shiki-light:#6A9955;--shiki-dark:#6A9955"># Detected</span></span></span></code></pre>
+</div>
+</div>
 <div class="listingblock">
 <div class="content">
 <pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
@@ -839,9 +852,26 @@
 <span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
 <span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      action</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">block</span></span>
 <span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      validate_checksums</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">true</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      email_domains</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"example.com"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"example.org"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
 <span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      extra_patterns</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
 <span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">        - [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"Employee ID"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"EMP-[0-9]{6}"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span></span></code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>The listed domains are <strong>detected</strong>, not exempted. For example, the configuration above detects
+<code>jane@example.com</code> and <code>jane [at] example [dot] org</code>, but not <code>jane@other.com</code>.
+Subdomains require their own explicit entry: <code>example.com</code> does not match <code>team.example.com</code>.
+Domain prefixes and suffixes such as <code>notexample.com</code> and <code>example.com.evil</code> do not match.</p>
+</div>
+<div class="paragraph">
+<p><code>email_domains</code> accepts <code>list[str]</code> or <code>None</code>; list entries must be bare ASCII DNS domains with at least two labels.
+Each label must contain 1–63 ASCII letters, digits, or hyphens, with no leading or trailing hyphen;
+the full domain must be at most 253 characters. Domain strings are case-insensitive, but whitespace is not trimmed.
+Empty strings, whitespace, <code>@</code> prefixes, URLs, paths, ports, wildcards, Unicode domains,
+empty labels, and leading or trailing dots are rejected with <code>CerbIAConfigError</code> during construction.
+Use Python <code>None</code> or YAML <code>null</code> (or omit the option) to preserve existing behavior.
+Use <code>[]</code> to turn off built-in email detection without affecting other PII or custom patterns,
+including custom patterns labeled <code>Email</code> or <code>Email (obfuscated)</code>.</p>
 </div>
 <div class="paragraph">
 <p>For NLP-backed English entity recognition, use the optional <a href="../pii-presidio/" class="xref page">PresidioPiiScanner</a>. See the <a href="../../../../cerbia-presidio/" class="xref page">Presidio package reference</a>.</p>

@@ -138,9 +138,9 @@
 - [Scanners](/0.3.0/main/components/scanners/): Browse scanners for hidden text, prompt injection, PII, secrets, URLs, keywords, and other findings.
 - [Score aggregators](/0.3.0/main/components/score-aggregators/): Choose how severity-weighted blocking findings become the score compared with the gate threshold.
 - [Internationalization](/0.3.0/main/i18n/): Register and select language-specific pattern packs for CerbIA's built-in scanners.
-- [TextLoader](/0.3.0/main/components/loaders/text-loader/): Load one string or an ordered list of inline strings as CerbIA entries.
 - [Speculative decoding](/0.3.0/main/components/preprocessors/speculative-decoding/): Recover plausible encoded or obfuscated text before scanners inspect an entry.
 - [Whitespace normalization](/0.3.0/main/components/preprocessors/whitespace-normalization/): Normalize spaced, tabbed, and repeated whitespace patterns while preserving entry lineage.
+- [TextLoader](/0.3.0/main/components/loaders/text-loader/): Load one string or an ordered list of inline strings as CerbIA entries.
 - [Canary leak scanner](/0.3.0/main/components/scanners/canary-leak/): Find configured canary tokens and partial leaks, including encoded or zero-width representations.
 - [Invisible text scanner](/0.3.0/main/components/scanners/invisible-text/): Detect zero-width, bidirectional, format-control, and other hard-to-see Unicode characters.
 - [Keyword scanner](/0.3.0/main/components/scanners/keyword/): Match multilingual and code-oriented suspicious patterns after Unicode and leetspeak normalization.
