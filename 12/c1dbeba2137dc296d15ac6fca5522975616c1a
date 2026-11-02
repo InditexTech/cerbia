@@ -1,0 +1,22 @@
+docs/src/modules/main/nav.adoc
+  h_d6d31939214ddd 34-35
+docs/src/modules/main/pages/components/scanners.adoc
+  h_d6d31939214ddd 49,53-56
+docs/src/modules/main/pages/components/scanners/url-allow-list.adoc
+  h_d6d31939214ddd 5,15,32-42,46,48,51,53
+docs/src/modules/main/pages/components/scanners/url-deny-list.adoc
+  h_d6d31939214ddd 1-55
+docs/src/modules/main/pages/components/scanners/url-malicious.adoc
+  h_d6d31939214ddd 48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "12c1dbeba2137dc296d15ac6fca5522975616c1a",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
