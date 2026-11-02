@@ -66,7 +66,7 @@ Domain prefixes and suffixes such as `notexample.com` and `example.com.evil` do 
 Each label must contain 1–63 ASCII letters, digits, or hyphens, with no leading or trailing hyphen;
 the full domain must be at most 253 characters. Domain strings are case-insensitive, but whitespace is not trimmed.
 Empty strings, whitespace, `@` prefixes, URLs, paths, ports, wildcards, Unicode domains,
-empty labels, and leading or trailing dots are rejected with `ValueError` during construction.
+empty labels, and leading or trailing dots are rejected with `CerbIAConfigError` during construction.
 Use Python `None` or YAML `null` (or omit the option) to preserve existing behavior.
 Use `[]` to turn off built-in email detection without affecting other PII or custom patterns,
 including custom patterns labeled `Email` or `Email (obfuscated)`.

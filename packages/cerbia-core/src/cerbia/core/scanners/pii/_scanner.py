@@ -2,6 +2,7 @@ import logging
 import re
 from collections.abc import Callable
 
+from ...exceptions import CerbIAConfigError
 from ...models.scans import MatchSpan, ScanOutcome
 from ...types import Action, ContentType, Severity
 from ._checksums import CHECKSUM_VALIDATORS
@@ -29,7 +30,7 @@ class PiiScanner:
             None detects all domains; an empty list disables built-in email detection only.
             Entries must be bare ASCII DNS domains with at least two labels, no whitespace,
             and no leading/trailing hyphens or dots. URLs, @ prefixes, and wildcards are rejected.
-            Subdomains must be explicitly listed. Invalid configuration raises ValueError.
+            Subdomains must be explicitly listed. Malformed domain strings raise CerbIAConfigError.
 
     Attributes:
         scanner_id (str): Unique identifier for the scanner.
@@ -89,7 +90,7 @@ class PiiScanner:
                 )
                 is None
             ):
-                raise ValueError("email_domains entries must be bare ASCII DNS domains")
+                raise CerbIAConfigError("email_domains entries must be bare ASCII DNS domains")
 
         return frozenset(domain.lower() for domain in email_domains)
 

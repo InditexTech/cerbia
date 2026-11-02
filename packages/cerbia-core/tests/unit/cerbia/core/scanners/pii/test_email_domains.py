@@ -1,5 +1,6 @@
 import pytest
 from cerbia.core.config import ScannerConfig
+from cerbia.core.exceptions import CerbIAConfigError
 from cerbia.core.factories.scanner import ScannerFactory
 from cerbia.core.scanners.pii import PiiScanner
 from cerbia.core.types import Action, ContentType, Severity
@@ -167,8 +168,8 @@ def test_email_domains_are_forwarded_when_scanner_is_built_from_config(
         ["example.com", "bad domain"],
     ],
 )
-def test_email_domains_raise_value_error_when_configuration_is_invalid(domains: list[str]) -> None:
-    with pytest.raises(ValueError, match="email_domains"):
+def test_email_domains_raise_config_error_when_configuration_is_invalid(domains: list[str]) -> None:
+    with pytest.raises(CerbIAConfigError, match="email_domains"):
         PiiScanner(email_domains=domains)
 
 
