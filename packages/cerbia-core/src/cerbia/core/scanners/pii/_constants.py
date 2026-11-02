@@ -4,6 +4,8 @@ _OCTET = r"(?:25[0-5]|2[0-4]\d|[01]?\d\d?)"
 
 AT_BLOCK = r"\s*[(\[]\s*(?:at|arroba)\s*[)\]]\s*"
 DOT_BLOCK = r"\s*[(\[]\s*(?:dot|punto)\s*[)\]]\s*"
+EMAIL_DOMAIN_LABEL = r"[a-z0-9-]+"
+EMAIL_DOMAIN_CONTINUATION = re.compile(rf"(?:[\w-]|\.[\w-]|{DOT_BLOCK}[\w-])", re.IGNORECASE)
 
 _IBAN_COUNTRY_SPECS: dict[str, tuple[tuple[int, str], ...]] = {
     "AL": ((8, "n"), (16, "c")),

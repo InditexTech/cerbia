@@ -6,7 +6,7 @@ from ...exceptions import CerbIAConfigError
 from ...models.scans import MatchSpan, ScanOutcome
 from ...types import Action, ContentType, Severity
 from ._checksums import CHECKSUM_VALIDATORS
-from ._constants import AT_BLOCK, DOT_BLOCK, PII_PATTERNS
+from ._constants import AT_BLOCK, DOT_BLOCK, EMAIL_DOMAIN_CONTINUATION, EMAIL_DOMAIN_LABEL, PII_PATTERNS
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,10 @@ class PiiScanner:
         if self._email_domains is not None:
             for index, (name, pattern, risk_score) in enumerate(self._patterns):
                 if name == "Email (obfuscated)":
-                    pattern = re.compile(rf"{pattern.pattern}(?:(?:\.|{DOT_BLOCK})[a-z0-9-]+)*")
+                    pattern = re.compile(
+                        rf"(?i)[a-z0-9._%+-]+{AT_BLOCK}[a-z0-9.-]+{DOT_BLOCK}"
+                        rf"{EMAIL_DOMAIN_LABEL}(?:(?:\.|{DOT_BLOCK}){EMAIL_DOMAIN_LABEL})*"
+                    )
                     self._patterns[index] = (name, pattern, risk_score)
 
         if extra_patterns:
@@ -101,7 +104,7 @@ class PiiScanner:
         candidate = re.sub(AT_BLOCK, "@", match.group(), flags=re.IGNORECASE)
         domain = re.sub(DOT_BLOCK, ".", candidate, flags=re.IGNORECASE).rsplit("@", 1)[1]
 
-        continuation = re.match(rf"(?:[\w-]|\.[\w-]|{DOT_BLOCK}[\w-])", match.string[match.end() :], re.IGNORECASE)
+        continuation = EMAIL_DOMAIN_CONTINUATION.match(match.string, match.end())
         return domain.lower() in self._email_domains and continuation is None
 
     def scan(self, text: str) -> ScanOutcome:

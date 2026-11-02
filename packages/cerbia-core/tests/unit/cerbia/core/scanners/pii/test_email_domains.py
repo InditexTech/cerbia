@@ -202,17 +202,21 @@ def test_email_domains_are_copied_when_configuration_list_changes() -> None:
 
 
 @pytest.mark.parametrize(
-    "address",
+    "template",
     [
-        "jane [at] sub [dot] example.com",
-        "jane [at] sub [dot] example [dot] com",
-        "jane [arroba] sub [punto] example [punto] com",
-        "JANE (ARROBA) SUB (PUNTO) EXAMPLE.COM",
+        "jane [at] sub [dot] {label}.com",
+        "jane [at] sub [dot] {label} [dot] com",
+        "jane [arroba] sub [punto] {label} [punto] com",
+        "JANE (ARROBA) SUB (PUNTO) {label}.COM",
     ],
 )
+@pytest.mark.parametrize("label", ["example", "example-1", "a", "ab1", "1ab", "EXAMPLE-1"])
 @pytest.mark.parametrize("suffix", ["", ".evil", " [dot] evil", " (punto) evil"])
-def test_email_domains_resolve_full_subdomain_when_earlier_separators_are_obfuscated(address: str, suffix: str) -> None:
-    scanner = PiiScanner(email_domains=["sub.example.com"])
+def test_email_domains_resolve_full_subdomain_when_earlier_separators_are_obfuscated(
+    template: str, label: str, suffix: str
+) -> None:
+    scanner = PiiScanner(email_domains=[f"sub.{label.lower()}.com"])
+    address = template.format(label=label)
     text = f"你好 🙂 {address}{suffix}!"
 
     result = scanner.scan(text)
