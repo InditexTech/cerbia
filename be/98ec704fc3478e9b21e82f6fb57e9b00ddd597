@@ -1,0 +1,16 @@
+CHANGELOG.md
+  h_d6d31939214ddd 37-45
+docs/src/modules/main/pages/components/scanners/secrets.adoc
+  h_d6d31939214ddd 36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "be98ec704fc3478e9b21e82f6fb57e9b00ddd597",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
