@@ -167,6 +167,10 @@ def test_pii_scanner_preserves_configuration_when_custom_values_are_provided() -
 
 @pytest.mark.parametrize("validate_checksums", [False, True])
 @pytest.mark.parametrize(
+    "suffix",
+    [".", ",", "]", ".Next", ".next", ".Cafe", ".cafe", ".dead", ".beef", "..Next", "...Next", "..next", "...beef"],
+)
+@pytest.mark.parametrize(
     "address",
     [
         "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
@@ -179,11 +183,11 @@ def test_pii_scanner_preserves_configuration_when_custom_values_are_provided() -
     ],
 )
 def test_pii_scanner_preserves_ipv6_risk_and_spans_when_address_is_valid(
-    address: str, validate_checksums: bool
+    address: str, validate_checksums: bool, suffix: str
 ) -> None:
     # Given
     scanner = PiiScanner(validate_checksums=validate_checksums)
-    text = f"IP: [{address}], end."
+    text = f"IP: [{address}{suffix} end."
 
     # When
     result = scanner.scan(text)
@@ -192,6 +196,42 @@ def test_pii_scanner_preserves_ipv6_risk_and_spans_when_address_is_valid(
     assert result.risk_score == 0.70
     assert result.rationale == "PII detected (1 match(es)): IPv6 (1)"
     assert [(match.start, match.end) for match in result.matches] == [(5, 5 + len(address))]
+
+
+@pytest.mark.parametrize("validate_checksums", [False, True])
+@pytest.mark.parametrize(
+    ("address", "valid"),
+    [
+        ("::ffff:192.0.2.1", True),
+        ("::192.0.2.1", True),
+        ("0:0:0:0:0:ffff:192.0.2.1", True),
+        ("0:0:0:0:0:0:192.0.2.1", True),
+        ("::ffff:192.0.2.999", False),
+        ("::192.0.2.999", False),
+        ("0:0:0:0:0:ffff:192.0.2.999", False),
+        ("0:0:0:0:0:0:192.0.2.999", False),
+        ("::ffff:999.0.2.1", False),
+        ("::ffff:192.0.2", False),
+        ("::ffff:192.0.2.1.5", False),
+        ("::ffff:192..2.1", False),
+        ("::ffff:192.0.2.xyz", False),
+        ("::ffff:192.0.2.01", False),
+    ],
+)
+def test_pii_scanner_validates_complete_ipv6_when_address_has_dotted_tail(
+    address: str, valid: bool, validate_checksums: bool
+) -> None:
+    # Given
+    scanner = PiiScanner(validate_checksums=validate_checksums)
+    text = f"IP: [{address}], end."
+
+    # When
+    result = scanner.scan(text)
+
+    # Then: IPv4 findings are independent of IPv6 validation.
+    assert ("IPv6 (1)" in result.rationale) is valid
+    if valid:
+        assert (result.matches[-1].start, result.matches[-1].end) == (5, 5 + len(address))
 
 
 @pytest.mark.parametrize("validate_checksums", [False, True])
