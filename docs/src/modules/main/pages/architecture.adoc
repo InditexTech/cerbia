@@ -162,11 +162,11 @@ construction requirements for configured loaders and scanners.
 == Shared URL registry
 
 While constructing scanners, `Runner` creates one `UrlRegistry` for that runner
-instance and offers it to scanner factories. A factory forwards it only when the
-scanner constructor accepts `url_registry`. `UrlAllowlistScanner` registers its
-configured allowlist patterns there, and URL-aware scanners can consult the
-same live registry for the lifetime of that runner. Separate runners use separate registries;
-this is neither global state nor a general dependency container.
+instance and passes it through scanner factories to allowlist, denylist, and
+malicious-URL scanners. The registry keeps allow and deny patterns separately;
+an explicit deny takes precedence over a matching allow rule, independent of
+registration order. Separate runners use separate registries; this is neither
+global state nor a general dependency container.
 
 See xref:components/scanners.adoc[Scanners] for scanner-specific URL behavior.
 

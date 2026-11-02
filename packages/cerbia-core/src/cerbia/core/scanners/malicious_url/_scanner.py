@@ -2,7 +2,7 @@ from logging import getLogger
 from urllib.parse import parse_qs, urlparse
 
 from ..._utils.url import extract_urls
-from ...models.scans import ScanOutcome
+from ...models.scans import MatchSpan, ScanOutcome
 from ...registries.url import UrlRegistry
 from ...types import Action, ContentType, Severity
 from ._constants import (
@@ -94,7 +94,7 @@ class MaliciousUrlScanner:
 
         if self._url_registry:
             candidate_count = len(urls)
-            urls = [u for u in urls if not self._url_registry.is_allowed(u)]
+            urls = [u for u in urls if not self._url_registry.is_allowed(u.group())]
             if not urls and not data_uri_detected:
                 logger.debug(
                     "All URLs found are registered as allowed",
@@ -111,14 +111,18 @@ class MaliciousUrlScanner:
 
         candidate_count = len(urls)
         flags: list[tuple[str, str, float]] = []
+        matches: list[MatchSpan] = []
 
-        if data_uri_detected:
+        if data_uri_match is not None:
             data_uri_snippet = text[data_uri_match.start() : data_uri_match.start() + 60]
             flags.append(("Data URI", data_uri_snippet, 0.9))
+            matches.append(MatchSpan(start=data_uri_match.start(), end=data_uri_match.end()))
 
         for url in urls:
-            url_flags = self._check_url(url)
+            url_flags = self._check_url(url.group())
             flags.extend(url_flags)
+            if url_flags:
+                matches.append(MatchSpan(start=url.start(), end=url.end()))
 
         if not flags:
             logger.debug(
@@ -151,7 +155,7 @@ class MaliciousUrlScanner:
                 "match_count": match_count,
             },
         )
-        return ScanOutcome(risk_score=max_risk_score, rationale=rationale)
+        return ScanOutcome(risk_score=max_risk_score, rationale=rationale, matches=matches)
 
     def _check_url(self, url: str) -> list[tuple[str, str, float]]:
         flags: list[tuple[str, str, float]] = []

@@ -1,14 +1,15 @@
 import pytest
+from cerbia.core.models.scans import MatchSpan
 from cerbia.core.registries.url import UrlRegistry
 from cerbia.core.scanners.malicious_url import MaliciousUrlScanner
-from cerbia.core.scanners.url_allowlist import UrlAllowlistScanner
+from cerbia.core.scanners.url_allow_list import UrlAllowListScanner
 from cerbia.core.types import Action, ContentType, Severity
 
 pytestmark = pytest.mark.unit
 
 
 def test_url_allowlist_scanner_returns_safe_outcome_when_text_contains_no_urls() -> None:
-    scanner = UrlAllowlistScanner(["https://example.com/*"])
+    scanner = UrlAllowListScanner(["https://example.com/*"])
 
     result = scanner.scan("This text has no links.")
 
@@ -18,7 +19,7 @@ def test_url_allowlist_scanner_returns_safe_outcome_when_text_contains_no_urls()
 
 
 def test_url_allowlist_scanner_returns_safe_outcome_when_all_urls_are_allowed() -> None:
-    scanner = UrlAllowlistScanner(["https://example.com/*", "https://trusted.example/*"])
+    scanner = UrlAllowListScanner(["https://example.com/*", "https://trusted.example/*"])
 
     result = scanner.scan("See https://example.com/docs and https://trusted.example/help.")
 
@@ -28,17 +29,17 @@ def test_url_allowlist_scanner_returns_safe_outcome_when_all_urls_are_allowed() 
 
 
 def test_url_allowlist_scanner_returns_finding_when_url_is_not_allowed() -> None:
-    scanner = UrlAllowlistScanner(["https://example.com/*"])
+    scanner = UrlAllowListScanner(["https://example.com/*"])
 
     result = scanner.scan("See HTTPS://EVIL.EXAMPLE/path/../docs?query=value#fragment")
 
     assert result.risk_score == 0.95
     assert result.rationale == "URL(s) not on allowlist (1): https://evil.example/docs"
-    assert result.matches == []
+    assert result.matches == [MatchSpan(start=4, end=58)]
 
 
 def test_url_allowlist_scanner_returns_only_unallowed_urls_when_text_contains_mixed_urls() -> None:
-    scanner = UrlAllowlistScanner(["https://example.com/*"])
+    scanner = UrlAllowListScanner(["https://example.com/*"])
 
     result = scanner.scan("https://example.com/docs https://evil.example/path")
 
@@ -47,7 +48,7 @@ def test_url_allowlist_scanner_returns_only_unallowed_urls_when_text_contains_mi
 
 
 def test_url_allowlist_scanner_limits_finding_details_when_more_than_five_urls_are_unallowed() -> None:
-    scanner = UrlAllowlistScanner([])
+    scanner = UrlAllowListScanner([])
     urls = " ".join(f"https://evil.example/{index}" for index in range(1, 7))
 
     result = scanner.scan(urls)
@@ -61,7 +62,7 @@ def test_url_allowlist_scanner_limits_finding_details_when_more_than_five_urls_a
 
 def test_url_allowlist_scanner_registers_allowed_domains_with_shared_registry() -> None:
     registry = UrlRegistry()
-    scanner = UrlAllowlistScanner(["https://example.com/*"], url_registry=registry)
+    scanner = UrlAllowListScanner(["https://example.com/*"], url_registry=registry)
 
     result = scanner.scan("https://example.com/docs")
 
@@ -72,7 +73,7 @@ def test_url_allowlist_scanner_registers_allowed_domains_with_shared_registry() 
 
 def test_url_allowlist_scanner_shares_registered_urls_with_malicious_scanner() -> None:
     registry = UrlRegistry()
-    allowlist_scanner = UrlAllowlistScanner(["https://trusted.xyz/*"], url_registry=registry)
+    allowlist_scanner = UrlAllowListScanner(["https://trusted.xyz/*"], url_registry=registry)
     malicious_scanner = MaliciousUrlScanner(suspicious_tlds=["xyz"], url_registry=registry)
     scanner_with_distinct_registry = MaliciousUrlScanner(suspicious_tlds=["xyz"], url_registry=UrlRegistry())
 
@@ -89,7 +90,7 @@ def test_url_allowlist_scanner_shares_registered_urls_with_malicious_scanner() -
 
 
 def test_url_allowlist_scanner_preserves_configuration_when_custom_values_are_provided() -> None:
-    scanner = UrlAllowlistScanner(
+    scanner = UrlAllowListScanner(
         ["https://example.com/*"],
         severity=Severity.CRITICAL,
         action=Action.WARN,

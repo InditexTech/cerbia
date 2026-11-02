@@ -10,7 +10,26 @@ def test_extract_urls_returns_supported_urls_when_text_contains_urls_with_punctu
 
     result = extract_urls(text)
 
-    assert result == ["https://example.com/docs", "ftp://files.example.org/archive"]
+    assert [match.group() for match in result] == ["https://example.com/docs", "ftp://files.example.org/archive"]
+
+
+def test_extract_urls_preserves_original_offsets_when_urls_repeat_with_unicode_and_punctuation() -> None:
+    # Given
+    url = "HTTPS://BÜCHER.example/é?q=1#frag"
+    text = f"前🙂 ({url}), ftp://files.example/a; {url}!"
+    # When
+    matches = extract_urls(text)
+    # Then
+    assert [match.group() for match in matches] == [url, "ftp://files.example/a", url]
+    assert [match.span() for match in matches] == [
+        (text.index(url), text.index(url) + len(url)),
+        (text.index("ftp://"), text.index("ftp://") + len("ftp://files.example/a")),
+        (text.rindex(url), text.rindex(url) + len(url)),
+    ]
+
+
+def test_extract_urls_returns_empty_list_when_text_has_no_urls() -> None:
+    assert extract_urls("no URLs here") == []
 
 
 @pytest.mark.parametrize(
