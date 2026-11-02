@@ -2,10 +2,11 @@ import logging
 import re
 from collections.abc import Callable
 
+from ...exceptions import CerbIAConfigError
 from ...models.scans import MatchSpan, ScanOutcome
 from ...types import Action, ContentType, Severity
 from ._checksums import CHECKSUM_VALIDATORS
-from ._constants import PII_PATTERNS
+from ._constants import AT_BLOCK, DOT_BLOCK, EMAIL_DOMAIN_CONTINUATION, EMAIL_DOMAIN_LABEL, PII_PATTERNS
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,11 @@ class PiiScanner:
             Defaults to False for backward compatibility.
         custom_validators (dict[str, Callable[[str], bool]] | None): Optional mapping of pattern names
             to custom checksum validator functions.
+        email_domains (list[str] | None): Exact, case-insensitive domains to detect in built-in email patterns.
+            None detects all domains; an empty list disables built-in email detection only.
+            Entries must be bare ASCII DNS domains with at least two labels, no whitespace,
+            and no leading/trailing hyphens or dots. URLs, @ prefixes, and wildcards are rejected.
+            Subdomains must be explicitly listed. Malformed domain strings raise CerbIAConfigError.
 
     Attributes:
         scanner_id (str): Unique identifier for the scanner.
@@ -43,6 +49,7 @@ class PiiScanner:
         content_types: tuple[ContentType, ...] | list[str] | None = (ContentType.TEXT,),
         validate_checksums: bool = False,
         custom_validators: dict[str, Callable[[str], bool]] | None = None,
+        email_domains: list[str] | None = None,
     ) -> None:
         self.scanner_id = "pii"
         self.scanner_name = "PII"
@@ -51,7 +58,18 @@ class PiiScanner:
         self.content_types = tuple(content_types) if content_types is not None else None
         self.validate_checksums = validate_checksums
 
+        self._email_domains: frozenset[str] | None = self._validate_email_domains(email_domains)
+
         self._patterns = PII_PATTERNS.copy()
+        if self._email_domains is not None:
+            for index, (name, pattern, risk_score) in enumerate(self._patterns):
+                if name == "Email (obfuscated)":
+                    pattern = re.compile(
+                        rf"(?i)[a-z0-9._%+-]+{AT_BLOCK}[a-z0-9.-]+{DOT_BLOCK}"
+                        rf"{EMAIL_DOMAIN_LABEL}(?:(?:\.|{DOT_BLOCK}){EMAIL_DOMAIN_LABEL})*"
+                    )
+                    self._patterns[index] = (name, pattern, risk_score)
+
         if extra_patterns:
             for name, regex in extra_patterns:
                 self._patterns.append((name, re.compile(regex), 0.80))
@@ -59,6 +77,35 @@ class PiiScanner:
         self._validators = CHECKSUM_VALIDATORS.copy()
         if custom_validators:
             self._validators.update(custom_validators)
+
+    @staticmethod
+    def _validate_email_domains(email_domains: list[str] | None) -> frozenset[str] | None:
+        if email_domains is None:
+            return None
+
+        for domain in email_domains:
+            if (
+                len(domain) > 253
+                or re.fullmatch(
+                    r"[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?"
+                    r"(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+",
+                    domain,
+                )
+                is None
+            ):
+                raise CerbIAConfigError("email_domains entries must be bare ASCII DNS domains")
+
+        return frozenset(domain.lower() for domain in email_domains)
+
+    def _matches_email_domain(self, index: int, name: str, match: re.Match[str]) -> bool:
+        if self._email_domains is None or index >= len(PII_PATTERNS) or name not in {"Email", "Email (obfuscated)"}:
+            return True
+
+        candidate = re.sub(AT_BLOCK, "@", match.group(), flags=re.IGNORECASE)
+        domain = re.sub(DOT_BLOCK, ".", candidate, flags=re.IGNORECASE).rsplit("@", 1)[1]
+
+        continuation = EMAIL_DOMAIN_CONTINUATION.match(match.string, match.end())
+        return domain.lower() in self._email_domains and continuation is None
 
     def scan(self, text: str) -> ScanOutcome:
         """Scan text for personally identifiable information.
@@ -72,12 +119,16 @@ class PiiScanner:
         hits: list[tuple[str, float]] = []
         matches: list[MatchSpan] = []
 
-        for name, pattern, risk_score in self._patterns:
+        for index, (name, pattern, risk_score) in enumerate(self._patterns):
             for match in pattern.finditer(text):
-                if self.validate_checksums:
-                    validator = self._validators.get(name)
-                    if validator is not None and not validator(match.group()):
-                        continue
+                if not self._matches_email_domain(index, name, match):
+                    continue
+                if (
+                    self.validate_checksums
+                    and (validator := self._validators.get(name)) is not None
+                    and not validator(match.group())
+                ):
+                    continue
                 hits.append((name, risk_score))
                 matches.append(MatchSpan(start=match.start(), end=match.end()))
 

@@ -16,6 +16,10 @@ and this project adheres to
 
 ### Added
 
+- Optional `email_domains` filtering for `PiiScanner`, with exact,
+  case-insensitive matching for standard and supported obfuscated emails (#40).
+  Omitting the option preserves unrestricted email detection; an empty list
+  disables built-in email detection without affecting other PII checks.
 - `UrlDenyListScanner` with explicit deny rules taking precedence over allow
   rules in the shared URL registry (#37).
 - File-backed URL allowlist and denylist policies: pass an inline list or a
