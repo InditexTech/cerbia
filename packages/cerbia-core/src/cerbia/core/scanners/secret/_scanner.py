@@ -79,7 +79,7 @@ class SecretScanner:
         matches, hits = self._scan_patterns(text)
 
         if self._entropy_detection:
-            entropy_matches, entropy_hits = self._scan_entropy(text)
+            entropy_matches, entropy_hits = self._scan_entropy(text, matches)
             matches.extend(entropy_matches)
             hits.extend(entropy_hits)
 
@@ -130,7 +130,9 @@ class SecretScanner:
 
         return matches, hits
 
-    def _scan_entropy(self, text: str) -> tuple[list[MatchSpan], list[tuple[str, float]]]:
+    def _scan_entropy(
+        self, text: str, pattern_matches: list[MatchSpan]
+    ) -> tuple[list[MatchSpan], list[tuple[str, float]]]:
         hits: list[tuple[str, float]] = []
         matches: list[MatchSpan] = []
 
@@ -139,7 +141,7 @@ class SecretScanner:
             if len(candidate) < ENTROPY_MIN_LENGTH:
                 continue
 
-            if any(p.search(candidate) for _, p, _ in self._patterns):
+            if any(span.start <= match.start() and match.end() <= span.end for span in pattern_matches):
                 continue
 
             is_hex = all(c in HEX_CHARS for c in candidate)
