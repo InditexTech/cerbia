@@ -1,6 +1,7 @@
 import logging
 import re
 from collections.abc import Callable
+from ipaddress import AddressValueError, IPv6Address
 
 from ...exceptions import CerbIAConfigError
 from ...models.scans import MatchSpan, ScanOutcome
@@ -123,6 +124,11 @@ class PiiScanner:
             for match in pattern.finditer(text):
                 if not self._matches_email_domain(index, name, match):
                     continue
+                if index < len(PII_PATTERNS) and name == "IPv6":
+                    try:
+                        IPv6Address(match.group())
+                    except AddressValueError:
+                        continue
                 if (
                     self.validate_checksums
                     and (validator := self._validators.get(name)) is not None
