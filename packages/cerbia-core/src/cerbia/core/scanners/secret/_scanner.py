@@ -61,7 +61,7 @@ class SecretScanner:
         if patterns:
             self._patterns = [(name, re.compile(regex), risk_score) for name, regex, risk_score in patterns]
         else:
-            self._patterns = DEFAULT_SECRET_PATTERNS
+            self._patterns = DEFAULT_SECRET_PATTERNS.copy()
 
         if extra_patterns:
             for name, regex, risk_score in extra_patterns:

@@ -58,6 +58,25 @@ def test_secret_scanner_appends_extra_patterns_when_extra_patterns_are_provided(
     assert [(match.start, match.end) for match in result.matches] == [(0, 10)]
 
 
+def test_secret_scanner_keeps_default_patterns_when_another_scanner_adds_extra_patterns() -> None:
+    existing_scanner = SecretScanner()
+    SecretScanner(extra_patterns=[("Deploy Token", r"DEPLOY-\d{6}", 0.65)])
+
+    results = [existing_scanner.scan("DEPLOY-123456"), SecretScanner().scan("DEPLOY-123456")]
+
+    assert [result.rationale for result in results] == ["No secrets detected", "No secrets detected"]
+
+
+def test_secret_scanner_reports_extra_pattern_once_when_several_scanners_add_it() -> None:
+    SecretScanner(extra_patterns=[("Build Token", r"BUILD-\d{6}", 0.65)])
+    scanner = SecretScanner(extra_patterns=[("Build Token", r"BUILD-\d{6}", 0.65)])
+
+    result = scanner.scan("BUILD-123456")
+
+    assert result.rationale == "Secret(s) detected (1): Build Token"
+    assert [(match.start, match.end) for match in result.matches] == [(0, 12)]
+
+
 def test_secret_scanner_uses_highest_risk_and_limits_rationale_to_first_five_hits() -> None:
     patterns = [(f"Secret {index}", f"token-{index}", index / 10) for index in range(1, 7)]
     scanner = SecretScanner(patterns=patterns)
