@@ -20,6 +20,19 @@ and this project adheres to
   case-insensitive matching for standard and supported obfuscated emails (#40).
   Omitting the option preserves unrestricted email detection; an empty list
   disables built-in email detection without affecting other PII checks.
+- `UrlDenyListScanner` with explicit deny rules taking precedence over allow
+  rules in the shared URL registry (#37).
+- File-backed URL allowlist and denylist policies: pass an inline list or a
+  UTF-8 `.txt` file path to `allowed_domains` or `blocked_domains` (#37).
+- Original-text match spans for URL policy and malicious-URL findings (#37).
+
+### Changed
+
+- **Breaking:** renamed `UrlAllowlistScanner` to `UrlAllowListScanner` and its
+  module from `url_allowlist` to `url_allow_list`; update imports and scanner
+  configuration paths. The scanner ID remains `url_allowlist` (#37).
+- Internal `extract_urls()` now returns regex matches instead of URL strings
+  to preserve match positions (#37).
 
 ## [0.4.0] - 2026-10-21
 

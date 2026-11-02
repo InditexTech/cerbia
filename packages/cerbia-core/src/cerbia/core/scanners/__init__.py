@@ -6,7 +6,8 @@ from .malicious_url import MaliciousUrlScanner
 from .pii import PiiScanner
 from .prompt_injection import PromptInjectionScanner
 from .secret import SecretScanner
-from .url_allowlist import UrlAllowlistScanner
+from .url_allow_list import UrlAllowListScanner
+from .url_deny_list import UrlDenyListScanner
 from .xss import XssScanner
 
 __all__ = [
@@ -18,6 +19,7 @@ __all__ = [
     "PiiScanner",
     "PromptInjectionScanner",
     "SecretScanner",
-    "UrlAllowlistScanner",
+    "UrlAllowListScanner",
+    "UrlDenyListScanner",
     "XssScanner",
 ]

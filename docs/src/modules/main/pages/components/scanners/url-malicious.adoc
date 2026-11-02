@@ -45,4 +45,4 @@ scanners:
       suspicious_tlds: ["top", "loan", "win"]
 ----
 
-Use xref:components/scanners/url-allowlist.adoc[URL allowlist] when known destinations should be explicitly approved rather than scored heuristically.
+Use xref:components/scanners/url-allow-list.adoc[URL allowlist] when known destinations should be explicitly approved rather than scored heuristically.

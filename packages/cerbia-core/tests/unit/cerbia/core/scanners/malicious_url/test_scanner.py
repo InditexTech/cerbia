@@ -1,4 +1,5 @@
 import pytest
+from cerbia.core.models.scans import MatchSpan
 from cerbia.core.registries.url import UrlRegistry
 from cerbia.core.scanners.malicious_url import MaliciousUrlScanner
 from cerbia.core.types import Action, ContentType, Severity
@@ -27,6 +28,7 @@ def test_malicious_url_scanner_returns_safe_outcome_when_url_has_no_indicators()
 
     assert result.risk_score == 0.0
     assert result.rationale == "All 1 URL(s) appear safe"
+    assert result.matches == []
 
 
 def test_malicious_url_scanner_returns_safe_outcome_when_all_urls_are_allowlisted() -> None:
@@ -37,6 +39,7 @@ def test_malicious_url_scanner_returns_safe_outcome_when_all_urls_are_allowliste
 
     assert result.risk_score == 0.0
     assert result.rationale == "All URLs on allowlist"
+    assert result.matches == []
 
 
 def test_malicious_url_scanner_evaluates_unallowlisted_url_when_text_contains_mixed_urls() -> None:
@@ -47,6 +50,7 @@ def test_malicious_url_scanner_evaluates_unallowlisted_url_when_text_contains_mi
 
     assert result.risk_score == 0.75
     assert result.rationale == "Suspicious URL(s) (1 flag(s)): Suspicious TLD (.xyz) (https://evil.xyz/path)"
+    assert result.matches == [MatchSpan(start=25, end=46)]
 
 
 def test_malicious_url_scanner_detects_data_uri_when_data_uri_is_present() -> None:
@@ -56,6 +60,7 @@ def test_malicious_url_scanner_detects_data_uri_when_data_uri_is_present() -> No
 
     assert result.risk_score == 0.9
     assert result.rationale == "Suspicious URL(s) (1 flag(s)): Data URI (data:text/html,<script>alert(1)</script>)"
+    assert result.matches == [MatchSpan(start=0, end=14)]
 
 
 @pytest.mark.parametrize(
@@ -98,6 +103,59 @@ def test_malicious_url_scanner_returns_finding_when_url_has_malicious_indicator(
 
     assert result.risk_score == expected_score
     assert result.rationale == f"Suspicious URL(s) (1 flag(s)): {expected_reason} ({url})"
+    assert result.matches == [MatchSpan(start=0, end=len(url))]
+
+
+def test_malicious_url_scanner_emits_one_span_per_flagged_occurrence_when_multiple_heuristics_match() -> None:
+    # Given
+    scanner = MaliciousUrlScanner(suspicious_tlds=["xyz"], shortener_domains=["evil.xyz"])
+    url = "HTTPS://EVIL.xyz/é"
+    text = f"前🙂 ({url}), https://safe.example/docs; {url}!"
+    # When
+    result = scanner.scan(text)
+    # Then
+    assert result.risk_score == 0.75
+    assert result.rationale.startswith("Suspicious URL(s) (4 flag(s)):")
+    assert result.matches == [
+        MatchSpan(start=text.index(url), end=text.index(url) + len(url)),
+        MatchSpan(start=text.rindex(url), end=text.rindex(url) + len(url)),
+    ]
+
+
+def test_malicious_url_scanner_preserves_denied_url_span_when_matching_allow_rule_exists() -> None:
+    # Given
+    registry = UrlRegistry(["https://*.xyz/*"])
+    registry.register("https://blocked.xyz/*", denied=True)
+    scanner = MaliciousUrlScanner(suspicious_tlds=["xyz"], url_registry=registry)
+    text = "https://allowed.xyz/doc (https://blocked.xyz/doc)."
+    # When
+    result = scanner.scan(text)
+    # Then
+    start = text.index("https://blocked")
+    assert result.matches == [MatchSpan(start=start, end=start + len("https://blocked.xyz/doc"))]
+    assert result.risk_score == 0.75
+
+
+def test_malicious_url_scanner_uses_data_uri_match_span_when_payload_and_allowed_url_follow() -> None:
+    # Given
+    scanner = MaliciousUrlScanner(url_registry=UrlRegistry(["*"]))
+    text = "前🙂 data: text/html,<svg>payload</svg> https://safe.example/"
+    # When
+    result = scanner.scan(text)
+    # Then
+    assert result.risk_score == 0.9
+    assert result.matches == [MatchSpan(start=3, end=18)]
+
+
+def test_malicious_url_scanner_keeps_data_uri_and_url_spans_when_both_are_detected() -> None:
+    # Given
+    scanner = MaliciousUrlScanner(suspicious_tlds=["xyz"])
+    text = "data:text/html,payload https://evil.xyz/doc"
+    # When
+    result = scanner.scan(text)
+    # Then
+    assert result.risk_score == 0.9
+    assert result.matches == [MatchSpan(start=0, end=14), MatchSpan(start=23, end=43)]
 
 
 def test_malicious_url_scanner_uses_highest_score_and_limits_rationale_to_first_five_flags() -> None:
