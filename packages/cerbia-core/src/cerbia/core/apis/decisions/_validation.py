@@ -87,7 +87,7 @@ def validate_decisions(questions: Sequence[DecisionQuestion], response: Decision
         answer = answers[question.name]
         match question, answer:
             case PredicateQuestion(), PredicateAnswer():
-                pass
+                continue
 
             case ChoiceQuestion(), ChoiceAnswer():
                 unique(entry.value for entry in answer.probabilities)

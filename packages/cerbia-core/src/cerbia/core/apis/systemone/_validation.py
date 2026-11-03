@@ -82,7 +82,7 @@ def validate_systemone(questions: Mapping[str, SystemOneQuestion], response: Sys
         answer = response.answers[key]
         match question, answer:
             case NoulQuestion(), NoulAnswer():
-                pass
+                continue
 
             case SystemOneChoiceQuestion(), SystemOneChoiceAnswer():
                 if answer.probabilities.keys() != question.criteria.keys():
