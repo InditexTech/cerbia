@@ -153,7 +153,9 @@ through the scanner unchanged. Invalid scanner configuration or evaluator import
 raise `CerbIAConfigError`; evaluator failures or invalid outcomes raise
 `CerbIAError`, both from `cerbia.core.exceptions`.
 The API errors are also exported by `cerbia.core.apis`.
-API payloads and credentials are omitted from API error messages and wire-model repr.
+API error messages omit payloads and credentials. Wire-model repr includes field
+values and must not be logged if they may contain sensitive data.
+HTTPX honors environment proxy and CA settings; only trust environment configuration controlled by your deployment.
 Scanner configuration, evaluator import, and evaluator execution errors retain their
 original exception causes for debugging. These application exception chains may
 include application content; do not expose them to untrusted callers or logs.
