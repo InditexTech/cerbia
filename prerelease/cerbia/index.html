@@ -428,7 +428,8 @@ for an optional integration:</p>
 </div>
 <div class="paragraph">
 <p>The <code>cli</code>, <code>ml</code>, <code>presidio</code>, and <code>protectai</code> extras select their matching
-distributions. <code>all</code> installs every optional package. You can also install a
+distributions. <code>all</code> installs every optional capability. Decisions/SystemOne
+HTTP support is included in core with no extra needed. You can also install a
 distribution directly, such as <code>pip install cerbia-cli</code> or
 <code>pip install cerbia-presidio</code>.</p>
 </div>
@@ -436,6 +437,11 @@ distribution directly, such as <code>pip install cerbia-cli</code> or
 <p>After installing an extra, use the import namespace it supplies: <code>cerbia.core</code>,
 <code>cerbia.cli</code>, <code>cerbia.ml</code>, <code>cerbia.presidio</code>, or <code>cerbia.protectai</code>. The
 <code>cerbia</code> executable comes from <code>cerbia-cli</code>, not from a top-level Python module.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="../main/components/scanners/decisions/" class="xref page">Decisions/SystemOne core scanner</a>
+sends evidence to a configured external endpoint;
+review its data-handling and service-cost implications before enabling it.</p>
 </div>
 </div>
 </div>

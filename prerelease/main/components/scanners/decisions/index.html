@@ -1,0 +1,1095 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+
+<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script>
+      /*
+       * Theme bootstrap. Runs before first paint so the page never flashes the
+       * wrong theme. Keep it inline, keep it tiny, and keep it in sync with
+       * src/js/08-theme.ts, which owns the same storage key and class names.
+       *
+       * IDS switches theme with a class on <html>, not a data attribute, so an
+       * attribute here would style nothing.
+       */
+      (function () {
+        var stored
+        try { stored = localStorage.getItem('dt-theme') } catch (e) {}
+        var theme = stored === 'light' || stored === 'dark'
+          ? stored
+          : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        var root = document.documentElement
+        root.classList.add('dt-theme-' + theme, 'dt-scale-medium')
+        root.style.colorScheme = theme
+      })()
+    </script>
+    <script>
+      /*
+       * Side-menu collapse bootstrap (GH-8). Runs before first paint so the
+       * 320px column never flashes in and reflows the article on navigation.
+       * Keep it inline, keep it tiny, and keep it in sync with
+       * src/js/01-nav.ts, which owns the same storage key and class name.
+       *
+       * A stored choice always wins; absent one, the menu starts collapsed
+       * on the home/landing page (matching Figma's "State=Home" toolbar
+       * variant, which is the only one that shows the toggle) and open
+       * everywhere else. With JavaScript disabled this script never runs, so
+       * the class is never added and the menu stays open unconditionally —
+       * the toggle that would reopen it is also never unhidden.
+       */
+      (function () {
+        var stored
+        try { stored = localStorage.getItem('docouture-side-menu') } catch (e) {}
+        var collapsed = stored === 'collapsed' || stored === 'open'
+          ? stored === 'collapsed'
+          : document.documentElement.hasAttribute('data-page-home')
+        if (collapsed) document.documentElement.classList.add('is-side-menu-collapsed')
+      })()
+    </script>
+    <script>
+      /*
+       * ToC collapse bootstrap (GH-10). Runs before first paint so a closed
+       * choice never flashes open for an instant. Keep it in sync with
+       * src/js/02-on-this-page.ts, which owns the same storage key and class
+       * name.
+       *
+       * Deliberately does NOT add `has-toc` — only 02-on-this-page.ts knows
+       * whether this page actually has a usable ToC (headings found, page
+       * not `-toc`), and every effect of the class added here is itself
+       * gated behind `has-toc` in toc.css, so there is nothing to flash
+       * either way before that script runs. This one exists only so a
+       * *closed* choice is already in place the moment it does.
+       */
+      (function () {
+        var stored
+        try { stored = localStorage.getItem('docouture-toc') } catch (e) {}
+        if (stored === 'closed') document.documentElement.classList.add('is-toc-closed')
+      })()
+    </script>
+
+<title>Decisions scanner | CerbIA</title>
+
+    <link rel="prev" href="../canary-leak/">
+    <link rel="next" href="../invisible-text/">
+    <meta name="description" content="Ask fixed questions about text and evaluate typed answers with an application function.">
+    <meta name="generator" content="Antora 3.2.0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Mono:wght@100..900&display=swap">
+    <link rel="stylesheet" href="../../../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../../../_/css/mobile-content-overflow.css">
+
+
+
+    <link rel="icon" href="../../../../../favicon.png">
+  </head>
+  <body class="article">
+
+
+
+<header class="header-toolbar">
+  <div class="dt-grid-layout dt-grid-layout--with-margin header-toolbar__grid">
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-6 dt-grid-layout__item--span-xs-3 header-toolbar__left">
+      <button class="dt-button dt-button--ghost dt-button--icon-only side-menu-toggle" type="button" aria-controls="side-menu" hidden>
+        <span class="dt-button__content">
+          <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-menu"></use></svg></span>
+        </span>
+      </button>
+      <a class="header-toolbar__brand" href="../../../../../0.3.1/">
+        <img class="header-toolbar__logo header-toolbar__logo--light" src="../../../../../cerbia-logo.png" width="24" height="24" alt="">
+        <img class="header-toolbar__logo header-toolbar__logo--dark" src="../../../../../cerbia-logo.png" width="24" height="24" alt="">
+        <span class="header-toolbar__product-name dt-text dt-text--label-l-high">CerbIA</span>
+      </a>
+    </div>
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-6 dt-grid-layout__item--span-xs-3 header-toolbar__actions">
+      <button type="button" class="dt-button dt-button--ghost header-toolbar__search-trigger">
+        <span class="dt-button__content">
+          <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-search"></use></svg></span>
+          <span class="dt-text dt-text--label-l header-toolbar__search-label">Search</span>
+          <kbd class="header-toolbar__search-shortcut" aria-hidden="true">⌘K</kbd>
+        </span>
+      </button>
+
+<div class="page-versions">
+  <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--prerelease version-menu-toggle" title="Show other versions of page" aria-expanded="false">
+    <span class="dt-tag__label">prerelease</span>
+    <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
+  </button>
+  <div class="version-menu">
+    <span class="version is-current" aria-current="page">
+      <span class="version__label">prerelease</span>
+      <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
+    </span>
+    <a class="version is-missing" href="../../../../../0.3.1/">
+      <span class="version__label">0.3.1</span>
+      <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
+          </a>
+    <a class="version is-missing" href="../../../../../0.3.0/">
+      <span class="version__label">0.3.0</span>
+    </a>
+  </div>
+</div>
+
+<a class="dt-button dt-button--ghost dt-button--icon-only header-toolbar__repo" href="https://github.com/InditexTech/cerbia" target="_blank" rel="noopener" aria-label="Repository">
+  <span class="dt-button__content">
+    <span class="dt-button__icon dt-button__icon-icon header-toolbar__repo-icon" aria-hidden="true"></span>
+  </span>
+</a>
+
+<button class="dt-button dt-button--ghost dt-button--icon-only theme-toggle" type="button" hidden>
+  <span class="dt-button__content">
+    <span class="dt-button__icon dt-button__icon-icon theme-toggle-icon theme-toggle-icon--light" aria-hidden="true"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-sun"></use></svg></span>
+    <span class="dt-button__icon dt-button__icon-icon theme-toggle-icon theme-toggle-icon--dark" aria-hidden="true"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-moon"></use></svg></span>
+  </span>
+</button>
+    </div>
+  </div>
+</header>
+
+<dialog id="search-dialog" class="search-dialog" aria-label="Search" data-search-index="ROOT-prerelease.json">
+  <div class="dt-overlay dt-overlay--visible search-dialog__overlay">
+    <div class="dt-overlay__content"></div>
+    <div class="dt-modal dt-modal--small search-dialog__panel">
+      <div class="dt-modal__container search-dialog__container">
+        <div class="dt-search-field-minimal dt-search-field-minimal--full-width search-dialog__field">
+          <span class="dt-search-field-minimal__icon-start" aria-hidden="true"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-search"></use></svg></span>
+          <div class="dt-search-field-minimal__input-wrapper">
+            <div class="dt-search-field-minimal__input-container">
+              <input type="search" class="dt-search-field-minimal__input" placeholder="Search the docs" aria-label="Search the docs"
+                role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-autocomplete="list"
+                aria-controls="search-dialog-listbox" disabled>
+            </div>
+          </div>
+          <button type="button" class="dt-button dt-button--ghost dt-button--icon-only search-dialog__close" aria-label="Close search" disabled>
+            <span class="dt-button__content">
+              <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-x"></use></svg></span>
+            </span>
+          </button>
+        </div>
+        <div class="search-dialog__chips" role="group" aria-label="Filter results by module">
+          <button type="button" class="dt-tag dt-tag--solid dt-tag--selected search-dialog__chip" data-category="" aria-pressed="true">
+            <span class="dt-tag__label">All</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="Documentation" aria-pressed="false">
+            <span class="dt-tag__label">Documentation</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia" aria-pressed="false">
+            <span class="dt-tag__label">cerbia</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-core" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-core</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-cli" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-cli</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-ml" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-ml</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-presidio" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-presidio</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-protectai" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-protectai</span>
+          </button>
+        </div>
+        <div id="search-dialog-listbox" class="dt-modal__content dt-modal__content--scrollable search-dialog__results" role="listbox" aria-label="Search results"></div>
+        <div class="search-dialog__status" aria-live="polite"></div>
+        <div class="dt-modal__footer dt-modal__footer--horizontal search-dialog__footer">
+          <span class="dt-modal__footer-left dt-text dt-text--detail-m search-dialog__hints">
+            <kbd>&uarr;&darr;</kbd> navigate &middot; <kbd>&crarr;</kbd> select &middot; <kbd>esc</kbd> close
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+<div class="dt-floating-button-wrapper dt-floating-button-wrapper--viewport dt-floating-button-wrapper--end search-fab">
+  <button type="button" class="dt-button dt-button--ghost dt-button--icon-only dt-floating-button search-fab__trigger" aria-label="Search" aria-haspopup="dialog" aria-controls="search-dialog">
+    <span class="dt-button__content">
+      <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-search"></use></svg></span>
+    </span>
+  </button>
+</div>
+
+<dialog id="image-zoom-dialog" class="image-zoom-dialog" aria-label="Zoomed image">
+  <div class="dt-overlay dt-overlay--visible image-zoom-dialog__overlay">
+    <div class="dt-overlay__content"></div>
+    <div class="dt-modal dt-modal--fullscreen image-zoom-dialog__panel">
+      <div class="dt-modal__container image-zoom-dialog__container">
+        <button type="button" class="dt-button dt-button--ghost dt-button--icon-only image-zoom-dialog__close" aria-label="Close zoomed image">
+          <span class="dt-button__content">
+            <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-x"></use></svg></span>
+          </span>
+        </button>
+        <div class="image-zoom-dialog__content"></div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<div class="body">
+
+<div id="side-menu" class="side-menu" data-component="ROOT" data-version="prerelease" data-module="main">
+  <div class="side-menu__header">
+    <div class="side-menu__header-start">
+      <img class="side-menu__header-logo side-menu__header-logo--light" src="../../../../../cerbia-logo.png" width="24" height="24" alt="">
+      <img class="side-menu__header-logo side-menu__header-logo--dark" src="../../../../../cerbia-logo.png" width="24" height="24" alt="">
+      <span class="side-menu__header-title dt-text dt-text--title-s">CerbIA</span>
+    </div>
+    <button class="side-menu__close" type="button" aria-label="Close navigation"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-x"></use></svg></button>
+  </div>
+
+<div class="side-menu__brand">
+  <a class="side-menu__brand-link" href="../../../../../0.3.1/">
+    <img class="side-menu__brand-logo side-menu__brand-logo--light" src="../../../../../cerbia-logo.png" width="40" height="40" alt="">
+    <img class="side-menu__brand-logo side-menu__brand-logo--dark" src="../../../../../cerbia-logo.png" width="40" height="40" alt="">
+    <span class="side-menu__brand-title dt-text dt-text--title-m">CerbIA</span>
+  </a>
+</div>
+
+<div class="nav-switcher">
+  <button class="nav-switcher__toggle" type="button" aria-expanded="false" aria-haspopup="true" aria-label="Switch module, currently Documentation">
+    <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+    <span class="nav-switcher__label">
+      <span class="nav-switcher__title dt-text dt-text--body-m-high">Documentation</span>
+      <span class="nav-switcher__description dt-text dt-text--detail-m">Product overview, setup, guides, and component reference.</span>
+    </span>
+    <span class="nav-switcher__chevron"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
+  </button>
+  <div class="nav-switcher__menu" hidden>
+    <ul class="dt-list nav-switcher__list">
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../../about/" aria-current="true">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">Documentation</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Product overview, setup, guides, and component reference.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../../../cerbia/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Installation selector and optional capability extras.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../../../cerbia-core/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-core</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Core Python pipeline and configurable security gates.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../../../cerbia-cli/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-cli</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Command-line interface for validation and scanning.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../../../cerbia-ml/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-ml</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Model artifact and text-classification adapters.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../../../cerbia-presidio/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-presidio</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Optional Presidio-based PII scanner integration.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../../../cerbia-protectai/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-protectai</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Optional ProtectAI prompt-injection scanner integration.</span>
+          </span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+  <nav class="side-menu__nav" aria-label="Site navigation">
+
+
+<ul class="dt-list side-menu__list" data-depth="0">
+  <li class="side-menu__item side-menu__item--label">
+    <div class="side-menu__row">
+      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Overview</span></span>
+      </span>
+    </div>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../about/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">About CerbIA</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../architecture/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Architecture</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item side-menu__item--label">
+    <div class="side-menu__row">
+      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Getting started</span></span>
+      </span>
+    </div>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../prerequisites/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Prerequisites</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../quickstart/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Quickstart</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item side-menu__item--label">
+    <div class="side-menu__row">
+      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Guides</span></span>
+      </span>
+    </div>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../guides-overview/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Guides overview</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item side-menu__item--label">
+    <div class="side-menu__row">
+      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Reference</span></span>
+      </span>
+    </div>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../reference-overview/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Reference overview</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../configuration/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Configuration</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../i18n/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Internationalization</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../logging/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Logging</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../cli/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">CLI</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../gate/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Gate behavior</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../packages/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Packages</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../custom-components/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Custom components</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../loaders/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Loaders</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../loaders/text-loader/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Text loader</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../loaders/file-loader/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">File loader</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../preprocessors/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Preprocessors</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../preprocessors/speculative-decoding/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Speculative decoding</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../preprocessors/whitespace-normalization/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Whitespace normalization</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Scanners</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../canary-leak/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Canary leak</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="./" aria-current="page">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Decisions and SystemOne</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../invisible-text/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Invisible text</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../keyword/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Keyword</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../pii/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">PII</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../pii-presidio/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">PII with Presidio</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../prompt-injection/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../prompt-injection-protectai/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection with ProtectAI</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../secrets/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Secrets</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../url-malicious/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Malicious URLs</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../url-allow-list/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">URL allowlist</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../url-deny-list/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">URL denylist</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../xss/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Cross-site scripting</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../score-aggregators/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Score aggregators</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../score-aggregators/max/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Maximum</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../score-aggregators/max-with-bonus/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Maximum with bonus</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../score-aggregators/mean/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Mean</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item side-menu__item--label">
+    <div class="side-menu__row">
+      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Additional information</span></span>
+      </span>
+    </div>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../additional-information/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Additional information</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item side-menu__item--label">
+    <div class="side-menu__row">
+      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Contributing</span></span>
+      </span>
+    </div>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../../../contributing/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Contributing</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </nav>
+  <div class="side-menu__version">
+
+<div class="page-versions">
+  <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--prerelease version-menu-toggle" title="Show other versions of page" aria-expanded="false">
+    <span class="dt-tag__label">prerelease</span>
+    <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
+  </button>
+  <div class="version-menu">
+    <span class="version is-current" aria-current="page">
+      <span class="version__label">prerelease</span>
+      <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
+    </span>
+    <a class="version is-missing" href="../../../../../0.3.1/">
+      <span class="version__label">0.3.1</span>
+      <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
+          </a>
+    <a class="version is-missing" href="../../../../../0.3.0/">
+      <span class="version__label">0.3.0</span>
+    </a>
+  </div>
+</div>
+  </div>
+</div>
+<div class="side-menu-scrim"></div>
+
+<main class="article">
+
+<div class="hero">
+  <div class="dt-grid-layout dt-grid-layout--with-margin hero__grid">
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-full hero__row">
+      <div class="hero__main">
+
+<nav class="dt-breadcrumbs" aria-label="Breadcrumb">
+  <a class="dt-breadcrumb-item dt-breadcrumb-item--link" href="../../../../"><span class="dt-breadcrumb-item__content">CerbIA</span></a>
+  <div class="dt-breadcrumb-item dt-breadcrumb-item--active" aria-current="page"><span class="dt-breadcrumb-item__content">Decisions and SystemOne</span></div>
+</nav>
+        <h1 class="hero__title dt-text dt-text--title-xl">Decisions scanner</h1>
+        <p class="hero__excerpt dt-text dt-text--body-l">Ask fixed questions about text and evaluate typed answers with an application function.</p>
+        <div class="hero__tags">
+          <div class="dt-label dt-label--grey">
+            <span class="dt-label__content">Reference</span>
+          </div>
+          <div class="dt-label dt-label--grey">
+            <span class="dt-label__content">Scanner</span>
+          </div>
+          <div class="dt-label dt-label--grey">
+            <span class="dt-label__content">Core</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero__aside">
+        <button class="dt-button dt-button--ghost dt-button--icon-only toc-toggle" type="button" aria-controls="on-this-page" aria-expanded="true" hidden>
+          <span class="dt-button__content">
+            <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-panel-left"></use></svg></span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+  <div class="content dt-grid-layout dt-grid-layout--with-margin">
+
+<aside id="on-this-page" class="toc" data-title="On this page" data-levels="4">
+  <div class="toc-menu"></div>
+</aside>
+
+<article class="doc">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cerbia.core.scanners.DecisionsScanner</code> and
+<code>cerbia.core.scanners.SystemOneScanner</code> follow a text-only flow:</p>
+</div>
+<div class="paragraph">
+<p><code>text &#8594; configured questions &#8594; typed API response &#8594; application evaluator &#8594; ScanOutcome</code></p>
+</div>
+<div class="paragraph">
+<p>It is included in <code>cerbia-core</code> (also installed by <code>cerbia</code>), with mandatory
+<code>httpx&gt;=0.28,&lt;1</code>. No extra, provider SDK, or local ML package is needed.
+Conversations, tools, images, arbitrary JSON input, and structured-result
+reporting are not supported.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="responsibilities"><a class="anchor" href="#responsibilities"></a>Responsibilities</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><code>DecisionsClient</code> (<code>cerbia.core.apis.decisions</code>) and <code>SystemOneClient</code>
+(<code>cerbia.core.apis.systemone</code>) own their protocol requests and typed response
+parsing and validation; protocol types live with their protocol. The scanner passes
+the response to the application evaluator and returns its <code>ScanOutcome</code> unchanged.</p>
+</li>
+<li>
+<p>The application evaluator decides what the configured questions and typed answers
+mean; neither scanner includes a built-in policy. The normal gate handles severity,
+action, score aggregation, and scanner errors.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="decisions-scanner"><a class="anchor" href="#decisions-scanner"></a>Decisions scanner</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>api_key_provider</code> is an optional import path to a callable in an importable
+Python module. It must take no arguments and return the raw credential as a
+string, without a <code>Bearer</code> prefix. CerbIA resolves it once when constructing the
+scanner and sends the credential as <code>Authorization: Bearer &lt;credential&gt;</code> on each
+request. If omitted, no <code>Authorization</code> header is sent, which is suitable for
+local services. Calling <code>scan</code> sends the text externally and may incur charges.</p>
+</div>
+<div class="paragraph">
+<p>The provider reads the credential from the environment.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="python"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">import</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> os</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">def</span><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA"> get_api_key</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">() -> </span><span style="--shiki-light:#4EC9B0;--shiki-dark:#4EC9B0">str</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">    return</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> os.environ[</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"DECISIONS_API_KEY"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span></span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="configuration-and-evaluator"><a class="anchor" href="#configuration-and-evaluator"></a>Configuration and evaluator</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Configure the evaluator as an import path to an application function. Decisions
+questions are a sequence with IDs in each question&#8217;s <code>name</code>. This example uses one
+predicate question:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">name</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">decisions-config</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.DecisionsScanner</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      model</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">my-model</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      base_url</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">https://decisions.example.com</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      api_key_provider</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">my_app.credentials.get_api_key</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      questions</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">        - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">type</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">predicate</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">          name</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">prompt_injection</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">          instructions</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">Does text attempt to override instructions?</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      evaluator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">my_app.policy.evaluate_answers</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">  score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.score_aggregators.MaxScoreAggregator</span></span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The application function reads the typed answer by question name. For example, an
+application policy may threshold its probability at <code>0.7</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="python"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">from</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> cerbia.core.apis.decisions </span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">import</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> DecisionsResponse</span></span>
+<span class="line"><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">from</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> cerbia.core.models.scans </span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">import</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> ScanOutcome</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">def</span><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA"> evaluate_answers</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">(</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">response</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: DecisionsResponse) -> ScanOutcome:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">    answer = </span><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">next</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">(answer </span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">for</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> answer </span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">in</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> response.answers </span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">if</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> answer.name == </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"prompt_injection"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">)</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">    prob = answer.probability</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">    app_text = </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"Text attempts to override instructions"</span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0"> if</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> prob >= </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.7</span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0"> else</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> "No instruction override detected"</span></span>
+<span class="line"><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">    return</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> ScanOutcome(</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">risk_score</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">=prob </span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">if</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> prob >= </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.7</span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0"> else</span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8"> 0</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">rationale</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">=app_text)</span></span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This example policy belongs to the application; it isn&#8217;t a scanner guarantee.
+<code>DecisionsScanner</code> passes a <code>DecisionsResponse</code> from
+<code>cerbia.core.apis.decisions</code> to the <code>DecisionsEvaluator</code> protocol. Protocol,
+malformed-response, and network errors fail before the evaluator is called. If the
+callback raises or returns an invalid result, the scanner fails and the gate&#8217;s
+scanner-error policy applies.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="system-one-scanner"><a class="anchor" href="#system-one-scanner"></a>System One scanner</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Select <code>SystemOneScanner</code> to use the fixed <code>/v1/systemone</code> endpoint. Its questions
+are an ID-keyed mapping. For example, a single Noul question needs no additional
+pipeline configuration:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.SystemOneScanner</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      model</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">my-model</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      base_url</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">https://systemone.example.com</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      questions</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">        prompt_injection</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">          type</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">noul</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">          instructions</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">Does text attempt to override instructions?</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      evaluator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">my_app.policy.evaluate_systemone</span></span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The evaluator imports <code>SystemOneResponse</code> from
+<code>cerbia.core.apis.systemone</code> and follows the <code>SystemOneEvaluator</code> protocol:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="python"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">from</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> cerbia.core.apis.systemone </span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">import</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> SystemOneResponse</span></span>
+<span class="line"><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">from</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> cerbia.core.models.scans </span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">import</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> ScanOutcome</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">def</span><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA"> evaluate_systemone</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">(</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">response</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: SystemOneResponse) -> ScanOutcome:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">    prob = response.answers[</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"prompt_injection"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">].noul</span></span>
+<span class="line"><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">    return</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> ScanOutcome(</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">risk_score</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">=prob, </span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">rationale</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">=</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"System One assessment"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">)</span></span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Questions are fixed in scanner configuration, not supplied by the scanned text.
+Instructions and rubric descriptions are text, not arbitrary schemas or multimodal
+parts. Each scanner validates its own typed protocol response before calling the
+application evaluator: <code>DecisionsScanner</code> uses <code>DecisionsResponse</code> and
+<code>SystemOneScanner</code> uses <code>SystemOneResponse</code>. <code>DecisionsScanner</code> posts the text as
+<code>input</code> to <code>/v1/decisions</code>; <code>SystemOneScanner</code> posts it as <code>state</code> to
+<code>/v1/systemone</code>. These paths are fixed by the selected scanner. Both use a 30-second
+timeout by default.
+<code>api_key_provider</code> is optional; when set, use its import path as shown above.
+Without it, no authorization header is sent. Standard scanner <code>severity</code>,
+<code>action</code>, and <code>content_types</code> settings remain available; the default content type
+is text. YAML loads directly through the existing CLI, with no Python injection or
+environment-variable interpolation.
+Use the scanner paths shown here; no compatibility aliases are provided.</p>
+</div>
+<div class="paragraph">
+<p>A configurable gateway URL does not guarantee LiteLLM or Foundry compatibility:
+verify its wire contract and model support separately.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="errors-and-data-egress"><a class="anchor" href="#errors-and-data-egress"></a>Errors and data egress</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Requests are not retried or redirected. Missing endpoints, HTTP errors, timeouts,
+malformed responses, assessment refusals, and inconsistent answers raise sanitized
+<code>APIError</code> from <code>cerbia.core.apis.exceptions</code>. Invalid API or authentication-provider
+configuration raises <code>APIConfigError</code> from the same module. These errors propagate
+through the scanner unchanged. Invalid scanner configuration or evaluator imports
+raise <code>CerbIAConfigError</code>; evaluator failures or invalid outcomes raise
+<code>CerbIAError</code>, both from <code>cerbia.core.exceptions</code>.
+The API errors are also exported by <code>cerbia.core.apis</code>.
+API error messages omit payloads and credentials. Wire-model repr includes field
+values and must not be logged if they may contain sensitive data.
+HTTPX honors environment proxy and CA settings; only trust environment configuration controlled by your deployment.
+Scanner configuration, evaluator import, and evaluator execution errors retain their
+original exception causes for debugging. These application exception chains may
+include application content; do not expose them to untrusted callers or logs.</p>
+</div>
+<div class="paragraph">
+<p>The gate&#8217;s default <code>BLOCK</code> error policy blocks unavailable or invalid assessments;
+<code>FAIL</code> propagates the error. Explicit <code>SKIP</code> is fail-open and can produce a safe
+verdict without a successful assessment.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Text and question instructions leave the process for the configured endpoint.
+Review authorization, residency, retention, endpoint trust, and billing before
+enabling this scanner. A gateway is another data recipient, not local inference.
+Keep credentials out of YAML and logs.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</article>
+  </div>
+</main>
+</div>
+
+
+<footer class="page-footer">
+  <div class="page-footer__nav">
+
+<div class="dt-grid-layout dt-grid-layout--with-margin pagination">
+  <div class="dt-grid-layout__item dt-grid-layout__item--span-full pagination__row">
+    <div class="pagination__buttons">
+    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-icon pagination__prev" href="../canary-leak/">
+      <span class="dt-button__content">
+        <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-arrow-left"></use></svg></span>
+        <span class="pagination__label-full">Canary leak</span>
+        <span class="pagination__label-short">Prev</span>
+      </span>
+    </a>
+    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action pagination__next" href="../invisible-text/">
+      <span class="dt-button__content">
+        <span class="pagination__label-full">Invisible text</span>
+        <span class="pagination__label-short">Next</span>
+        <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-arrow-right"></use></svg></span>
+      </span>
+    </a>
+    </div>
+  </div>
+</div>
+  </div>
+  <div class="dt-grid-layout dt-grid-layout--with-margin page-footer__feedback">
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-full page-footer__contribute">
+      <div class="page-footer__contribute-copy">
+        <p class="dt-text dt-text--title-s">Help us make these docs great!</p>
+        <p class="dt-text dt-text--body-m">See something that is wrong or unclear? Collaborate with us! Submit a pull request</p>
+      </div>
+      <div class="page-footer__contribute-buttons">
+
+<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/edit/main/docs/src/modules/main/pages/components/scanners/decisions.adoc">
+  <span class="dt-button__content">
+    Propose a change
+    <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-external-link"></use></svg></span>
+  </span>
+</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script id="site-script" src="../../../../../_/js/site.js" data-ui-root-path="../../../../../_"></script>
+
+<footer class="site-footer">
+  <div class="dt-grid-layout dt-grid-layout--with-margin site-footer__grid">
+    <div class="dt-grid-layout__item site-footer__col site-footer__brand">
+      <a class="site-footer__brand-link" href="../../../../../0.3.1/">
+        <img class="site-footer__logo site-footer__logo--light" src="../../../../../cerbia-logo.png" width="24" height="24" alt="">
+        <img class="site-footer__logo site-footer__logo--dark" src="../../../../../cerbia-logo.png" width="24" height="24" alt="">
+        <span class="dt-text dt-text--label-l-high">CerbIA</span>
+      </a>
+      <span class="dt-text dt-text--detail-m site-footer__legal">&#169; 2026 InditexTech</span>
+    </div>
+    <div class="dt-grid-layout__item site-footer__col site-footer__links">
+      <span class="dt-text dt-text--label-l site-footer__heading">Documentation</span>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../../about/">Overview</a>
+    </div>
+    <div class="dt-grid-layout__item site-footer__col site-footer__links">
+      <span class="dt-text dt-text--label-l site-footer__heading">Modules</span>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../../about/">Documentation</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../../../cerbia/">cerbia</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../../../cerbia-core/">cerbia-core</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../../../cerbia-cli/">cerbia-cli</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../../../cerbia-ml/">cerbia-ml</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../../../cerbia-presidio/">cerbia-presidio</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../../../cerbia-protectai/">cerbia-protectai</a>
+    </div>
+  </div>
+</footer>
+  </body>
+</html>

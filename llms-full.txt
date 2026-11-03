@@ -101,9 +101,11 @@ pip install "cerbia[protectai]"
 pip install "cerbia[all]"
 ```
 
-The `cli`, `ml`, `presidio`, and `protectai` extras select their matching distributions. `all` installs every optional package. You can also install a distribution directly, such as `pip install cerbia-cli` or `pip install cerbia-presidio`.
+The `cli`, `ml`, `presidio`, and `protectai` extras select their matching distributions. `all` installs every optional capability. Decisions/SystemOne HTTP support is included in core with no extra needed. You can also install a distribution directly, such as `pip install cerbia-cli` or `pip install cerbia-presidio`.
 
 After installing an extra, use the import namespace it supplies: `cerbia.core`, `cerbia.cli`, `cerbia.ml`, `cerbia.presidio`, or `cerbia.protectai`. The `cerbia` executable comes from `cerbia-cli`, not from a top-level Python module.
+
+The [Decisions/SystemOne core scanner](../main/components/scanners/decisions/) sends evidence to a configured external endpoint; review its data-handling and service-cost implications before enabling it.
 
 ## Next steps
 
@@ -147,7 +149,11 @@ Source: /prerelease/cerbia-core/
 pip install cerbia-core
 ```
 
-The core package requires Python 3.12 or later and Pydantic. It does not require the optional ML or NLP runtimes; those capabilities are provided by separate distributions.
+The core package requires Python 3.12 or later, Pydantic, and `httpx>=0.28,<1`. It does not require the optional ML or NLP runtimes; those capabilities are provided by separate distributions.
+
+### Decisions/SystemOne scanner
+
+`DecisionScanner` asks configured questions about text and evaluates the answers using risk rules. Questions live in `cerbia.core.apis.decisions`; the evaluator and rules live in `cerbia.core.scanners.decisions`. See the [scanner reference](../main/components/scanners/decisions/).
 
 ## Create and run a pipeline
 
@@ -930,6 +936,8 @@ CerbIA is distributed as a core package, a command-line package, and optional in
 - [cerbia-presidio](../../cerbia-presidio/)
 - [cerbia-protectai](../../cerbia-protectai/)
 
+Decisions/SystemOne is a core scanner, not a separate distribution. Install `cerbia-core` or `cerbia`; HTTP support is included as a required core dependency. See [the scanner reference](../components/scanners/decisions/).
+
 For product-wide installation requirements and the first working example, see the [prerequisites](../prerequisites/) and [quickstart](../quickstart/). Package APIs stay in their respective modules, rather than being repeated here.
 
 ---
@@ -1205,6 +1213,7 @@ Every scanner accepts `severity`, `action`, and `content_types`, although their 
 | --- | --- | --- |
 | [Canary leak](canary-leak/) | Detect protected marker tokens. | `BLOCK` |
 | [Invisible text](invisible-text/) | Find hidden Unicode instructions. | `BLOCK` |
+| [Decisions and SystemOne](decisions/) | Evaluate typed evidence through a configured external HTTP service. | `BLOCK` |
 | [Keyword](keyword/) | Match suspicious patterns and code-oriented keywords. | `BLOCK` |
 | [PII](pii/) | Detect regex-based personal-data patterns. | `WARN` |
 | [Presidio PII](pii-presidio/) | Detect English NLP entities. | `BLOCK` |
@@ -1511,6 +1520,115 @@ scanners:
       canary_tokens: ["marker-12345678"]
       case_insensitive: true
 ```
+
+---
+
+# Decisions scanner
+
+Source: /prerelease/main/components/scanners/decisions/
+
+`cerbia.core.scanners.DecisionsScanner` and `cerbia.core.scanners.SystemOneScanner` follow a text-only flow:
+
+`text → configured questions → typed API response → application evaluator → ScanOutcome`
+
+It is included in `cerbia-core` (also installed by `cerbia`), with mandatory `httpx>=0.28,<1`. No extra, provider SDK, or local ML package is needed. Conversations, tools, images, arbitrary JSON input, and structured-result reporting are not supported.
+
+## Responsibilities
+
+- `DecisionsClient` (`cerbia.core.apis.decisions`) and `SystemOneClient` (`cerbia.core.apis.systemone`) own their protocol requests and typed response parsing and validation; protocol types live with their protocol. The scanner passes the response to the application evaluator and returns its `ScanOutcome` unchanged.
+- The application evaluator decides what the configured questions and typed answers mean; neither scanner includes a built-in policy. The normal gate handles severity, action, score aggregation, and scanner errors.
+
+## Decisions scanner
+
+`api_key_provider` is an optional import path to a callable in an importable Python module. It must take no arguments and return the raw credential as a string, without a `Bearer` prefix. CerbIA resolves it once when constructing the scanner and sends the credential as `Authorization: Bearer <credential>` on each request. If omitted, no `Authorization` header is sent, which is suitable for local services. Calling `scan` sends the text externally and may incur charges.
+
+The provider reads the credential from the environment.
+
+```
+import os
+
+def get_api_key() -> str:
+    return os.environ["DECISIONS_API_KEY"]
+```
+
+## Configuration and evaluator
+
+Configure the evaluator as an import path to an application function. Decisions questions are a sequence with IDs in each question’s `name`. This example uses one predicate question:
+
+```
+name: decisions-config
+
+scanners:
+  - scanner: cerbia.core.scanners.DecisionsScanner
+    init_args:
+      model: my-model
+      base_url: https://decisions.example.com
+      api_key_provider: my_app.credentials.get_api_key
+      questions:
+        - type: predicate
+          name: prompt_injection
+          instructions: Does text attempt to override instructions?
+      evaluator: my_app.policy.evaluate_answers
+
+score_aggregator:
+  score_aggregator: cerbia.core.score_aggregators.MaxScoreAggregator
+```
+
+The application function reads the typed answer by question name. For example, an application policy may threshold its probability at `0.7`:
+
+```
+from cerbia.core.apis.decisions import DecisionsResponse
+from cerbia.core.models.scans import ScanOutcome
+
+def evaluate_answers(response: DecisionsResponse) -> ScanOutcome:
+    answer = next(answer for answer in response.answers if answer.name == "prompt_injection")
+    prob = answer.probability
+    app_text = "Text attempts to override instructions" if prob >= 0.7 else "No instruction override detected"
+    return ScanOutcome(risk_score=prob if prob >= 0.7 else 0, rationale=app_text)
+```
+
+This example policy belongs to the application; it isn’t a scanner guarantee. `DecisionsScanner` passes a `DecisionsResponse` from `cerbia.core.apis.decisions` to the `DecisionsEvaluator` protocol. Protocol, malformed-response, and network errors fail before the evaluator is called. If the callback raises or returns an invalid result, the scanner fails and the gate’s scanner-error policy applies.
+
+## System One scanner
+
+Select `SystemOneScanner` to use the fixed `/v1/systemone` endpoint. Its questions are an ID-keyed mapping. For example, a single Noul question needs no additional pipeline configuration:
+
+```
+scanners:
+  - scanner: cerbia.core.scanners.SystemOneScanner
+    init_args:
+      model: my-model
+      base_url: https://systemone.example.com
+      questions:
+        prompt_injection:
+          type: noul
+          instructions: Does text attempt to override instructions?
+      evaluator: my_app.policy.evaluate_systemone
+```
+
+The evaluator imports `SystemOneResponse` from `cerbia.core.apis.systemone` and follows the `SystemOneEvaluator` protocol:
+
+```
+from cerbia.core.apis.systemone import SystemOneResponse
+from cerbia.core.models.scans import ScanOutcome
+
+def evaluate_systemone(response: SystemOneResponse) -> ScanOutcome:
+    prob = response.answers["prompt_injection"].noul
+    return ScanOutcome(risk_score=prob, rationale="System One assessment")
+```
+
+Questions are fixed in scanner configuration, not supplied by the scanned text. Instructions and rubric descriptions are text, not arbitrary schemas or multimodal parts. Each scanner validates its own typed protocol response before calling the application evaluator: `DecisionsScanner` uses `DecisionsResponse` and `SystemOneScanner` uses `SystemOneResponse`. `DecisionsScanner` posts the text as `input` to `/v1/decisions`; `SystemOneScanner` posts it as `state` to `/v1/systemone`. These paths are fixed by the selected scanner. Both use a 30-second timeout by default. `api_key_provider` is optional; when set, use its import path as shown above. Without it, no authorization header is sent. Standard scanner `severity`, `action`, and `content_types` settings remain available; the default content type is text. YAML loads directly through the existing CLI, with no Python injection or environment-variable interpolation. Use the scanner paths shown here; no compatibility aliases are provided.
+
+A configurable gateway URL does not guarantee LiteLLM or Foundry compatibility: verify its wire contract and model support separately.
+
+## Errors and data egress
+
+Requests are not retried or redirected. Missing endpoints, HTTP errors, timeouts, malformed responses, assessment refusals, and inconsistent answers raise sanitized `APIError` from `cerbia.core.apis.exceptions`. Invalid API or authentication-provider configuration raises `APIConfigError` from the same module. These errors propagate through the scanner unchanged. Invalid scanner configuration or evaluator imports raise `CerbIAConfigError`; evaluator failures or invalid outcomes raise `CerbIAError`, both from `cerbia.core.exceptions`. The API errors are also exported by `cerbia.core.apis`. API error messages omit payloads and credentials. Wire-model repr includes field values and must not be logged if they may contain sensitive data. HTTPX honors environment proxy and CA settings; only trust environment configuration controlled by your deployment. Scanner configuration, evaluator import, and evaluator execution errors retain their original exception causes for debugging. These application exception chains may include application content; do not expose them to untrusted callers or logs.
+
+The gate’s default `BLOCK` error policy blocks unavailable or invalid assessments; `FAIL` propagates the error. Explicit `SKIP` is fail-open and can produce a safe verdict without a successful assessment.
+
+> **Warning**
+> Text and question instructions leave the process for the configured endpoint. Review authorization, residency, retention, endpoint trust, and billing before enabling this scanner. A gateway is another data recipient, not local inference. Keep credentials out of YAML and logs.
 
 ---
 
@@ -3215,33 +3333,6 @@ loaders:
 
 ---
 
-# Whitespace normalization
-
-Source: /0.3.1/main/components/preprocessors/whitespace-normalization/
-
-`cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor` reduces whitespace patterns commonly used to split words or hide instructions while preserving the entry’s source and lineage.
-
-For each entry, it applies a fixed sequence: replaces mid-line tabs, rejoins letter-spaced text, collapses long space runs, then collapses long newline runs. It returns the original entry object when no rule changes the text. Otherwise, it creates a derived entry and records the applied transformations in `metadata.preprocessors["whitespace_normalization"]`.
-
-## Parameters
-
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `max_consecutive_spaces` | `6` | A run of at least this many spaces is collapsed to one space. |
-| `max_consecutive_newlines` | `6` | A run of at least this many newlines is collapsed to two newlines. |
-
-```
-preprocessors:
-  - preprocessor: cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor
-    init_args:
-      max_consecutive_spaces: 6
-      max_consecutive_newlines: 6
-```
-
-Run this preprocessor before text-oriented scanners when inputs can contain letter-spaced words, excessive blank space, or tab-based obfuscation. It preserves entry count and ordering. See [Speculative decoding](../speculative-decoding/) for decoding-based transformations.
-
----
-
 # Speculative decoding
 
 Source: /0.3.1/main/components/preprocessors/speculative-decoding/
@@ -3390,6 +3481,33 @@ rejections:
 - The preprocessor improves scanner visibility. It does not guarantee that all encoded content is recovered or that every recovered string is relevant.
 
 See [Whitespace normalization](../whitespace-normalization/) for the other core preprocessor and [Configuration](../../../configuration/) for pipeline ordering.
+
+---
+
+# Whitespace normalization
+
+Source: /0.3.1/main/components/preprocessors/whitespace-normalization/
+
+`cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor` reduces whitespace patterns commonly used to split words or hide instructions while preserving the entry’s source and lineage.
+
+For each entry, it applies a fixed sequence: replaces mid-line tabs, rejoins letter-spaced text, collapses long space runs, then collapses long newline runs. It returns the original entry object when no rule changes the text. Otherwise, it creates a derived entry and records the applied transformations in `metadata.preprocessors["whitespace_normalization"]`.
+
+## Parameters
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `max_consecutive_spaces` | `6` | A run of at least this many spaces is collapsed to one space. |
+| `max_consecutive_newlines` | `6` | A run of at least this many newlines is collapsed to two newlines. |
+
+```
+preprocessors:
+  - preprocessor: cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor
+    init_args:
+      max_consecutive_spaces: 6
+      max_consecutive_newlines: 6
+```
+
+Run this preprocessor before text-oriented scanners when inputs can contain letter-spaced words, excessive blank space, or tab-based obfuscation. It preserves entry count and ordering. See [Speculative decoding](../speculative-decoding/) for decoding-based transformations.
 
 ---
 
@@ -4310,28 +4428,6 @@ cerbia validate examples/cli-usage/config.cerbia.yaml --log-level DEBUG
 
 ---
 
-# Contributing
-
-Source: /0.3.0/main/contributing/
-
-Contributions to CerbIA include bug reports, documentation improvements, and code changes. Start with the path that fits your contribution, then use the repository’s contribution guide for the full process.
-
-## Ways to contribute
-
-- **Report a bug or suggest a feature:** open an issue in the [issue tracker](https://github.com/InditexTech/cerbia/issues) and check for an existing discussion.
-- **Improve the documentation:** report an issue or propose a focused change through a pull request.
-- **Contribute code:** read the contribution guide before opening a pull request.
-
-## Before you start
-
-- [CONTRIBUTING.md](https://github.com/InditexTech/cerbia/blob/main/CONTRIBUTING.md) describes the CLA requirement, issue discussion, branching, testing, and pull request process. The CLA instructions link to the [Inditex FOSS contribution guide](https://github.com/InditexTech/foss/blob/main/CONTRIBUTING.md).
-- [CODE_OF_CONDUCT.md](https://github.com/InditexTech/cerbia/blob/main/CODE_OF_CONDUCT.md) links to the community conduct rules and contact.
-- [LICENSE](https://github.com/InditexTech/cerbia/blob/main/LICENSE) states the project’s Apache-2.0 license.
-
-For the documented development workflow, see [Guides](../guides-overview/). For the product scope before contributing, see [About CerbIA](../about/).
-
----
-
 # Configuration
 
 Source: /0.3.0/main/configuration/
@@ -4536,6 +4632,28 @@ A successful command means the YAML mapping and root schema are valid, required 
 ## Related references
 
 See [Architecture](../architecture/), [Gate behavior](../gate/), and [Packages](../packages/) for pipeline and package details. See [Custom components](../components/custom-components/) to configure externally provided loaders, preprocessors, scanners, and score aggregators.
+
+---
+
+# Contributing
+
+Source: /0.3.0/main/contributing/
+
+Contributions to CerbIA include bug reports, documentation improvements, and code changes. Start with the path that fits your contribution, then use the repository’s contribution guide for the full process.
+
+## Ways to contribute
+
+- **Report a bug or suggest a feature:** open an issue in the [issue tracker](https://github.com/InditexTech/cerbia/issues) and check for an existing discussion.
+- **Improve the documentation:** report an issue or propose a focused change through a pull request.
+- **Contribute code:** read the contribution guide before opening a pull request.
+
+## Before you start
+
+- [CONTRIBUTING.md](https://github.com/InditexTech/cerbia/blob/main/CONTRIBUTING.md) describes the CLA requirement, issue discussion, branching, testing, and pull request process. The CLA instructions link to the [Inditex FOSS contribution guide](https://github.com/InditexTech/foss/blob/main/CONTRIBUTING.md).
+- [CODE_OF_CONDUCT.md](https://github.com/InditexTech/cerbia/blob/main/CODE_OF_CONDUCT.md) links to the community conduct rules and contact.
+- [LICENSE](https://github.com/InditexTech/cerbia/blob/main/LICENSE) states the project’s Apache-2.0 license.
+
+For the documented development workflow, see [Guides](../guides-overview/). For the product scope before contributing, see [About CerbIA](../about/).
 
 ---
 
@@ -5091,33 +5209,6 @@ loaders:
 
 ---
 
-# Whitespace normalization
-
-Source: /0.3.0/main/components/preprocessors/whitespace-normalization/
-
-`cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor` reduces whitespace patterns commonly used to split words or hide instructions while preserving the entry’s source and lineage.
-
-For each entry, it applies a fixed sequence: replaces mid-line tabs, rejoins letter-spaced text, collapses long space runs, then collapses long newline runs. It returns the original entry object when no rule changes the text. Otherwise, it creates a derived entry and records the applied transformations in `metadata.preprocessors["whitespace_normalization"]`.
-
-## Parameters
-
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `max_consecutive_spaces` | `6` | A run of at least this many spaces is collapsed to one space. |
-| `max_consecutive_newlines` | `6` | A run of at least this many newlines is collapsed to two newlines. |
-
-```
-preprocessors:
-  - preprocessor: cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor
-    init_args:
-      max_consecutive_spaces: 6
-      max_consecutive_newlines: 6
-```
-
-Run this preprocessor before text-oriented scanners when inputs can contain letter-spaced words, excessive blank space, or tab-based obfuscation. It preserves entry count and ordering. See [Speculative decoding](../speculative-decoding/) for decoding-based transformations.
-
----
-
 # Speculative decoding
 
 Source: /0.3.0/main/components/preprocessors/speculative-decoding/
@@ -5266,6 +5357,33 @@ rejections:
 - The preprocessor improves scanner visibility. It does not guarantee that all encoded content is recovered or that every recovered string is relevant.
 
 See [Whitespace normalization](../whitespace-normalization/) for the other core preprocessor and [Configuration](../../../configuration/) for pipeline ordering.
+
+---
+
+# Whitespace normalization
+
+Source: /0.3.0/main/components/preprocessors/whitespace-normalization/
+
+`cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor` reduces whitespace patterns commonly used to split words or hide instructions while preserving the entry’s source and lineage.
+
+For each entry, it applies a fixed sequence: replaces mid-line tabs, rejoins letter-spaced text, collapses long space runs, then collapses long newline runs. It returns the original entry object when no rule changes the text. Otherwise, it creates a derived entry and records the applied transformations in `metadata.preprocessors["whitespace_normalization"]`.
+
+## Parameters
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `max_consecutive_spaces` | `6` | A run of at least this many spaces is collapsed to one space. |
+| `max_consecutive_newlines` | `6` | A run of at least this many newlines is collapsed to two newlines. |
+
+```
+preprocessors:
+  - preprocessor: cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor
+    init_args:
+      max_consecutive_spaces: 6
+      max_consecutive_newlines: 6
+```
+
+Run this preprocessor before text-oriented scanners when inputs can contain letter-spaced words, excessive blank space, or tab-based obfuscation. It preserves entry count and ordering. See [Speculative decoding](../speculative-decoding/) for decoding-based transformations.
 
 ---
 
@@ -5501,32 +5619,6 @@ scanners:
 
 ---
 
-# XSS scanner
-
-Source: /0.3.0/main/components/scanners/xss/
-
-`cerbia.core.scanners.XssScanner` detects HTML and script injection vectors. It normalizes HTML entities, percent encoding, and Unicode escapes before checking its built-in patterns.
-
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `html_context_aware` | `false` | Exclude matches inside `<code>`, `<pre>`, and `<textarea>` ranges. |
-| `severity` | `HIGH` | Finding severity. |
-| `action` | `BLOCK` | Finding action. |
-| `content_types` | `[TEXT, CODE]` | Accepted content types. |
-
-The highest matched vector score becomes the result score. The rationale lists up to five vector names and positions. Context-aware mode is useful when an application deliberately displays code examples and wants to reduce findings inside those markup regions.
-
-Normalization happens before pattern matching, so encoded forms of common HTML and script vectors are evaluated as well. Context-aware mode is a false-positive reduction tool, not an HTML sanitizer; the scanner reports findings and leaves application-side rendering decisions to the caller.
-
-```
-scanners:
-  - scanner: cerbia.core.scanners.XssScanner
-    init_args:
-      html_context_aware: true
-```
-
----
-
 # URL allowlist scanner
 
 Source: /0.3.0/main/components/scanners/url-allowlist/
@@ -5586,6 +5678,32 @@ scanners:
 ```
 
 Use [URL allowlist](../url-allowlist/) when known destinations should be explicitly approved rather than scored heuristically.
+
+---
+
+# XSS scanner
+
+Source: /0.3.0/main/components/scanners/xss/
+
+`cerbia.core.scanners.XssScanner` detects HTML and script injection vectors. It normalizes HTML entities, percent encoding, and Unicode escapes before checking its built-in patterns.
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `html_context_aware` | `false` | Exclude matches inside `<code>`, `<pre>`, and `<textarea>` ranges. |
+| `severity` | `HIGH` | Finding severity. |
+| `action` | `BLOCK` | Finding action. |
+| `content_types` | `[TEXT, CODE]` | Accepted content types. |
+
+The highest matched vector score becomes the result score. The rationale lists up to five vector names and positions. Context-aware mode is useful when an application deliberately displays code examples and wants to reduce findings inside those markup regions.
+
+Normalization happens before pattern matching, so encoded forms of common HTML and script vectors are evaluated as well. Context-aware mode is a false-positive reduction tool, not an HTML sanitizer; the scanner reports findings and leaves application-side rendering decisions to the caller.
+
+```
+scanners:
+  - scanner: cerbia.core.scanners.XssScanner
+    init_args:
+      html_context_aware: true
+```
 
 ---
 
