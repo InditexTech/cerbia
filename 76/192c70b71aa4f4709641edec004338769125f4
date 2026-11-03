@@ -1,0 +1,16 @@
+packages/cerbia-core/pyproject.toml
+  h_d6d31939214ddd 28
+uv.lock
+  h_d6d31939214ddd 193,198-201
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "76192c70b71aa4f4709641edec004338769125f4",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
