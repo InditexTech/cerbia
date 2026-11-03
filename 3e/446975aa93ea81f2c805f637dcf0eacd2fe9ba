@@ -1,0 +1,14 @@
+docs/src/modules/main/nav.adoc
+  h_d6d31939214ddd 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "3e446975aa93ea81f2c805f637dcf0eacd2fe9ba",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
