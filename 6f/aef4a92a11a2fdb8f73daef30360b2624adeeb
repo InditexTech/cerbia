@@ -1,0 +1,14 @@
+docs/src/modules/cerbia-core/pages/index.adoc
+  h_d6d31939214ddd 15,19-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "6faef4a92a11a2fdb8f73daef30360b2624adeeb",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
