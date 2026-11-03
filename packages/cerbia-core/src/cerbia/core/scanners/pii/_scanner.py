@@ -1,6 +1,7 @@
 import logging
 import re
 from collections.abc import Callable
+from ipaddress import AddressValueError, IPv6Address
 
 from ...exceptions import CerbIAConfigError
 from ...models.scans import MatchSpan, ScanOutcome
@@ -107,6 +108,17 @@ class PiiScanner:
         continuation = EMAIL_DOMAIN_CONTINUATION.match(match.string, match.end())
         return domain.lower() in self._email_domains and continuation is None
 
+    @staticmethod
+    def _matches_ipv6(index: int, name: str, match: re.Match[str]) -> bool:
+        if index >= len(PII_PATTERNS) or name != "IPv6":
+            return True
+
+        try:
+            IPv6Address(match.group())
+        except AddressValueError:
+            return False
+        return True
+
     def scan(self, text: str) -> ScanOutcome:
         """Scan text for personally identifiable information.
 
@@ -122,6 +134,8 @@ class PiiScanner:
         for index, (name, pattern, risk_score) in enumerate(self._patterns):
             for match in pattern.finditer(text):
                 if not self._matches_email_domain(index, name, match):
+                    continue
+                if not self._matches_ipv6(index, name, match):
                     continue
                 if (
                     self.validate_checksums

@@ -36,7 +36,7 @@ pytestmark = pytest.mark.unit
         ("Aadhaar: 1234 5678 9012", ("Aadhaar (India)",), 0.90),
         ("IMEI: 490154203237518", ("IMEI",), 0.85),
         ("IMSI: 310150123456789", ("IMSI",), 0.85),
-        ("00:1A:2B:3C:4D:5E", ("IPv6", "MAC Address"), 0.75),
+        ("00:1A:2B:3C:4D:5E", ("MAC Address",), 0.75),
         ("123e4567-e89b-12d3-a456-426614174000", ("UUID",), 0.75),
         ("1BoatSLRHtKNngkdXEeobR76b53LETtpyT", ("Bitcoin Address",), 0.80),
         ("bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080", ("Bitcoin Address (Bech32)",), 0.80),
@@ -163,3 +163,158 @@ def test_pii_scanner_preserves_configuration_when_custom_values_are_provided() -
     assert scanner.severity is Severity.CRITICAL
     assert scanner.action is Action.BLOCK
     assert scanner.content_types == (ContentType.TEXT, ContentType.CODE)
+
+
+@pytest.mark.parametrize("validate_checksums", [False, True])
+@pytest.mark.parametrize(
+    "suffix",
+    [".", ",", "]", ".Next", ".next", ".Cafe", ".cafe", ".dead", ".beef", "..Next", "...Next", "..next", "...beef"],
+)
+@pytest.mark.parametrize(
+    "address",
+    [
+        "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+        "2001:DB8:0:1:2:3:4:5",
+        "2001:db8::1",
+        "::1",
+        "::",
+        "2001:db8::",
+        "1:2:3:4:5:6:7::",
+    ],
+)
+def test_pii_scanner_preserves_ipv6_risk_and_spans_when_address_is_valid(
+    address: str, validate_checksums: bool, suffix: str
+) -> None:
+    # Given
+    scanner = PiiScanner(validate_checksums=validate_checksums)
+    text = f"IP: [{address}{suffix} end."
+
+    # When
+    result = scanner.scan(text)
+
+    # Then
+    assert result.risk_score == 0.70
+    assert result.rationale == "PII detected (1 match(es)): IPv6 (1)"
+    assert [(match.start, match.end) for match in result.matches] == [(5, 5 + len(address))]
+
+
+@pytest.mark.parametrize("validate_checksums", [False, True])
+@pytest.mark.parametrize(
+    ("address", "valid"),
+    [
+        ("::ffff:192.0.2.1", True),
+        ("::192.0.2.1", True),
+        ("0:0:0:0:0:ffff:192.0.2.1", True),
+        ("0:0:0:0:0:0:192.0.2.1", True),
+        ("::ffff:192.0.2.999", False),
+        ("::192.0.2.999", False),
+        ("0:0:0:0:0:ffff:192.0.2.999", False),
+        ("0:0:0:0:0:0:192.0.2.999", False),
+        ("::ffff:999.0.2.1", False),
+        ("::ffff:192.0.2", False),
+        ("::ffff:192.0.2.1.5", False),
+        ("::ffff:192..2.1", False),
+        ("::ffff:192.0.2.xyz", False),
+        ("::ffff:192.0.2.01", False),
+    ],
+)
+def test_pii_scanner_validates_complete_ipv6_when_address_has_dotted_tail(
+    address: str, valid: bool, validate_checksums: bool
+) -> None:
+    # Given
+    scanner = PiiScanner(validate_checksums=validate_checksums)
+    text = f"IP: [{address}], end."
+
+    # When
+    result = scanner.scan(text)
+
+    # Then: IPv4 findings are independent of IPv6 validation.
+    assert ("IPv6 (1)" in result.rationale) is valid
+    if valid:
+        assert (result.matches[-1].start, result.matches[-1].end) == (5, 5 + len(address))
+
+
+@pytest.mark.parametrize("validate_checksums", [False, True])
+@pytest.mark.parametrize(
+    "text",
+    [
+        "ab:cd",
+        "1:2:3:4:5:6:7",
+        "1:2:3:4:5:6:7:8:9",
+        "2001:db8::1::2",
+        "2001:db8:::1",
+        "2001:db8::12345",
+        "12345::1",
+        "2001:db8::gggg",
+        "x2001:db8::1",
+        "2001:db8::1g",
+        "_::1",
+        "::1_",
+        ":::1",
+        "1:::",
+    ],
+)
+def test_pii_scanner_rejects_ipv6_when_address_or_boundary_is_invalid(text: str, validate_checksums: bool) -> None:
+    # Given
+    scanner = PiiScanner(validate_checksums=validate_checksums)
+
+    # When
+    result = scanner.scan(text)
+
+    # Then
+    assert result.risk_score == 0.0
+    assert result.matches == []
+
+
+@pytest.mark.parametrize("validate_checksums", [False, True])
+def test_pii_scanner_reports_only_mac_when_candidate_is_mac_address(validate_checksums: bool) -> None:
+    # Given
+    scanner = PiiScanner(validate_checksums=validate_checksums)
+    text = "MAC: 00:1A:2B:3C:4D:5E"
+
+    # When
+    result = scanner.scan(text)
+
+    # Then
+    assert result.risk_score == 0.75
+    assert result.rationale == "PII detected (1 match(es)): MAC Address (1)"
+    assert [(match.start, match.end) for match in result.matches] == [(5, len(text))]
+
+
+@pytest.mark.parametrize("validate_checksums", [False, True])
+def test_pii_scanner_preserves_extra_pattern_when_it_is_named_ipv6(validate_checksums: bool) -> None:
+    # Given
+    scanner = PiiScanner(extra_patterns=[("IPv6", r"ab:cd")], validate_checksums=validate_checksums)
+
+    # When
+    result = scanner.scan("ab:cd")
+
+    # Then
+    assert result.risk_score == 0.80
+    assert result.rationale == "PII detected (1 match(es)): IPv6 (1)"
+    assert [(match.start, match.end) for match in result.matches] == [(0, 5)]
+
+
+def test_pii_scanner_rejects_invalid_ipv6_when_custom_validator_accepts_it() -> None:
+    # Given
+    scanner = PiiScanner(validate_checksums=True, custom_validators={"IPv6": lambda value: True})
+
+    # When
+    result = scanner.scan("ab:cd")
+
+    # Then
+    assert result.risk_score == 0.0
+    assert result.matches == []
+
+
+@pytest.mark.parametrize("validate_checksums", [False, True])
+def test_pii_scanner_applies_custom_validator_to_valid_ipv6_when_checksums_enabled(validate_checksums: bool) -> None:
+    # Given
+    scanner = PiiScanner(validate_checksums=validate_checksums, custom_validators={"IPv6": lambda value: False})
+
+    # When
+    result = scanner.scan("::1")
+
+    # Then
+    assert result.risk_score == (0.0 if validate_checksums else 0.70)
+    assert [(match.start, match.end) for match in result.matches] == ([] if validate_checksums else [(0, 3)])

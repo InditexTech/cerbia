@@ -27,7 +27,7 @@ DEFAULT_SECRET_PATTERNS: list[tuple[str, re.Pattern[str], float]] = [
     ("Generic Secret", re.compile(r"(?i)(secret|password|passwd|pwd)\s*[=:]\s*['\"]?[^\s'\"]{8,}"), 0.75),
     ("Azure Key", re.compile(r"(?i)(azure|az)[_-]?(key|secret|token)\s*[=:]\s*['\"]?[a-z0-9+/=]{20,}"), 0.85),
     ("GCP API Key", re.compile(r"AIza[\w-]{35}"), 0.90),
-    ("Private Key", re.compile(r"-----BEGIN\s+(RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----"), 0.99),
+    ("Private Key", re.compile(r"-----BEGIN\s+(RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY-----"), 0.99),
     ("SSH Public Key", re.compile(r"ssh-(rsa|ed25519|dss)\s+[A-Za-z0-9+/=]{20,}"), 0.85),
     ("Certificate", re.compile(r"-----BEGIN\s+CERTIFICATE-----"), 0.85),
     ("PGP Key", re.compile(r"-----BEGIN\s+PGP\s+(PUBLIC|PRIVATE)\s+KEY\s+BLOCK-----"), 0.90),

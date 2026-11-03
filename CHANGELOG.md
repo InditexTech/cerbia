@@ -34,6 +34,15 @@ and this project adheres to
 - Internal `extract_urls()` now returns regex matches instead of URL strings
   to preserve match positions (#37).
 
+### Fixed
+
+- Rejected invalid IPv6 candidates and prevented MAC addresses from being
+  misclassified as IPv6 (#44).
+- Removed redundant contained entropy findings while retaining distinct
+  overlapping findings (#44).
+- Recognized encrypted private-key PEM headers at the existing risk level
+  (#44).
+
 ## [0.4.0] - 2026-10-21
 
 ### Added
