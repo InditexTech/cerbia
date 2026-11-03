@@ -16,6 +16,7 @@ and this project adheres to
 
 ### Added
 
+- Decisions/SystemOne text scanner with configurable questions and answer evaluation (#42).
 - Optional `email_domains` filtering for `PiiScanner`, with exact,
   case-insensitive matching for standard and supported obfuscated emails (#40).
   Omitting the option preserves unrestricted email detection; an empty list

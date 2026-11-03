@@ -23,6 +23,7 @@
 * xref:components/preprocessors/whitespace-normalization.adoc[Whitespace normalization]
 * xref:components/scanners.adoc[Scanners]
 * xref:components/scanners/canary-leak.adoc[Canary leak]
+* xref:components/scanners/decisions.adoc[Decisions and SystemOne]
 * xref:components/scanners/invisible-text.adoc[Invisible text]
 * xref:components/scanners/keyword.adoc[Keyword]
 * xref:components/scanners/pii.adoc[PII]
