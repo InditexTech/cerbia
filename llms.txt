@@ -102,8 +102,8 @@
 - [Score aggregators](/0.3.1/main/components/score-aggregators/): Choose how severity-weighted blocking findings become the score compared with the gate threshold.
 - [Internationalization](/0.3.1/main/i18n/): Register and select language-specific pattern packs for CerbIA's built-in scanners.
 - [TextLoader](/0.3.1/main/components/loaders/text-loader/): Load one string or an ordered list of inline strings as CerbIA entries.
-- [Speculative decoding](/0.3.1/main/components/preprocessors/speculative-decoding/): Recover plausible encoded or obfuscated text before scanners inspect an entry.
 - [Whitespace normalization](/0.3.1/main/components/preprocessors/whitespace-normalization/): Normalize spaced, tabbed, and repeated whitespace patterns while preserving entry lineage.
+- [Speculative decoding](/0.3.1/main/components/preprocessors/speculative-decoding/): Recover plausible encoded or obfuscated text before scanners inspect an entry.
 - [Canary leak scanner](/0.3.1/main/components/scanners/canary-leak/): Find configured canary tokens and partial leaks, including encoded or zero-width representations.
 - [Invisible text scanner](/0.3.1/main/components/scanners/invisible-text/): Detect zero-width, bidirectional, format-control, and other hard-to-see Unicode characters.
 - [Keyword scanner](/0.3.1/main/components/scanners/keyword/): Match multilingual and code-oriented suspicious patterns after Unicode and leetspeak normalization.
@@ -123,8 +123,8 @@
 - [Additional information](/0.3.0/main/additional-information/): CerbIA change history, support, and security reporting information.
 - [Architecture](/0.3.0/main/architecture/): Trace an entry through loading, preprocessing, scanning, aggregation, and result construction.
 - [CLI reference](/0.3.0/main/cli/): Use the CerbIA CLI to validate YAML pipelines and scan text or files from the command line.
-- [Configuration](/0.3.0/main/configuration/): Configure a CerbIA security gate in YAML, including component classes, initialization arguments, and validation rules.
 - [Contributing](/0.3.0/main/contributing/): Ways to contribute to CerbIA and links to its contribution rules.
+- [Configuration](/0.3.0/main/configuration/): Configure a CerbIA security gate in YAML, including component classes, initialization arguments, and validation rules.
 - [Gate behavior](/0.3.0/main/gate/): Understand how SecurityGate combines scanner findings, actions, scores, and thresholds into a verdict.
 - [Guides](/0.3.0/main/guides-overview/): Guided paths for trying and extending CerbIA security gates.
 - [Logging](/0.3.0/main/logging/): Configure host application logging for CerbIA's standard-library logger namespace and levels.
@@ -138,9 +138,9 @@
 - [Scanners](/0.3.0/main/components/scanners/): Browse scanners for hidden text, prompt injection, PII, secrets, URLs, keywords, and other findings.
 - [Score aggregators](/0.3.0/main/components/score-aggregators/): Choose how severity-weighted blocking findings become the score compared with the gate threshold.
 - [Internationalization](/0.3.0/main/i18n/): Register and select language-specific pattern packs for CerbIA's built-in scanners.
-- [Speculative decoding](/0.3.0/main/components/preprocessors/speculative-decoding/): Recover plausible encoded or obfuscated text before scanners inspect an entry.
-- [Whitespace normalization](/0.3.0/main/components/preprocessors/whitespace-normalization/): Normalize spaced, tabbed, and repeated whitespace patterns while preserving entry lineage.
 - [TextLoader](/0.3.0/main/components/loaders/text-loader/): Load one string or an ordered list of inline strings as CerbIA entries.
+- [Whitespace normalization](/0.3.0/main/components/preprocessors/whitespace-normalization/): Normalize spaced, tabbed, and repeated whitespace patterns while preserving entry lineage.
+- [Speculative decoding](/0.3.0/main/components/preprocessors/speculative-decoding/): Recover plausible encoded or obfuscated text before scanners inspect an entry.
 - [Canary leak scanner](/0.3.0/main/components/scanners/canary-leak/): Find configured canary tokens and partial leaks, including encoded or zero-width representations.
 - [Invisible text scanner](/0.3.0/main/components/scanners/invisible-text/): Detect zero-width, bidirectional, format-control, and other hard-to-see Unicode characters.
 - [Keyword scanner](/0.3.0/main/components/scanners/keyword/): Match multilingual and code-oriented suspicious patterns after Unicode and leetspeak normalization.
@@ -149,9 +149,9 @@
 - [ProtectAI prompt injection scanner](/0.3.0/main/components/scanners/prompt-injection-protectai/): Classify text for prompt injection with the optional ProtectAI DeBERTa-v3 integration.
 - [Prompt injection scanner](/0.3.0/main/components/scanners/prompt-injection/): Detect multilingual prompt-injection patterns such as instruction override, exfiltration, and role hijacking.
 - [Secret scanner](/0.3.0/main/components/scanners/secrets/): Detect configured credential patterns and optionally flag unmatched high-entropy values.
+- [XSS scanner](/0.3.0/main/components/scanners/xss/): Detect encoded HTML and script injection vectors with optional markup-context awareness.
 - [URL allowlist scanner](/0.3.0/main/components/scanners/url-allowlist/): Allow only URLs that match configured full-URL wildcard patterns.
 - [Malicious URL scanner](/0.3.0/main/components/scanners/url-malicious/): Apply local heuristics to extracted URLs, including risky domains, shorteners, and lookalike patterns.
-- [XSS scanner](/0.3.0/main/components/scanners/xss/): Detect encoded HTML and script injection vectors with optional markup-context awareness.
 - [Maximum score with bonus](/0.3.0/main/components/score-aggregators/max-with-bonus/): Combine the highest blocking score with a configurable bonus for each additional blocking finding.
 - [Maximum score aggregator](/0.3.0/main/components/score-aggregators/max/): Use the highest severity-weighted blocking score as the aggregate gate score.
 - [Mean score aggregator](/0.3.0/main/components/score-aggregators/mean/): Average all severity-weighted blocking scores to produce the aggregate gate score.

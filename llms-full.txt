@@ -1720,7 +1720,7 @@ Source: /prerelease/main/components/scanners/secrets/
 | `action` | `BLOCK` | Finding action. |
 | `content_types` | `[TEXT, URL, CODE]` | Accepted content types. |
 
-The scanner returns match spans and the highest detected score. Entropy fallback skips candidates already matched by configured patterns to avoid duplicate findings.
+The scanner returns match spans and the highest detected score. Entropy fallback skips candidates fully covered by existing pattern matches to avoid duplicate findings.
 
 Each custom pattern is a three-value list: display name, regular expression, and risk score. Invalid regular expressions fail when the scanner is constructed, which makes `cerbia validate` useful for catching configuration errors early.
 
@@ -3215,6 +3215,33 @@ loaders:
 
 ---
 
+# Whitespace normalization
+
+Source: /0.3.1/main/components/preprocessors/whitespace-normalization/
+
+`cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor` reduces whitespace patterns commonly used to split words or hide instructions while preserving the entry’s source and lineage.
+
+For each entry, it applies a fixed sequence: replaces mid-line tabs, rejoins letter-spaced text, collapses long space runs, then collapses long newline runs. It returns the original entry object when no rule changes the text. Otherwise, it creates a derived entry and records the applied transformations in `metadata.preprocessors["whitespace_normalization"]`.
+
+## Parameters
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `max_consecutive_spaces` | `6` | A run of at least this many spaces is collapsed to one space. |
+| `max_consecutive_newlines` | `6` | A run of at least this many newlines is collapsed to two newlines. |
+
+```
+preprocessors:
+  - preprocessor: cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor
+    init_args:
+      max_consecutive_spaces: 6
+      max_consecutive_newlines: 6
+```
+
+Run this preprocessor before text-oriented scanners when inputs can contain letter-spaced words, excessive blank space, or tab-based obfuscation. It preserves entry count and ordering. See [Speculative decoding](../speculative-decoding/) for decoding-based transformations.
+
+---
+
 # Speculative decoding
 
 Source: /0.3.1/main/components/preprocessors/speculative-decoding/
@@ -3363,33 +3390,6 @@ rejections:
 - The preprocessor improves scanner visibility. It does not guarantee that all encoded content is recovered or that every recovered string is relevant.
 
 See [Whitespace normalization](../whitespace-normalization/) for the other core preprocessor and [Configuration](../../../configuration/) for pipeline ordering.
-
----
-
-# Whitespace normalization
-
-Source: /0.3.1/main/components/preprocessors/whitespace-normalization/
-
-`cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor` reduces whitespace patterns commonly used to split words or hide instructions while preserving the entry’s source and lineage.
-
-For each entry, it applies a fixed sequence: replaces mid-line tabs, rejoins letter-spaced text, collapses long space runs, then collapses long newline runs. It returns the original entry object when no rule changes the text. Otherwise, it creates a derived entry and records the applied transformations in `metadata.preprocessors["whitespace_normalization"]`.
-
-## Parameters
-
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `max_consecutive_spaces` | `6` | A run of at least this many spaces is collapsed to one space. |
-| `max_consecutive_newlines` | `6` | A run of at least this many newlines is collapsed to two newlines. |
-
-```
-preprocessors:
-  - preprocessor: cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor
-    init_args:
-      max_consecutive_spaces: 6
-      max_consecutive_newlines: 6
-```
-
-Run this preprocessor before text-oriented scanners when inputs can contain letter-spaced words, excessive blank space, or tab-based obfuscation. It preserves entry count and ordering. See [Speculative decoding](../speculative-decoding/) for decoding-based transformations.
 
 ---
 
@@ -4310,6 +4310,28 @@ cerbia validate examples/cli-usage/config.cerbia.yaml --log-level DEBUG
 
 ---
 
+# Contributing
+
+Source: /0.3.0/main/contributing/
+
+Contributions to CerbIA include bug reports, documentation improvements, and code changes. Start with the path that fits your contribution, then use the repository’s contribution guide for the full process.
+
+## Ways to contribute
+
+- **Report a bug or suggest a feature:** open an issue in the [issue tracker](https://github.com/InditexTech/cerbia/issues) and check for an existing discussion.
+- **Improve the documentation:** report an issue or propose a focused change through a pull request.
+- **Contribute code:** read the contribution guide before opening a pull request.
+
+## Before you start
+
+- [CONTRIBUTING.md](https://github.com/InditexTech/cerbia/blob/main/CONTRIBUTING.md) describes the CLA requirement, issue discussion, branching, testing, and pull request process. The CLA instructions link to the [Inditex FOSS contribution guide](https://github.com/InditexTech/foss/blob/main/CONTRIBUTING.md).
+- [CODE_OF_CONDUCT.md](https://github.com/InditexTech/cerbia/blob/main/CODE_OF_CONDUCT.md) links to the community conduct rules and contact.
+- [LICENSE](https://github.com/InditexTech/cerbia/blob/main/LICENSE) states the project’s Apache-2.0 license.
+
+For the documented development workflow, see [Guides](../guides-overview/). For the product scope before contributing, see [About CerbIA](../about/).
+
+---
+
 # Configuration
 
 Source: /0.3.0/main/configuration/
@@ -4514,28 +4536,6 @@ A successful command means the YAML mapping and root schema are valid, required 
 ## Related references
 
 See [Architecture](../architecture/), [Gate behavior](../gate/), and [Packages](../packages/) for pipeline and package details. See [Custom components](../components/custom-components/) to configure externally provided loaders, preprocessors, scanners, and score aggregators.
-
----
-
-# Contributing
-
-Source: /0.3.0/main/contributing/
-
-Contributions to CerbIA include bug reports, documentation improvements, and code changes. Start with the path that fits your contribution, then use the repository’s contribution guide for the full process.
-
-## Ways to contribute
-
-- **Report a bug or suggest a feature:** open an issue in the [issue tracker](https://github.com/InditexTech/cerbia/issues) and check for an existing discussion.
-- **Improve the documentation:** report an issue or propose a focused change through a pull request.
-- **Contribute code:** read the contribution guide before opening a pull request.
-
-## Before you start
-
-- [CONTRIBUTING.md](https://github.com/InditexTech/cerbia/blob/main/CONTRIBUTING.md) describes the CLA requirement, issue discussion, branching, testing, and pull request process. The CLA instructions link to the [Inditex FOSS contribution guide](https://github.com/InditexTech/foss/blob/main/CONTRIBUTING.md).
-- [CODE_OF_CONDUCT.md](https://github.com/InditexTech/cerbia/blob/main/CODE_OF_CONDUCT.md) links to the community conduct rules and contact.
-- [LICENSE](https://github.com/InditexTech/cerbia/blob/main/LICENSE) states the project’s Apache-2.0 license.
-
-For the documented development workflow, see [Guides](../guides-overview/). For the product scope before contributing, see [About CerbIA](../about/).
 
 ---
 
@@ -5058,6 +5058,66 @@ Use raw Python strings for expressions. `@i18n_pattern` compiles every returned 
 
 ---
 
+# TextLoader
+
+Source: /0.3.0/main/components/loaders/text-loader/
+
+`cerbia.core.loaders.TextLoader` converts inline strings into entries. It is a simple loader for application-provided values, tests, and command-line input.
+
+```
+from cerbia.core.loaders import TextLoader
+
+entries = TextLoader(texts=["first", "second"]).load()
+```
+
+## Parameters
+
+| Parameter | Type | Meaning |
+| --- | --- | --- |
+| `texts` | `str \| list[str]` | One string or an ordered list of strings to load. |
+
+A single string becomes a one-item list. The loader emits exactly one entry for each input string, in order. Each entry uses `inline[index]` as its `source`; it has no field path and uses the default unknown content type.
+
+```
+loaders:
+  - loader: cerbia.core.loaders.TextLoader
+    init_args:
+      texts:
+        - "Text to scan"
+        - "Another entry"
+```
+
+`cerbia scan --text` builds an equivalent loader and replaces configured loaders for that invocation. See [FileLoader](../file-loader/) for filesystem input.
+
+---
+
+# Whitespace normalization
+
+Source: /0.3.0/main/components/preprocessors/whitespace-normalization/
+
+`cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor` reduces whitespace patterns commonly used to split words or hide instructions while preserving the entry’s source and lineage.
+
+For each entry, it applies a fixed sequence: replaces mid-line tabs, rejoins letter-spaced text, collapses long space runs, then collapses long newline runs. It returns the original entry object when no rule changes the text. Otherwise, it creates a derived entry and records the applied transformations in `metadata.preprocessors["whitespace_normalization"]`.
+
+## Parameters
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `max_consecutive_spaces` | `6` | A run of at least this many spaces is collapsed to one space. |
+| `max_consecutive_newlines` | `6` | A run of at least this many newlines is collapsed to two newlines. |
+
+```
+preprocessors:
+  - preprocessor: cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor
+    init_args:
+      max_consecutive_spaces: 6
+      max_consecutive_newlines: 6
+```
+
+Run this preprocessor before text-oriented scanners when inputs can contain letter-spaced words, excessive blank space, or tab-based obfuscation. It preserves entry count and ordering. See [Speculative decoding](../speculative-decoding/) for decoding-based transformations.
+
+---
+
 # Speculative decoding
 
 Source: /0.3.0/main/components/preprocessors/speculative-decoding/
@@ -5206,66 +5266,6 @@ rejections:
 - The preprocessor improves scanner visibility. It does not guarantee that all encoded content is recovered or that every recovered string is relevant.
 
 See [Whitespace normalization](../whitespace-normalization/) for the other core preprocessor and [Configuration](../../../configuration/) for pipeline ordering.
-
----
-
-# Whitespace normalization
-
-Source: /0.3.0/main/components/preprocessors/whitespace-normalization/
-
-`cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor` reduces whitespace patterns commonly used to split words or hide instructions while preserving the entry’s source and lineage.
-
-For each entry, it applies a fixed sequence: replaces mid-line tabs, rejoins letter-spaced text, collapses long space runs, then collapses long newline runs. It returns the original entry object when no rule changes the text. Otherwise, it creates a derived entry and records the applied transformations in `metadata.preprocessors["whitespace_normalization"]`.
-
-## Parameters
-
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `max_consecutive_spaces` | `6` | A run of at least this many spaces is collapsed to one space. |
-| `max_consecutive_newlines` | `6` | A run of at least this many newlines is collapsed to two newlines. |
-
-```
-preprocessors:
-  - preprocessor: cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor
-    init_args:
-      max_consecutive_spaces: 6
-      max_consecutive_newlines: 6
-```
-
-Run this preprocessor before text-oriented scanners when inputs can contain letter-spaced words, excessive blank space, or tab-based obfuscation. It preserves entry count and ordering. See [Speculative decoding](../speculative-decoding/) for decoding-based transformations.
-
----
-
-# TextLoader
-
-Source: /0.3.0/main/components/loaders/text-loader/
-
-`cerbia.core.loaders.TextLoader` converts inline strings into entries. It is a simple loader for application-provided values, tests, and command-line input.
-
-```
-from cerbia.core.loaders import TextLoader
-
-entries = TextLoader(texts=["first", "second"]).load()
-```
-
-## Parameters
-
-| Parameter | Type | Meaning |
-| --- | --- | --- |
-| `texts` | `str \| list[str]` | One string or an ordered list of strings to load. |
-
-A single string becomes a one-item list. The loader emits exactly one entry for each input string, in order. Each entry uses `inline[index]` as its `source`; it has no field path and uses the default unknown content type.
-
-```
-loaders:
-  - loader: cerbia.core.loaders.TextLoader
-    init_args:
-      texts:
-        - "Text to scan"
-        - "Another entry"
-```
-
-`cerbia scan --text` builds an equivalent loader and replaces configured loaders for that invocation. See [FileLoader](../file-loader/) for filesystem input.
 
 ---
 
@@ -5501,6 +5501,32 @@ scanners:
 
 ---
 
+# XSS scanner
+
+Source: /0.3.0/main/components/scanners/xss/
+
+`cerbia.core.scanners.XssScanner` detects HTML and script injection vectors. It normalizes HTML entities, percent encoding, and Unicode escapes before checking its built-in patterns.
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `html_context_aware` | `false` | Exclude matches inside `<code>`, `<pre>`, and `<textarea>` ranges. |
+| `severity` | `HIGH` | Finding severity. |
+| `action` | `BLOCK` | Finding action. |
+| `content_types` | `[TEXT, CODE]` | Accepted content types. |
+
+The highest matched vector score becomes the result score. The rationale lists up to five vector names and positions. Context-aware mode is useful when an application deliberately displays code examples and wants to reduce findings inside those markup regions.
+
+Normalization happens before pattern matching, so encoded forms of common HTML and script vectors are evaluated as well. Context-aware mode is a false-positive reduction tool, not an HTML sanitizer; the scanner reports findings and leaves application-side rendering decisions to the caller.
+
+```
+scanners:
+  - scanner: cerbia.core.scanners.XssScanner
+    init_args:
+      html_context_aware: true
+```
+
+---
+
 # URL allowlist scanner
 
 Source: /0.3.0/main/components/scanners/url-allowlist/
@@ -5560,32 +5586,6 @@ scanners:
 ```
 
 Use [URL allowlist](../url-allowlist/) when known destinations should be explicitly approved rather than scored heuristically.
-
----
-
-# XSS scanner
-
-Source: /0.3.0/main/components/scanners/xss/
-
-`cerbia.core.scanners.XssScanner` detects HTML and script injection vectors. It normalizes HTML entities, percent encoding, and Unicode escapes before checking its built-in patterns.
-
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `html_context_aware` | `false` | Exclude matches inside `<code>`, `<pre>`, and `<textarea>` ranges. |
-| `severity` | `HIGH` | Finding severity. |
-| `action` | `BLOCK` | Finding action. |
-| `content_types` | `[TEXT, CODE]` | Accepted content types. |
-
-The highest matched vector score becomes the result score. The rationale lists up to five vector names and positions. Context-aware mode is useful when an application deliberately displays code examples and wants to reduce findings inside those markup regions.
-
-Normalization happens before pattern matching, so encoded forms of common HTML and script vectors are evaluated as well. Context-aware mode is a false-positive reduction tool, not an HTML sanitizer; the scanner reports findings and leaves application-side rendering decisions to the caller.
-
-```
-scanners:
-  - scanner: cerbia.core.scanners.XssScanner
-    init_args:
-      html_context_aware: true
-```
 
 ---
 
