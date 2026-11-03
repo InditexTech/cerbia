@@ -8,8 +8,58 @@ import httpx
 from .exceptions import APIConfigError, APIError
 
 
+def _compose_url(base_url: str | None, endpoint_path: str) -> str | None:
+    """Validate and compose the configured request URL.
+
+    Args:
+        base_url (str | None): HTTP or HTTPS base URL, or ``None`` when unconfigured.
+        endpoint_path (str): Absolute endpoint path to append to the base URL.
+
+    Returns:
+        str | None: Composed request URL, or ``None`` when no base URL is configured.
+
+    Raises:
+        ValueError: If the endpoint path or base URL is invalid.
+        TypeError: If a URL argument has an invalid type.
+        httpx.InvalidURL: If HTTPX cannot parse the base URL.
+    """
+    path = urlsplit(endpoint_path)
+    if (
+        not endpoint_path.startswith("/")
+        or endpoint_path.startswith("//")
+        or path.scheme
+        or path.netloc
+        or path.query
+        or path.fragment
+        or "?" in endpoint_path
+        or "#" in endpoint_path
+        or "\\" in endpoint_path
+    ):
+        raise ValueError("Invalid endpoint path")
+
+    if base_url is None:
+        return None
+
+    url = httpx.URL(base_url)
+    if (
+        url.scheme not in {"http", "https"}
+        or not url.host
+        or url.userinfo
+        or url.query
+        or url.fragment
+        or "?" in base_url
+        or "#" in base_url
+        or "\\" in base_url
+    ):
+        raise ValueError("Invalid base URL")
+
+    return str(url).rstrip("/") + endpoint_path
+
+
 class HTTPClient:
-    """Send bounded JSON POST requests without retries, redirects, environment credentials, or logs.
+    """Send bounded JSON POST requests without retries, redirects, or logs.
+
+    HTTPX's environment proxy and CA settings are honored.
 
     Args:
         base_url (str | None): HTTP or HTTPS base URL to append the endpoint path to. If ``None``, construction
@@ -37,36 +87,7 @@ class HTTPClient:
             if not isfinite(timeout) or timeout <= 0:
                 raise ValueError("Invalid timeout")
 
-            path = urlsplit(endpoint_path)
-            if (
-                not endpoint_path.startswith("/")
-                or endpoint_path.startswith("//")
-                or path.scheme
-                or path.netloc
-                or path.query
-                or path.fragment
-                or "?" in endpoint_path
-                or "#" in endpoint_path
-                or "\\" in endpoint_path
-            ):
-                raise ValueError("Invalid endpoint path")
-
-            self._url: str | None = None
-            if base_url is not None:
-                url = httpx.URL(base_url)
-                if (
-                    url.scheme not in {"http", "https"}
-                    or not url.host
-                    or url.userinfo
-                    or url.query
-                    or url.fragment
-                    or "?" in base_url
-                    or "#" in base_url
-                    or "\\" in base_url
-                ):
-                    raise ValueError("Invalid base URL")
-
-                self._url = str(url).rstrip("/") + endpoint_path
+            self._url: str | None = _compose_url(base_url, endpoint_path)
 
         except (ValueError, TypeError, httpx.InvalidURL):
             raise APIConfigError() from None
