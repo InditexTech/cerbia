@@ -1,0 +1,24 @@
+packages/cerbia-cli/pyproject.toml
+  h_d6d31939214ddd 12
+packages/cerbia-core/pyproject.toml
+  h_d6d31939214ddd 12
+packages/cerbia-ml/pyproject.toml
+  h_d6d31939214ddd 12
+packages/cerbia-presidio/pyproject.toml
+  h_d6d31939214ddd 12
+packages/cerbia-protectai/pyproject.toml
+  h_d6d31939214ddd 12
+packages/cerbia/pyproject.toml
+  h_d6d31939214ddd 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "9127da93228c02cca4625f5fea1db3103a925769",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
