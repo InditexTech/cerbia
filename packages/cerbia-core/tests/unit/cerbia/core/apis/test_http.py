@@ -2,7 +2,7 @@ import inspect
 import traceback
 from collections.abc import Callable
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis import APIConfigError, APIError
 from cerbia.core.apis._http import HTTPClient
@@ -13,7 +13,7 @@ from cerbia.core.scanners import DecisionsScanner, SystemOneScanner
 
 def test_auth_rotation_when_each_request_calls_imported_provider(monkeypatch: pytest.MonkeyPatch) -> None:
     # Given
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
     calls: list[int] = []
 
     def provider() -> str:
@@ -22,9 +22,9 @@ def test_auth_rotation_when_each_request_calls_imported_provider(monkeypatch: py
 
     monkeypatch.setattr("uuid.uuid4", provider)
     monkeypatch.setattr(
-        httpx.HTTPTransport,
+        httpx2.HTTPTransport,
         "handle_request",
-        lambda self, request: requests.append(request) or httpx.Response(200, content=b"{}"),
+        lambda self, request: requests.append(request) or httpx2.Response(200, content=b"{}"),
     )
     http = HTTPClient(
         base_url="https://assessment.test", endpoint_path="/custom/evaluate", timeout=2, api_key_provider="uuid.uuid4"
@@ -38,6 +38,9 @@ def test_auth_rotation_when_each_request_calls_imported_provider(monkeypatch: py
     assert calls == [1, 1]
     assert [request.headers["Authorization"] for request in requests] == ["Bearer secret-1", "Bearer secret-2"]
     assert requests[0].url.path == "/custom/evaluate"
+    assert requests[0].method == "POST"
+    assert requests[0].content == b"{}"
+    assert requests[0].extensions["timeout"] == {"connect": 2, "read": 2, "write": 2, "pool": 2}
     assert "secret" not in repr(http)
 
 
@@ -48,7 +51,7 @@ def test_sanitized_error_when_provider_fails(error_type: type[Exception], monkey
         raise error_type("credential-secret")
 
     monkeypatch.setattr("uuid.uuid4", provider)
-    monkeypatch.setattr(httpx.HTTPTransport, "handle_request", lambda *args: pytest.fail("must not send"))
+    monkeypatch.setattr(httpx2.HTTPTransport, "handle_request", lambda *args: pytest.fail("must not send"))
     http = HTTPClient(
         base_url="https://assessment.test", endpoint_path="/v1/decisions", timeout=2, api_key_provider="uuid.uuid4"
     )
@@ -64,7 +67,7 @@ def test_sanitized_error_when_provider_fails(error_type: type[Exception], monkey
 def test_sanitized_error_when_provider_result_invalid(result: object, monkeypatch: pytest.MonkeyPatch) -> None:
     # Given
     monkeypatch.setattr("uuid.uuid4", lambda: result)
-    monkeypatch.setattr(httpx.HTTPTransport, "handle_request", lambda *args: pytest.fail("must not send"))
+    monkeypatch.setattr(httpx2.HTTPTransport, "handle_request", lambda *args: pytest.fail("must not send"))
     http = HTTPClient(
         base_url="https://assessment.test", endpoint_path="/v1/decisions", timeout=2, api_key_provider="uuid.uuid4"
     )
@@ -114,11 +117,11 @@ def test_sanitized_config_error_when_module_execution_fails(monkeypatch: pytest.
 def test_token_preserved_when_provider_returns_surrounding_spaces(monkeypatch: pytest.MonkeyPatch) -> None:
     # Given
     monkeypatch.setattr("uuid.uuid4", lambda: " secret ")
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
     monkeypatch.setattr(
-        httpx.HTTPTransport,
+        httpx2.HTTPTransport,
         "handle_request",
-        lambda self, request: requests.append(request) or httpx.Response(200, content=b"{}"),
+        lambda self, request: requests.append(request) or httpx2.Response(200, content=b"{}"),
     )
     http = HTTPClient(
         base_url="https://assessment.test", endpoint_path="/v1/decisions", timeout=2, api_key_provider="uuid.uuid4"
@@ -134,7 +137,7 @@ def test_sanitized_error_when_http_rejects_credential_newlines(key: str, monkeyp
     # Given: prevent network access if credential validation regresses.
     monkeypatch.setattr("uuid.uuid4", lambda: key)
     monkeypatch.setattr(
-        "httpcore._sync.connection_pool.ConnectionPool.handle_request", lambda *args: pytest.fail("must not send")
+        "httpcore2._sync.connection_pool.ConnectionPool.handle_request", lambda *args: pytest.fail("must not send")
     )
     http = HTTPClient(
         base_url="https://assessment.test", endpoint_path="/v1/decisions", timeout=2, api_key_provider="uuid.uuid4"
@@ -193,11 +196,11 @@ def test_no_fallback_when_rotating_provider_later_fails(
     # Given
     keys = iter(["credential-secret", None])
     monkeypatch.setattr("uuid.uuid4", lambda: next(keys))
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
     monkeypatch.setattr(
-        httpx.HTTPTransport,
+        httpx2.HTTPTransport,
         "handle_request",
-        lambda self, request: requests.append(request) or httpx.Response(200, content=b"{}"),
+        lambda self, request: requests.append(request) or httpx2.Response(200, content=b"{}"),
     )
     http = HTTPClient(
         base_url="https://assessment.test", endpoint_path="/v1/decisions", timeout=2, api_key_provider="uuid.uuid4"

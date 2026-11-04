@@ -1,7 +1,7 @@
 import json
 from collections.abc import Callable
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis import _base
 from cerbia.core.apis.decisions import DecisionsResponse, PredicateQuestion, RefusalAnswer
@@ -10,7 +10,7 @@ from cerbia.core.exceptions import CerbIAConfigError
 from cerbia.core.scanners import DecisionsScanner, SystemOneScanner
 from pydantic import BaseModel, JsonValue, ValidationError
 
-type MockHTTP = Callable[[Callable[[httpx.Request], httpx.Response]], None]
+type MockHTTP = Callable[[Callable[[httpx2.Request], httpx2.Response]], None]
 
 
 def test_boolean_choice_when_string_has_same_spelling(
@@ -37,7 +37,7 @@ def test_boolean_choice_when_string_has_same_spelling(
             "output_tokens_details": {"reasoning_tokens": 0},
         },
     }
-    mock_http(lambda request: httpx.Response(200, json=response))
+    mock_http(lambda request: httpx2.Response(200, json=response))
     scanner = DecisionsScanner(
         model="m",
         base_url="https://assessment.test",
@@ -54,11 +54,11 @@ def test_boolean_choice_when_string_has_same_spelling(
 
 def test_default_question_type_when_typed_systemone_question_supplied(mock_http: MockHTTP) -> None:
     # Given
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
 
-    def handle(request: httpx.Request) -> httpx.Response:
+    def handle(request: httpx2.Request) -> httpx2.Response:
         requests.append(request)
-        return httpx.Response(
+        return httpx2.Response(
             200,
             json={
                 "model": "m",
@@ -136,7 +136,7 @@ def test_evidence_when_response_contains_text_legend(
         },
         "usage": {"input_tokens": 2, "output_tokens": 0},
     }
-    mock_http(lambda request: httpx.Response(200, json=response))
+    mock_http(lambda request: httpx2.Response(200, json=response))
     scanner = SystemOneScanner(
         model="m",
         base_url="https://assessment.test",
@@ -262,7 +262,7 @@ def test_rubric_when_level_descriptions_are_configured(
             "output_tokens_details": {"reasoning_tokens": 0},
         },
     }
-    mock_http(lambda request: httpx.Response(200, json=response))
+    mock_http(lambda request: httpx2.Response(200, json=response))
     scanner = DecisionsScanner(
         model="m",
         base_url="https://assessment.test",

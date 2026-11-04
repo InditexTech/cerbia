@@ -1,7 +1,7 @@
 import traceback
 from types import ModuleType
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis import APIConfigError, APIError
 from cerbia.core.apis.decisions import DecisionsResponse
@@ -19,7 +19,7 @@ def scanner(
     format: str = "decisions",
 ) -> DecisionsScanner | SystemOneScanner:
     mock_http(
-        lambda request: httpx.Response(
+        lambda request: httpx2.Response(
             200,
             json={
                 "model": "resolved",

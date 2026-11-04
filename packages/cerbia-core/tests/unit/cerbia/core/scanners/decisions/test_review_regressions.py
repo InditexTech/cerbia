@@ -1,13 +1,13 @@
 import json
 from collections.abc import Callable
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.exceptions import CerbIAConfigError
 from cerbia.core.scanners import SystemOneScanner
 from pydantic import JsonValue
 
-type MockHTTP = Callable[[Callable[[httpx.Request], httpx.Response]], None]
+type MockHTTP = Callable[[Callable[[httpx2.Request], httpx2.Response]], None]
 
 
 def assessment(format: str, kind: str) -> tuple[dict[str, JsonValue], dict[str, JsonValue]]:
@@ -81,11 +81,11 @@ def test_config_rejected_before_request_when_systemone_outer_scalar_invalid(
         question["criteria"] = {"a": value, "b": None, "c": None}
     else:
         question["criteria"] = [value, "High"]
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
 
-    def handle(request: httpx.Request) -> httpx.Response:
+    def handle(request: httpx2.Request) -> httpx2.Response:
         requests.append(request)
-        return httpx.Response(500)
+        return httpx2.Response(500)
 
     mock_http(handle)
     # When / Then
@@ -102,11 +102,11 @@ def test_config_rejected_before_request_when_systemone_outer_scalar_invalid(
 @pytest.mark.parametrize("description", ["Text"])
 def test_request_when_systemone_uses_text_instructions(mock_http: MockHTTP, description: JsonValue) -> None:
     # Given
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
 
-    def handle(request: httpx.Request) -> httpx.Response:
+    def handle(request: httpx2.Request) -> httpx2.Response:
         requests.append(request)
-        return httpx.Response(
+        return httpx2.Response(
             200,
             json={
                 "model": "m",

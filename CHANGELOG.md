@@ -37,6 +37,8 @@ and this project adheres to
 
 ### Fixed
 
+- Prevented `SecretScanner` extra patterns from leaking into other scanner
+  instances through shared defaults (#35) (thanks @Lostmanu).
 - Rejected invalid IPv6 candidates and prevented MAC addresses from being
   misclassified as IPv6 (#44).
 - Removed redundant contained entropy findings while retaining distinct

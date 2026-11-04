@@ -1,7 +1,7 @@
 import traceback
 from typing import assert_never
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis import APIConfigError, APIError
 from cerbia.core.apis._http import HTTPClient
@@ -19,13 +19,13 @@ from cerbia.core.exceptions import CerbIAConfigError, CerbIAError
 @pytest.mark.parametrize("status", [301, 307, 400, 401, 403, 429, 500])
 def test_generic_error_without_retry_when_http_status_fails(status: int, monkeypatch: pytest.MonkeyPatch) -> None:
     # Given
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
 
-    def handle(self: httpx.HTTPTransport, request: httpx.Request) -> httpx.Response:
+    def handle(self: httpx2.HTTPTransport, request: httpx2.Request) -> httpx2.Response:
         requests.append(request)
-        return httpx.Response(status, text="response-secret", headers={"Location": "https://secret.test"})
+        return httpx2.Response(status, text="response-secret", headers={"Location": "https://secret.test"})
 
-    monkeypatch.setattr(httpx.HTTPTransport, "handle_request", handle)
+    monkeypatch.setattr(httpx2.HTTPTransport, "handle_request", handle)
     client = HTTPClient(base_url="https://api.test", endpoint_path="/generic", timeout=2)
     body = "request-secret"
     # When / Then
@@ -41,13 +41,13 @@ def test_generic_error_without_retry_when_http_status_fails(status: int, monkeyp
     assert "Authorization" not in requests[0].headers
 
 
-@pytest.mark.parametrize("error_type", [httpx.ReadTimeout, httpx.ConnectError, OSError, ValueError, TypeError])
+@pytest.mark.parametrize("error_type", [httpx2.ReadTimeout, httpx2.ConnectError, OSError, ValueError, TypeError])
 def test_generic_error_when_transport_raises(error_type: type[Exception], monkeypatch: pytest.MonkeyPatch) -> None:
     # Given
-    def handle(self: httpx.HTTPTransport, request: httpx.Request) -> httpx.Response:
+    def handle(self: httpx2.HTTPTransport, request: httpx2.Request) -> httpx2.Response:
         raise error_type("transport-secret")
 
-    monkeypatch.setattr(httpx.HTTPTransport, "handle_request", handle)
+    monkeypatch.setattr(httpx2.HTTPTransport, "handle_request", handle)
     client = HTTPClient(base_url="https://api.test", endpoint_path="/generic", timeout=2)
     body = "request-secret"
     # When / Then
@@ -78,7 +78,7 @@ def test_generic_error_when_protocol_text_is_not_string(
     client_type: type[DecisionsClient | SystemOneClient], text: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # Given
-    monkeypatch.setattr(httpx.HTTPTransport, "handle_request", lambda *args: pytest.fail("must not send"))
+    monkeypatch.setattr(httpx2.HTTPTransport, "handle_request", lambda *args: pytest.fail("must not send"))
     client = client_type(model="m", base_url="https://api.test")
     match client:
         case DecisionsClient():
@@ -105,7 +105,7 @@ def test_generic_error_when_protocol_response_malformed(
 ) -> None:
     # Given
     monkeypatch.setattr(
-        httpx.HTTPTransport, "handle_request", lambda self, request: httpx.Response(200, content=b"response-secret")
+        httpx2.HTTPTransport, "handle_request", lambda self, request: httpx2.Response(200, content=b"response-secret")
     )
     client = client_type(model="m", base_url="https://api.test")
     text = "request-secret"
@@ -164,7 +164,7 @@ def test_generic_error_when_invalid_choice_follows_predicate(
                 },
             }
             monkeypatch.setattr(
-                httpx.HTTPTransport, "handle_request", lambda self, request: httpx.Response(200, json=payload)
+                httpx2.HTTPTransport, "handle_request", lambda self, request: httpx2.Response(200, json=payload)
             )
             # When / Then
             with pytest.raises(APIError) as error:
@@ -183,7 +183,7 @@ def test_generic_error_when_invalid_choice_follows_predicate(
                 "usage": {"input_tokens": 1, "output_tokens": 0},
             }
             monkeypatch.setattr(
-                httpx.HTTPTransport, "handle_request", lambda self, request: httpx.Response(200, json=payload)
+                httpx2.HTTPTransport, "handle_request", lambda self, request: httpx2.Response(200, json=payload)
             )
             # When / Then
             with pytest.raises(APIError) as error:

@@ -1,7 +1,7 @@
 import json
 from collections.abc import Callable
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis import APIError
 from cerbia.core.apis.decisions import DecisionsResponse
@@ -10,7 +10,7 @@ from cerbia.core.models.scans import ScanOutcome
 from cerbia.core.scanners import DecisionsScanner, SystemOneScanner
 from pydantic import JsonValue
 
-type MockHTTP = Callable[[Callable[[httpx.Request], httpx.Response]], None]
+type MockHTTP = Callable[[Callable[[httpx2.Request], httpx2.Response]], None]
 
 
 def usage(format: str) -> dict[str, JsonValue]:
@@ -68,18 +68,18 @@ def case(format: str, kind: str) -> tuple[dict[str, JsonValue], dict[str, JsonVa
 
 def make_scanner(
     mock_http: MockHTTP, format: str, kind: str
-) -> tuple[DecisionsScanner | SystemOneScanner, list[httpx.Request]]:
+) -> tuple[DecisionsScanner | SystemOneScanner, list[httpx2.Request]]:
     question, answer = case(format, kind)
     body = {
         "model": "resolved-model",
         "answers": [answer] if format == "decisions" else {"q": answer},
         "usage": usage(format),
     }
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
 
-    def handle(request: httpx.Request) -> httpx.Response:
+    def handle(request: httpx2.Request) -> httpx2.Response:
         requests.append(request)
-        return httpx.Response(200, json=body)
+        return httpx2.Response(200, json=body)
 
     mock_http(handle)
     if format == "decisions":

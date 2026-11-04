@@ -3,7 +3,7 @@ import traceback
 from collections.abc import Callable
 from types import ModuleType
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis.decisions import DecisionsResponse
 from cerbia.core.apis.systemone import SystemOneResponse
@@ -13,19 +13,19 @@ from cerbia.core.models.scans import ScanOutcome
 from cerbia.core.runner import Runner
 from cerbia.core.types import ScannerErrorPolicy
 
-type MockHTTP = Callable[[Callable[[httpx.Request], httpx.Response]], None]
+type MockHTTP = Callable[[Callable[[httpx2.Request], httpx2.Response]], None]
 
 
 @pytest.mark.parametrize("malformed", [False, True])
 def test_blocking_verdict_when_runner_scans_risky_text_or_api_fails(mock_http: MockHTTP, malformed: bool) -> None:
     # Given
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
 
-    def handle(request: httpx.Request) -> httpx.Response:
+    def handle(request: httpx2.Request) -> httpx2.Response:
         requests.append(request)
         if malformed:
-            return httpx.Response(200, content=b"invalid-json-secret")
-        return httpx.Response(
+            return httpx2.Response(200, content=b"invalid-json-secret")
+        return httpx2.Response(
             200,
             json={
                 "model": "m",
@@ -83,7 +83,7 @@ def test_gate_error_policy_when_application_evaluator_raises(
 
     monkeypatch.setattr(application_policy, "evaluate_answers", evaluate)
     mock_http(
-        lambda request: httpx.Response(
+        lambda request: httpx2.Response(
             200,
             json={
                 "model": "m",

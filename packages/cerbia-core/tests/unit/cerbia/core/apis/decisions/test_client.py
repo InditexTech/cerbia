@@ -1,25 +1,25 @@
 import json
 from collections.abc import Callable
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis import decisions as api
 
 
 @pytest.mark.parametrize("model,text", [("requested", "Untrusted text"), (" \t ", "")])
 def test_typed_answers_when_client_asks_about_text(
-    mock_http: Callable[[Callable[[httpx.Request], httpx.Response]], None],
+    mock_http: Callable[[Callable[[httpx2.Request], httpx2.Response]], None],
     model: str,
     text: str,
 ) -> None:
     # Given
     question = api.PredicateQuestion(name="q", instructions="Assess text")
     answer = {"type": "predicate", "name": "q", "probability": 0.8}
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
 
-    def handle(request: httpx.Request) -> httpx.Response:
+    def handle(request: httpx2.Request) -> httpx2.Response:
         requests.append(request)
-        return httpx.Response(
+        return httpx2.Response(
             200,
             json={
                 "model": "resolved",

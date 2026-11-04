@@ -4,7 +4,7 @@ import textwrap
 from collections.abc import Callable
 from typing import get_type_hints
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis import decisions as api
 from cerbia.core.apis import systemone
@@ -17,7 +17,7 @@ from cerbia.core.scanners import systemone as systemone_policy
 from cerbia.core.scanners.decisions import DecisionsEvaluator
 from cerbia.core.scanners.systemone import SystemOneEvaluator
 
-type MockHTTP = Callable[[Callable[[httpx.Request], httpx.Response]], None]
+type MockHTTP = Callable[[Callable[[httpx2.Request], httpx2.Response]], None]
 
 
 def test_independent_public_scanners_when_importing_packages() -> None:
@@ -106,11 +106,11 @@ def test_plain_outcome_when_factory_builds_public_scanner(mock_http: MockHTTP, n
             "answers": {"q": {"type": "noul", "noul": 0.8}},
             "usage": {"input_tokens": 1, "output_tokens": 0},
         }
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
 
-    def handle(request: httpx.Request) -> httpx.Response:
+    def handle(request: httpx2.Request) -> httpx2.Response:
         requests.append(request)
-        return httpx.Response(200, json=response)
+        return httpx2.Response(200, json=response)
 
     mock_http(handle)
     # When
