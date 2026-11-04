@@ -63,6 +63,7 @@ def test_tls_verification_when_local_ca_is_trusted_only_via_environment(
             return
 
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
     context.load_cert_chain(cert, key)
     with HTTPServer(("127.0.0.1", 0), Handler) as server:
         server.socket = context.wrap_socket(server.socket, server_side=True)
