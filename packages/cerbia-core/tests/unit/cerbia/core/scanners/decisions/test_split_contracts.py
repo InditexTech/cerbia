@@ -1,7 +1,7 @@
 from types import ModuleType
 from typing import get_type_hints
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis.decisions import DecisionsResponse, PredicateQuestion
 from cerbia.core.apis.systemone import NoulQuestion, SystemOneResponse
@@ -25,7 +25,7 @@ def test_decisions_evaluator_when_function_accepts_only_decisions_response(
     evaluator: DecisionsEvaluator = evaluate
     monkeypatch.setattr(application_policy, "evaluate_answers", evaluator)
     mock_http(
-        lambda request: httpx.Response(
+        lambda request: httpx2.Response(
             200,
             json={
                 "model": "decisions-only",
@@ -61,7 +61,7 @@ def test_systemone_evaluator_when_function_accepts_only_systemone_response(
     evaluator: SystemOneEvaluator = evaluate
     monkeypatch.setattr(application_policy, "evaluate_answers", evaluator)
     mock_http(
-        lambda request: httpx.Response(
+        lambda request: httpx2.Response(
             200,
             json={
                 "model": "systemone-only",

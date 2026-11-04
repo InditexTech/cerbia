@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis import APIError
 from cerbia.core.apis.decisions import DecisionsResponse
@@ -8,7 +8,7 @@ from cerbia.core.apis.systemone import SystemOneResponse
 from cerbia.core.scanners import DecisionsScanner, SystemOneScanner
 from pydantic import JsonValue
 
-type MockHTTP = Callable[[Callable[[httpx.Request], httpx.Response]], None]
+type MockHTTP = Callable[[Callable[[httpx2.Request], httpx2.Response]], None]
 
 
 def build(
@@ -38,7 +38,7 @@ def build(
             output_tokens_details={"reasoning_tokens": 0},
         )
     body = {"model": "m", "answers": [answer] if format == "decisions" else {"q": answer}, "usage": usage}
-    mock_http(lambda request: httpx.Response(200, json=body))
+    mock_http(lambda request: httpx2.Response(200, json=body))
     if format == "decisions":
         return DecisionsScanner(
             questions=[question],
@@ -232,7 +232,7 @@ def test_all_answers_preserved_when_arriving_out_of_order(
             "output_tokens_details": {"reasoning_tokens": 0},
         },
     }
-    mock_http(lambda request: httpx.Response(200, json=payload))
+    mock_http(lambda request: httpx2.Response(200, json=payload))
     scanner = DecisionsScanner(
         model="m",
         base_url="https://assessment.test",

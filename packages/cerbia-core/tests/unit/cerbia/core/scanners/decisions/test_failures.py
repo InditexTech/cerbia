@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis import APIConfigError, APIError
 from cerbia.core.apis.decisions import DecisionsResponse
@@ -8,14 +8,14 @@ from cerbia.core.apis.systemone import SystemOneResponse
 from cerbia.core.scanners import DecisionsScanner, SystemOneScanner
 from pydantic import JsonValue
 
-type MockHTTP = Callable[[Callable[[httpx.Request], httpx.Response]], None]
+type MockHTTP = Callable[[Callable[[httpx2.Request], httpx2.Response]], None]
 
 
 def scanner_with(
     mock_http: MockHTTP, body: JsonValue | bytes, format: str = "decisions"
 ) -> DecisionsScanner | SystemOneScanner:
-    def handle(request: httpx.Request) -> httpx.Response:
-        return httpx.Response(200, content=body) if isinstance(body, bytes) else httpx.Response(200, json=body)
+    def handle(request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(200, content=body) if isinstance(body, bytes) else httpx2.Response(200, json=body)
 
     mock_http(handle)
     if format == "decisions":
@@ -128,11 +128,11 @@ def test_error_when_systemone_answer_invalid(
 @pytest.mark.parametrize("status", [301, 307, 400, 401, 403, 429, 500])
 def test_error_without_retry_or_redirect_when_http_fails(mock_http: MockHTTP, status: int) -> None:
     # Given
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
 
-    def handle(request: httpx.Request) -> httpx.Response:
+    def handle(request: httpx2.Request) -> httpx2.Response:
         requests.append(request)
-        return httpx.Response(status, text="body-secret", headers={"Location": "https://secret.test"})
+        return httpx2.Response(status, text="body-secret", headers={"Location": "https://secret.test"})
 
     mock_http(handle)
     scanner = DecisionsScanner(
@@ -172,11 +172,11 @@ def test_config_error_when_url_unsafe(url: str) -> None:
 
 def test_timeout_when_transport_fails(mock_http: MockHTTP) -> None:
     # Given
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
 
-    def handle(request: httpx.Request) -> httpx.Response:
+    def handle(request: httpx2.Request) -> httpx2.Response:
         requests.append(request)
-        raise httpx.ReadTimeout("secret", request=request)
+        raise httpx2.ReadTimeout("secret", request=request)
 
     mock_http(handle)
     scanner = DecisionsScanner(
