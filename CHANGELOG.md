@@ -14,6 +14,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-04
+
 ### Added
 
 - Decisions/SystemOne text scanner with configurable questions and answer evaluation (#42).
@@ -110,7 +112,9 @@ and this project adheres to
 - Normalized the trailing newline when reading `.tool-versions` inside release
   heredocs (#11).
 
-[Unreleased]: https://github.com/InditexTech/cerbia/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/InditexTech/cerbia/compare/v0.5.0...HEAD
+
+[0.5.0]: https://github.com/InditexTech/cerbia/compare/v0.4.0...v0.5.0
 
 [0.4.0]: https://github.com/InditexTech/cerbia/compare/v0.3.0...v0.4.0
 
