@@ -8,7 +8,7 @@
 `text -> configured questions -> typed API response -> application evaluator -> ScanOutcome`
 
 It is included in `cerbia-core` (also installed by `cerbia`), with mandatory
-`httpx>=0.28,<1`. No extra, provider SDK, or local ML package is needed.
+`httpx2>=2.13.1,<3`. No extra, provider SDK, or local ML package is needed.
 Conversations, tools, images, arbitrary JSON input, and structured-result
 reporting are not supported.
 
@@ -155,7 +155,13 @@ raise `CerbIAConfigError`; evaluator failures or invalid outcomes raise
 The API errors are also exported by `cerbia.core.apis`.
 API error messages omit payloads and credentials. Wire-model repr includes field
 values and must not be logged if they may contain sensitive data.
-HTTPX honors environment proxy and CA settings; only trust environment configuration controlled by your deployment.
+HTTPX2 honors environment proxy settings, `SSL_CERT_FILE`, and `SSL_CERT_DIR`;
+only trust environment configuration controlled by your deployment. TLS verification
+remains enabled. By default, certificates are verified against the operating
+system's trust store via `truststore`, not the `certifi` bundle. Check deployment
+CA trust when migrating; do not disable verification to bypass certificate errors.
+HTTP logs now use `httpx2` and `httpcore2` logger names, and the default User-Agent
+is `python-httpx2/<version>`. Update log filters and gateway rules accordingly.
 Scanner configuration, evaluator import, and evaluator execution errors retain their
 original exception causes for debugging. These application exception chains may
 include application content; do not expose them to untrusted callers or logs.

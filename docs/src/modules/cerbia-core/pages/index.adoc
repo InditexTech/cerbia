@@ -12,16 +12,9 @@ aggregators, configuration models, `Runner`, and `SecurityGate`.
 pip install cerbia-core
 ----
 
-The core package requires Python 3.12 or later, Pydantic, and `httpx>=0.28,<1`. It does not require
+The core package requires Python 3.12 or later, Pydantic, and `httpx2>=2.13.1,<3`. It does not require
 the optional ML or NLP runtimes; those capabilities are provided by separate
 distributions.
-
-=== Decisions/SystemOne scanner
-
-`DecisionScanner` asks configured questions about text and evaluates the answers
-using risk rules. Questions live in `cerbia.core.apis.decisions`; the evaluator
-and rules live in `cerbia.core.scanners.decisions`. See the
-xref:main:components/scanners/decisions.adoc[scanner reference].
 
 == Create and run a pipeline
 
