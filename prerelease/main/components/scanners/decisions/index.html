@@ -805,7 +805,7 @@
 </div>
 <div class="paragraph">
 <p>It is included in <code>cerbia-core</code> (also installed by <code>cerbia</code>), with mandatory
-<code>httpx&gt;=0.28,&lt;1</code>. No extra, provider SDK, or local ML package is needed.
+<code>httpx2&gt;=2.13.1,&lt;3</code>. No extra, provider SDK, or local ML package is needed.
 Conversations, tools, images, arbitrary JSON input, and structured-result
 reporting are not supported.</p>
 </div>
@@ -984,7 +984,13 @@ raise <code>CerbIAConfigError</code>; evaluator failures or invalid outcomes rai
 The API errors are also exported by <code>cerbia.core.apis</code>.
 API error messages omit payloads and credentials. Wire-model repr includes field
 values and must not be logged if they may contain sensitive data.
-HTTPX honors environment proxy and CA settings; only trust environment configuration controlled by your deployment.
+HTTPX2 honors environment proxy settings, <code>SSL_CERT_FILE</code>, and <code>SSL_CERT_DIR</code>;
+only trust environment configuration controlled by your deployment. TLS verification
+remains enabled. By default, certificates are verified against the operating
+system&#8217;s trust store via <code>truststore</code>, not the <code>certifi</code> bundle. Check deployment
+CA trust when migrating; do not disable verification to bypass certificate errors.
+HTTP logs now use <code>httpx2</code> and <code>httpcore2</code> logger names, and the default User-Agent
+is <code>python-httpx2/&lt;version&gt;</code>. Update log filters and gateway rules accordingly.
 Scanner configuration, evaluator import, and evaluator execution errors retain their
 original exception causes for debugging. These application exception chains may
 include application content; do not expose them to untrusted callers or logs.</p>

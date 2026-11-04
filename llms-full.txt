@@ -149,11 +149,7 @@ Source: /prerelease/cerbia-core/
 pip install cerbia-core
 ```
 
-The core package requires Python 3.12 or later, Pydantic, and `httpx>=0.28,<1`. It does not require the optional ML or NLP runtimes; those capabilities are provided by separate distributions.
-
-### Decisions/SystemOne scanner
-
-`DecisionScanner` asks configured questions about text and evaluates the answers using risk rules. Questions live in `cerbia.core.apis.decisions`; the evaluator and rules live in `cerbia.core.scanners.decisions`. See the [scanner reference](../main/components/scanners/decisions/).
+The core package requires Python 3.12 or later, Pydantic, and `httpx2>=2.13.1,<3`. It does not require the optional ML or NLP runtimes; those capabilities are provided by separate distributions.
 
 ## Create and run a pipeline
 
@@ -1531,7 +1527,7 @@ Source: /prerelease/main/components/scanners/decisions/
 
 `text → configured questions → typed API response → application evaluator → ScanOutcome`
 
-It is included in `cerbia-core` (also installed by `cerbia`), with mandatory `httpx>=0.28,<1`. No extra, provider SDK, or local ML package is needed. Conversations, tools, images, arbitrary JSON input, and structured-result reporting are not supported.
+It is included in `cerbia-core` (also installed by `cerbia`), with mandatory `httpx2>=2.13.1,<3`. No extra, provider SDK, or local ML package is needed. Conversations, tools, images, arbitrary JSON input, and structured-result reporting are not supported.
 
 ## Responsibilities
 
@@ -1623,7 +1619,7 @@ A configurable gateway URL does not guarantee LiteLLM or Foundry compatibility: 
 
 ## Errors and data egress
 
-Requests are not retried or redirected. Missing endpoints, HTTP errors, timeouts, malformed responses, assessment refusals, and inconsistent answers raise sanitized `APIError` from `cerbia.core.apis.exceptions`. Invalid API or authentication-provider configuration raises `APIConfigError` from the same module. These errors propagate through the scanner unchanged. Invalid scanner configuration or evaluator imports raise `CerbIAConfigError`; evaluator failures or invalid outcomes raise `CerbIAError`, both from `cerbia.core.exceptions`. The API errors are also exported by `cerbia.core.apis`. API error messages omit payloads and credentials. Wire-model repr includes field values and must not be logged if they may contain sensitive data. HTTPX honors environment proxy and CA settings; only trust environment configuration controlled by your deployment. Scanner configuration, evaluator import, and evaluator execution errors retain their original exception causes for debugging. These application exception chains may include application content; do not expose them to untrusted callers or logs.
+Requests are not retried or redirected. Missing endpoints, HTTP errors, timeouts, malformed responses, assessment refusals, and inconsistent answers raise sanitized `APIError` from `cerbia.core.apis.exceptions`. Invalid API or authentication-provider configuration raises `APIConfigError` from the same module. These errors propagate through the scanner unchanged. Invalid scanner configuration or evaluator imports raise `CerbIAConfigError`; evaluator failures or invalid outcomes raise `CerbIAError`, both from `cerbia.core.exceptions`. The API errors are also exported by `cerbia.core.apis`. API error messages omit payloads and credentials. Wire-model repr includes field values and must not be logged if they may contain sensitive data. HTTPX2 honors environment proxy settings, `SSL_CERT_FILE`, and `SSL_CERT_DIR`; only trust environment configuration controlled by your deployment. TLS verification remains enabled. By default, certificates are verified against the operating system’s trust store via `truststore`, not the `certifi` bundle. Check deployment CA trust when migrating; do not disable verification to bypass certificate errors. HTTP logs now use `httpx2` and `httpcore2` logger names, and the default User-Agent is `python-httpx2/<version>`. Update log filters and gateway rules accordingly. Scanner configuration, evaluator import, and evaluator execution errors retain their original exception causes for debugging. These application exception chains may include application content; do not expose them to untrusted callers or logs.
 
 The gate’s default `BLOCK` error policy blocks unavailable or invalid assessments; `FAIL` propagates the error. Explicit `SKIP` is fail-open and can produce a safe verdict without a successful assessment.
 
@@ -3300,39 +3296,6 @@ Use raw Python strings for expressions. `@i18n_pattern` compiles every returned 
 
 ---
 
-# TextLoader
-
-Source: /0.3.1/main/components/loaders/text-loader/
-
-`cerbia.core.loaders.TextLoader` converts inline strings into entries. It is a simple loader for application-provided values, tests, and command-line input.
-
-```
-from cerbia.core.loaders import TextLoader
-
-entries = TextLoader(texts=["first", "second"]).load()
-```
-
-## Parameters
-
-| Parameter | Type | Meaning |
-| --- | --- | --- |
-| `texts` | `str \| list[str]` | One string or an ordered list of strings to load. |
-
-A single string becomes a one-item list. The loader emits exactly one entry for each input string, in order. Each entry uses `inline[index]` as its `source`; it has no field path and uses the default unknown content type.
-
-```
-loaders:
-  - loader: cerbia.core.loaders.TextLoader
-    init_args:
-      texts:
-        - "Text to scan"
-        - "Another entry"
-```
-
-`cerbia scan --text` builds an equivalent loader and replaces configured loaders for that invocation. See [FileLoader](../file-loader/) for filesystem input.
-
----
-
 # Speculative decoding
 
 Source: /0.3.1/main/components/preprocessors/speculative-decoding/
@@ -3481,6 +3444,39 @@ rejections:
 - The preprocessor improves scanner visibility. It does not guarantee that all encoded content is recovered or that every recovered string is relevant.
 
 See [Whitespace normalization](../whitespace-normalization/) for the other core preprocessor and [Configuration](../../../configuration/) for pipeline ordering.
+
+---
+
+# TextLoader
+
+Source: /0.3.1/main/components/loaders/text-loader/
+
+`cerbia.core.loaders.TextLoader` converts inline strings into entries. It is a simple loader for application-provided values, tests, and command-line input.
+
+```
+from cerbia.core.loaders import TextLoader
+
+entries = TextLoader(texts=["first", "second"]).load()
+```
+
+## Parameters
+
+| Parameter | Type | Meaning |
+| --- | --- | --- |
+| `texts` | `str \| list[str]` | One string or an ordered list of strings to load. |
+
+A single string becomes a one-item list. The loader emits exactly one entry for each input string, in order. Each entry uses `inline[index]` as its `source`; it has no field path and uses the default unknown content type.
+
+```
+loaders:
+  - loader: cerbia.core.loaders.TextLoader
+    init_args:
+      texts:
+        - "Text to scan"
+        - "Another entry"
+```
+
+`cerbia scan --text` builds an equivalent loader and replaces configured loaders for that invocation. See [FileLoader](../file-loader/) for filesystem input.
 
 ---
 
@@ -4016,6 +4012,30 @@ Scanner results are heuristic or model-based signals, not a security certificati
 
 ---
 
+# cerbia-cli
+
+Source: /0.3.0/cerbia-cli/
+
+`cerbia-cli` provides the `cerbia` executable for validating configuration files and running configured pipelines. Install the distribution directly or select the `cli` extra from `cerbia`.
+
+## Install and run
+
+```
+pip install cerbia-cli
+cerbia validate config.yaml
+cerbia scan --config config.yaml --text "Text to scan"
+```
+
+`validate` parses the YAML file and constructs its pipeline without scanning entries. `scan` runs the configured pipeline, with optional `--text` or `--file` overrides for input.
+
+## Command outcomes
+
+`scan` exits with status `0` for a safe result, status `1` for an unsafe result, and status `2` for usage, configuration, or handled execution errors. `validate` exits with status `0` when the pipeline can be constructed. Both commands accept log-level and log-file options.
+
+Use the CLI for repeatable command-line runs. For Python applications that construct and run pipelines directly, see [cerbia-core](../cerbia-core/). The product-wide [CLI reference](../main/cli/) documents command behavior; the [quickstart](../main/quickstart/) shows the maintained example configuration in use.
+
+---
+
 # cerbia
 
 Source: /0.3.0/cerbia/
@@ -4042,30 +4062,6 @@ After installing an extra, use the import namespace it supplies: `cerbia.core`, 
 ## Next steps
 
 Start with the product-wide [installation requirements](../main/prerequisites/) and [quickstart](../main/quickstart/). For an overview of all distributions, open the [package directory](../main/packages/).
-
----
-
-# cerbia-cli
-
-Source: /0.3.0/cerbia-cli/
-
-`cerbia-cli` provides the `cerbia` executable for validating configuration files and running configured pipelines. Install the distribution directly or select the `cli` extra from `cerbia`.
-
-## Install and run
-
-```
-pip install cerbia-cli
-cerbia validate config.yaml
-cerbia scan --config config.yaml --text "Text to scan"
-```
-
-`validate` parses the YAML file and constructs its pipeline without scanning entries. `scan` runs the configured pipeline, with optional `--text` or `--file` overrides for input.
-
-## Command outcomes
-
-`scan` exits with status `0` for a safe result, status `1` for an unsafe result, and status `2` for usage, configuration, or handled execution errors. `validate` exits with status `0` when the pipeline can be constructed. Both commands accept log-level and log-file options.
-
-Use the CLI for repeatable command-line runs. For Python applications that construct and run pipelines directly, see [cerbia-core](../cerbia-core/). The product-wide [CLI reference](../main/cli/) documents command behavior; the [quickstart](../main/quickstart/) shows the maintained example configuration in use.
 
 ---
 
