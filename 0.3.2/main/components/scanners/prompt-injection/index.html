@@ -70,12 +70,12 @@
       })()
     </script>
 
-<title>URL allowlist scanner | CerbIA</title>
+<title>Prompt injection scanner | CerbIA</title>
 
-    <link rel="canonical" href="https://inditextech.github.io/cerbia/0.3.1/main/components/scanners/url-allowlist/">
-    <link rel="prev" href="../url-malicious/">
-    <link rel="next" href="../xss/">
-    <meta name="description" content="Allow only URLs that match configured full-URL wildcard patterns.">
+    <link rel="canonical" href="https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/prompt-injection/">
+    <link rel="prev" href="../pii-presidio/">
+    <link rel="next" href="../prompt-injection-protectai/">
+    <meta name="description" content="Detect multilingual prompt-injection patterns such as instruction override, exfiltration, and role hijacking.">
     <meta name="generator" content="Antora 3.2.0">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -117,19 +117,22 @@
 
 <div class="page-versions">
   <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--latest version-menu-toggle" title="Show other versions of page" aria-expanded="false">
-    <span class="dt-tag__label">0.3.1</span>
+    <span class="dt-tag__label">0.3.2</span>
     <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
   </button>
   <div class="version-menu">
-    <a class="version is-missing" href="../../../../../prerelease/">
+    <a class="version" href="../../../../../prerelease/main/components/scanners/prompt-injection/">
       <span class="version__label">prerelease</span>
       <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
     </a>
     <span class="version is-current" aria-current="page">
-      <span class="version__label">0.3.1</span>
+      <span class="version__label">0.3.2</span>
       <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
           </span>
-    <a class="version" href="../../../../../0.3.0/main/components/scanners/url-allowlist/">
+    <a class="version" href="../../../../../0.3.1/main/components/scanners/prompt-injection/">
+      <span class="version__label">0.3.1</span>
+    </a>
+    <a class="version" href="../../../../../0.3.0/main/components/scanners/prompt-injection/">
       <span class="version__label">0.3.0</span>
     </a>
   </div>
@@ -151,7 +154,7 @@
   </div>
 </header>
 
-<dialog id="search-dialog" class="search-dialog" aria-label="Search" data-search-index="ROOT-0.3.1.json">
+<dialog id="search-dialog" class="search-dialog" aria-label="Search" data-search-index="ROOT-0.3.2.json">
   <div class="dt-overlay dt-overlay--visible search-dialog__overlay">
     <div class="dt-overlay__content"></div>
     <div class="dt-modal dt-modal--small search-dialog__panel">
@@ -234,7 +237,7 @@
 
 <div class="body">
 
-<div id="side-menu" class="side-menu" data-component="ROOT" data-version="0.3.1" data-module="main">
+<div id="side-menu" class="side-menu" data-component="ROOT" data-version="0.3.2" data-module="main">
   <div class="side-menu__header">
     <div class="side-menu__header-start">
       <img class="side-menu__header-logo side-menu__header-logo--light" src="../../../../../cerbia-logo.png" width="24" height="24" alt="">
@@ -553,6 +556,15 @@
   <li class="side-menu__item">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../decisions/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Decisions and SystemOne</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
         href="../invisible-text/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Invisible text</span></span>
       </a>
@@ -589,7 +601,7 @@
   <li class="side-menu__item">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../prompt-injection/">
+        href="./" aria-current="page">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection</span></span>
       </a>
     </div>
@@ -625,8 +637,17 @@
   <li class="side-menu__item">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="./" aria-current="page">
+        href="../url-allow-list/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">URL allowlist</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../url-deny-list/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">URL denylist</span></span>
       </a>
     </div>
 
@@ -714,19 +735,22 @@
 
 <div class="page-versions">
   <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--latest version-menu-toggle" title="Show other versions of page" aria-expanded="false">
-    <span class="dt-tag__label">0.3.1</span>
+    <span class="dt-tag__label">0.3.2</span>
     <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
   </button>
   <div class="version-menu">
-    <a class="version is-missing" href="../../../../../prerelease/">
+    <a class="version" href="../../../../../prerelease/main/components/scanners/prompt-injection/">
       <span class="version__label">prerelease</span>
       <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
     </a>
     <span class="version is-current" aria-current="page">
-      <span class="version__label">0.3.1</span>
+      <span class="version__label">0.3.2</span>
       <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
           </span>
-    <a class="version" href="../../../../../0.3.0/main/components/scanners/url-allowlist/">
+    <a class="version" href="../../../../../0.3.1/main/components/scanners/prompt-injection/">
+      <span class="version__label">0.3.1</span>
+    </a>
+    <a class="version" href="../../../../../0.3.0/main/components/scanners/prompt-injection/">
       <span class="version__label">0.3.0</span>
     </a>
   </div>
@@ -744,10 +768,10 @@
 
 <nav class="dt-breadcrumbs" aria-label="Breadcrumb">
   <a class="dt-breadcrumb-item dt-breadcrumb-item--link" href="../../../../"><span class="dt-breadcrumb-item__content">CerbIA</span></a>
-  <div class="dt-breadcrumb-item dt-breadcrumb-item--active" aria-current="page"><span class="dt-breadcrumb-item__content">URL allowlist</span></div>
+  <div class="dt-breadcrumb-item dt-breadcrumb-item--active" aria-current="page"><span class="dt-breadcrumb-item__content">Prompt injection</span></div>
 </nav>
-        <h1 class="hero__title dt-text dt-text--title-xl">URL allowlist scanner</h1>
-        <p class="hero__excerpt dt-text dt-text--body-l">Allow only URLs that match configured full-URL wildcard patterns.</p>
+        <h1 class="hero__title dt-text dt-text--title-xl">Prompt injection scanner</h1>
+        <p class="hero__excerpt dt-text dt-text--body-l">Detect multilingual prompt-injection patterns such as instruction override, exfiltration, and role hijacking.</p>
         <div class="hero__tags">
           <div class="dt-label dt-label--grey">
             <span class="dt-label__content">Reference</span>
@@ -774,16 +798,9 @@
 </aside>
 
 <article class="doc">
-<div id="preamble">
-<div class="sectionbody">
 <div class="paragraph">
-<p><code>cerbia.core.scanners.UrlAllowlistScanner</code> extracts URLs from text and compares each one with an approved full-URL wildcard pattern. It is intended to prevent unexpected destinations in generated or configured text.</p>
+<p><code>cerbia.core.scanners.PromptInjectionScanner</code> applies multilingual patterns for instruction override, exfiltration, role hijacking, false authority, task deflection, and context manipulation.</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="parameters"><a class="anchor" href="#parameters"></a>Parameters</h2>
-<div class="sectionbody">
 <div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -799,13 +816,13 @@
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>allowed_domains</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">required</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Full-URL wildcard patterns registered for this scanner.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>languages</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">all registered</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Language packs to load.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>severity</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HIGH</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>CRITICAL</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Finding severity.</p></td>
 </tr>
 <tr>
@@ -815,31 +832,27 @@
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>content_types</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[TEXT, URL, CODE]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[TEXT]</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Accepted content types.</p></td>
 </tr>
 </tbody>
 </table></div></div>
 <div class="paragraph">
-<p>Patterns match normalized complete URLs, including scheme and path. Use <code>https://example.com/</code> to allow only the normalized root URL, or <code>https://example.com/*</code> to allow descendant paths. Query strings and fragments do not form part of the normalized comparison.</p>
+<p>The scanner reports matching spans and a cumulative score derived from its matched patterns. Configure it after preprocessors so encoded instructions are visible to the pattern engine.</p>
+</div>
+<div class="paragraph">
+<p>Language packs provide the human-language pattern families. Restricting <code>languages</code> limits those packs; it does not remove the scanner&#8217;s own common pattern handling. Defensive-context patterns reduce findings when a suspicious phrase appears as an explanation or example rather than an instruction.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
-<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.UrlAllowlistScanner</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.PromptInjectionScanner</span></span>
 <span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
-<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      allowed_domains</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
-<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">        - </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"https://example.com/*"</span></span>
-<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">        - </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"https://docs.example.com/*"</span></span></span></code></pre>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      languages</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"en"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"es"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span></span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>When text contains no URL, the scanner returns risk <code>0.0</code>. When every extracted URL matches a pattern, it also returns risk <code>0.0</code>; otherwise it returns <code>0.95</code> and a rationale listing up to five non-allowlisted URLs.</p>
-</div>
-<div class="paragraph">
-<p>The runner shares a URL registry among configured scanners, so URL-aware components observe the same registered patterns during one run.</p>
-</div>
-</div>
+<p>For the optional classifier-backed alternative, see <a href="../prompt-injection-protectai/" class="xref page">ProtectAI prompt injection</a>.</p>
 </div>
 </article>
   </div>
@@ -853,16 +866,16 @@
 <div class="dt-grid-layout dt-grid-layout--with-margin pagination">
   <div class="dt-grid-layout__item dt-grid-layout__item--span-full pagination__row">
     <div class="pagination__buttons">
-    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-icon pagination__prev" href="../url-malicious/">
+    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-icon pagination__prev" href="../pii-presidio/">
       <span class="dt-button__content">
         <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-arrow-left"></use></svg></span>
-        <span class="pagination__label-full">Malicious URLs</span>
+        <span class="pagination__label-full">PII with Presidio</span>
         <span class="pagination__label-short">Prev</span>
       </span>
     </a>
-    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action pagination__next" href="../xss/">
+    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action pagination__next" href="../prompt-injection-protectai/">
       <span class="dt-button__content">
-        <span class="pagination__label-full">Cross-site scripting</span>
+        <span class="pagination__label-full">Prompt injection with ProtectAI</span>
         <span class="pagination__label-short">Next</span>
         <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-arrow-right"></use></svg></span>
       </span>
@@ -879,7 +892,7 @@
       </div>
       <div class="page-footer__contribute-buttons">
 
-<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/blob/docs/v0.3.1/docs/src/modules/main/pages/components/scanners/url-allowlist.adoc">
+<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/blob/docs/v0.3.2/docs/src/modules/main/pages/components/scanners/prompt-injection.adoc">
   <span class="dt-button__content">
     Propose a change
     <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-external-link"></use></svg></span>

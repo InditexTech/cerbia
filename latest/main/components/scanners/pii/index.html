@@ -72,7 +72,7 @@
 
 <title>PII scanners | CerbIA</title>
 
-    <link rel="canonical" href="https://inditextech.github.io/cerbia/0.3.1/main/components/scanners/pii/">
+    <link rel="canonical" href="https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/pii/">
     <link rel="prev" href="../keyword/">
     <link rel="next" href="../pii-presidio/">
     <meta name="description" content="Detect common personally identifiable information with built-in or custom regular expressions.">
@@ -117,7 +117,7 @@
 
 <div class="page-versions">
   <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--latest version-menu-toggle" title="Show other versions of page" aria-expanded="false">
-    <span class="dt-tag__label">0.3.1</span>
+    <span class="dt-tag__label">0.3.2</span>
     <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
   </button>
   <div class="version-menu">
@@ -126,9 +126,12 @@
       <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
     </a>
     <span class="version is-current" aria-current="page">
-      <span class="version__label">0.3.1</span>
+      <span class="version__label">0.3.2</span>
       <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
           </span>
+    <a class="version" href="../../../../../0.3.1/main/components/scanners/pii/">
+      <span class="version__label">0.3.1</span>
+    </a>
     <a class="version" href="../../../../../0.3.0/main/components/scanners/pii/">
       <span class="version__label">0.3.0</span>
     </a>
@@ -151,7 +154,7 @@
   </div>
 </header>
 
-<dialog id="search-dialog" class="search-dialog" aria-label="Search" data-search-index="ROOT-0.3.1.json">
+<dialog id="search-dialog" class="search-dialog" aria-label="Search" data-search-index="ROOT-0.3.2.json">
   <div class="dt-overlay dt-overlay--visible search-dialog__overlay">
     <div class="dt-overlay__content"></div>
     <div class="dt-modal dt-modal--small search-dialog__panel">
@@ -234,7 +237,7 @@
 
 <div class="body">
 
-<div id="side-menu" class="side-menu" data-component="ROOT" data-version="0.3.1" data-module="main">
+<div id="side-menu" class="side-menu" data-component="ROOT" data-version="0.3.2" data-module="main">
   <div class="side-menu__header">
     <div class="side-menu__header-start">
       <img class="side-menu__header-logo side-menu__header-logo--light" src="../../../../../cerbia-logo.png" width="24" height="24" alt="">
@@ -553,6 +556,15 @@
   <li class="side-menu__item">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../decisions/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Decisions and SystemOne</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
         href="../invisible-text/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Invisible text</span></span>
       </a>
@@ -625,8 +637,17 @@
   <li class="side-menu__item">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../url-allowlist/">
+        href="../url-allow-list/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">URL allowlist</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../url-deny-list/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">URL denylist</span></span>
       </a>
     </div>
 
@@ -714,7 +735,7 @@
 
 <div class="page-versions">
   <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--latest version-menu-toggle" title="Show other versions of page" aria-expanded="false">
-    <span class="dt-tag__label">0.3.1</span>
+    <span class="dt-tag__label">0.3.2</span>
     <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
   </button>
   <div class="version-menu">
@@ -723,9 +744,12 @@
       <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
     </a>
     <span class="version is-current" aria-current="page">
-      <span class="version__label">0.3.1</span>
+      <span class="version__label">0.3.2</span>
       <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
           </span>
+    <a class="version" href="../../../../../0.3.1/main/components/scanners/pii/">
+      <span class="version__label">0.3.1</span>
+    </a>
     <a class="version" href="../../../../../0.3.0/main/components/scanners/pii/">
       <span class="version__label">0.3.0</span>
     </a>
@@ -821,8 +845,21 @@
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>null</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Optional dictionary mapping pattern names to custom validator callables <code>(str) &#8594; bool</code>.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email_domains</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Restrict built-in email detection to exact, case-insensitive domain matches. <code>null</code> (Python <code>None</code>) preserves detection of all domains; <code>[]</code> disables only built-in email detection. Other PII and <code>extra_patterns</code> are unchanged.</p></td>
+</tr>
 </tbody>
 </table></div></div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="python"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">from</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> cerbia.core.scanners </span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">import</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> PiiScanner</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">scanner = PiiScanner(</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">email_domains</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">=[</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"example.com"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"example.org"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">])</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">result = scanner.scan(</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"jane@example.com"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">)  </span><span style="--shiki-light:#6A9955;--shiki-dark:#6A9955"># Detected</span></span></span></code></pre>
+</div>
+</div>
 <div class="listingblock">
 <div class="content">
 <pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
@@ -830,9 +867,26 @@
 <span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
 <span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      action</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">block</span></span>
 <span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      validate_checksums</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">true</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      email_domains</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"example.com"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"example.org"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
 <span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      extra_patterns</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
 <span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">        - [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"Employee ID"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"EMP-[0-9]{6}"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span></span></code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>The listed domains are <strong>detected</strong>, not exempted. For example, the configuration above detects
+<code>jane@example.com</code> and <code>jane [at] example [dot] org</code>, but not <code>jane@other.com</code>.
+Subdomains require their own explicit entry: <code>example.com</code> does not match <code>team.example.com</code>.
+Domain prefixes and suffixes such as <code>notexample.com</code> and <code>example.com.evil</code> do not match.</p>
+</div>
+<div class="paragraph">
+<p><code>email_domains</code> accepts <code>list[str]</code> or <code>None</code>; list entries must be bare ASCII DNS domains with at least two labels.
+Each label must contain 1–63 ASCII letters, digits, or hyphens, with no leading or trailing hyphen;
+the full domain must be at most 253 characters. Domain strings are case-insensitive, but whitespace is not trimmed.
+Empty strings, whitespace, <code>@</code> prefixes, URLs, paths, ports, wildcards, Unicode domains,
+empty labels, and leading or trailing dots are rejected with <code>CerbIAConfigError</code> during construction.
+Use Python <code>None</code> or YAML <code>null</code> (or omit the option) to preserve existing behavior.
+Use <code>[]</code> to turn off built-in email detection without affecting other PII or custom patterns,
+including custom patterns labeled <code>Email</code> or <code>Email (obfuscated)</code>.</p>
 </div>
 <div class="paragraph">
 <p>For NLP-backed English entity recognition, use the optional <a href="../pii-presidio/" class="xref page">PresidioPiiScanner</a>. See the <a href="../../../../cerbia-presidio/" class="xref page">Presidio package reference</a>.</p>
@@ -878,7 +932,7 @@
       </div>
       <div class="page-footer__contribute-buttons">
 
-<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/blob/docs/v0.3.1/docs/src/modules/main/pages/components/scanners/pii.adoc">
+<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/blob/docs/v0.3.2/docs/src/modules/main/pages/components/scanners/pii.adoc">
   <span class="dt-button__content">
     Propose a change
     <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../../../_/img/icons.svg#icon-external-link"></use></svg></span>
