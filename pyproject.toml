@@ -19,7 +19,6 @@ dev = [
 
 examples = [
     "fastapi",
-    "httpx",
     "langchain",
     "langchain-core",
     "uvicorn",

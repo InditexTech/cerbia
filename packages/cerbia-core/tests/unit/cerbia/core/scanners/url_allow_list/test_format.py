@@ -1,5 +1,5 @@
 import pytest
-from cerbia.core.scanners.url_allowlist._format import format_url_finding
+from cerbia.core.scanners.url_allow_list._format import format_url_finding
 
 pytestmark = pytest.mark.unit
 

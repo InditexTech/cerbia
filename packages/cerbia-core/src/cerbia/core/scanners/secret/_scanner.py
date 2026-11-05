@@ -61,7 +61,7 @@ class SecretScanner:
         if patterns:
             self._patterns = [(name, re.compile(regex), risk_score) for name, regex, risk_score in patterns]
         else:
-            self._patterns = DEFAULT_SECRET_PATTERNS
+            self._patterns = DEFAULT_SECRET_PATTERNS.copy()
 
         if extra_patterns:
             for name, regex, risk_score in extra_patterns:
@@ -79,7 +79,7 @@ class SecretScanner:
         matches, hits = self._scan_patterns(text)
 
         if self._entropy_detection:
-            entropy_matches, entropy_hits = self._scan_entropy(text)
+            entropy_matches, entropy_hits = self._scan_entropy(text, matches)
             matches.extend(entropy_matches)
             hits.extend(entropy_hits)
 
@@ -130,21 +130,31 @@ class SecretScanner:
 
         return matches, hits
 
-    def _scan_entropy(self, text: str) -> tuple[list[MatchSpan], list[tuple[str, float]]]:
+    def _scan_entropy(
+        self, text: str, pattern_matches: list[MatchSpan]
+    ) -> tuple[list[MatchSpan], list[tuple[str, float]]]:
         hits: list[tuple[str, float]] = []
         matches: list[MatchSpan] = []
+        sorted_spans = sorted(pattern_matches, key=lambda span: span.start)
+        span_index = 0
+        max_end = -1
 
         for match in HIGH_ENTROPY_PATTERN.finditer(text):
             candidate = match.group()
             if len(candidate) < ENTROPY_MIN_LENGTH:
                 continue
 
-            if any(p.search(candidate) for _, p, _ in self._patterns):
+            while span_index < len(sorted_spans) and sorted_spans[span_index].start <= match.start():
+                max_end = max(max_end, sorted_spans[span_index].end)
+                span_index += 1
+
+            if max_end >= match.end():
                 continue
 
             is_hex = all(c in HEX_CHARS for c in candidate)
-            charset = HEX_CHARS if is_hex else BASE64_CHARS
-            threshold = HEX_ENTROPY_THRESHOLD if is_hex else BASE64_ENTROPY_THRESHOLD
+            charset, threshold = (
+                (HEX_CHARS, HEX_ENTROPY_THRESHOLD) if is_hex else (BASE64_CHARS, BASE64_ENTROPY_THRESHOLD)
+            )
             entropy = charset_entropy(candidate, charset)
 
             if entropy >= threshold:

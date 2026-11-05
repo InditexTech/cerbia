@@ -150,16 +150,16 @@ def _normalize_path_for_matching(path: str) -> str:
     return normalized
 
 
-def extract_urls(text: str) -> list[str]:
-    """Extract hierarchical URLs from text.
+def extract_urls(text: str) -> list[re.Match[str]]:
+    """Extract hierarchical URL matches with their original text offsets.
 
     Args:
         text (str): Input text to scan.
 
     Returns:
-        list[str]: List of extracted URLs.
+        list[re.Match[str]]: Matches containing extracted URLs and their spans.
     """
-    return MULTI_SCHEME_URL_RE.findall(text)
+    return list(MULTI_SCHEME_URL_RE.finditer(text))
 
 
 def normalize_for_matching(url: str) -> str | None:

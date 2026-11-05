@@ -14,6 +14,40 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-04
+
+### Added
+
+- Decisions/SystemOne text scanner with configurable questions and answer evaluation (#42).
+- Optional `email_domains` filtering for `PiiScanner`, with exact,
+  case-insensitive matching for standard and supported obfuscated emails (#40).
+  Omitting the option preserves unrestricted email detection; an empty list
+  disables built-in email detection without affecting other PII checks.
+- `UrlDenyListScanner` with explicit deny rules taking precedence over allow
+  rules in the shared URL registry (#37).
+- File-backed URL allowlist and denylist policies: pass an inline list or a
+  UTF-8 `.txt` file path to `allowed_domains` or `blocked_domains` (#37).
+- Original-text match spans for URL policy and malicious-URL findings (#37).
+
+### Changed
+
+- **Breaking:** renamed `UrlAllowlistScanner` to `UrlAllowListScanner` and its
+  module from `url_allowlist` to `url_allow_list`; update imports and scanner
+  configuration paths. The scanner ID remains `url_allowlist` (#37).
+- Internal `extract_urls()` now returns regex matches instead of URL strings
+  to preserve match positions (#37).
+
+### Fixed
+
+- Prevented `SecretScanner` extra patterns from leaking into other scanner
+  instances through shared defaults (#35) (thanks @Lostmanu).
+- Rejected invalid IPv6 candidates and prevented MAC addresses from being
+  misclassified as IPv6 (#44).
+- Removed redundant contained entropy findings while retaining distinct
+  overlapping findings (#44).
+- Recognized encrypted private-key PEM headers at the existing risk level
+  (#44).
+
 ## [0.4.0] - 2026-10-21
 
 ### Added
@@ -78,7 +112,9 @@ and this project adheres to
 - Normalized the trailing newline when reading `.tool-versions` inside release
   heredocs (#11).
 
-[Unreleased]: https://github.com/InditexTech/cerbia/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/InditexTech/cerbia/compare/v0.5.0...HEAD
+
+[0.5.0]: https://github.com/InditexTech/cerbia/compare/v0.4.0...v0.5.0
 
 [0.4.0]: https://github.com/InditexTech/cerbia/compare/v0.3.0...v0.4.0
 

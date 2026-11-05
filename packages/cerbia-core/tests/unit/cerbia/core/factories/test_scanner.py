@@ -11,7 +11,7 @@ from cerbia.core.scanners import (
     PromptInjectionScanner,
     Scanner,
     SecretScanner,
-    UrlAllowlistScanner,
+    UrlAllowListScanner,
     XssScanner,
 )
 from cerbia.core.types import Action, ContentType, Severity
@@ -54,9 +54,9 @@ def test_scanner_factory_builds_configured_scanner() -> None:
         ("cerbia.core.scanners.prompt_injection.PromptInjectionScanner", {}, PromptInjectionScanner),
         ("cerbia.core.scanners.secret.SecretScanner", {}, SecretScanner),
         (
-            "cerbia.core.scanners.url_allowlist.UrlAllowlistScanner",
+            "cerbia.core.scanners.url_allow_list.UrlAllowListScanner",
             {"allowed_domains": ["https://example.com/*"]},
-            UrlAllowlistScanner,
+            UrlAllowListScanner,
         ),
         ("cerbia.core.scanners.xss.XssScanner", {}, XssScanner),
     ],

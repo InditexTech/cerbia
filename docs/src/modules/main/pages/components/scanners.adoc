@@ -18,6 +18,10 @@ Every scanner accepts `severity`, `action`, and `content_types`, although their 
 |Find hidden Unicode instructions.
 |`BLOCK`
 
+|xref:components/scanners/decisions.adoc[Decisions and SystemOne]
+|Evaluate typed evidence through a configured external HTTP service.
+|`BLOCK`
+
 |xref:components/scanners/keyword.adoc[Keyword]
 |Match suspicious patterns and code-oriented keywords.
 |`BLOCK`
@@ -46,8 +50,12 @@ Every scanner accepts `severity`, `action`, and `content_types`, although their 
 |Apply suspicious-URL heuristics.
 |`BLOCK`
 
-|xref:components/scanners/url-allowlist.adoc[URL allowlist]
+|xref:components/scanners/url-allow-list.adoc[URL allowlist]
 |Require URLs to match approved patterns.
+|`BLOCK`
+
+|xref:components/scanners/url-deny-list.adoc[URL denylist]
+|Flag URLs that match blocked patterns.
 |`BLOCK`
 
 |xref:components/scanners/xss.adoc[XSS]

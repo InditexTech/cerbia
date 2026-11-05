@@ -1,6 +1,6 @@
 [project]
 name = "cerbia-core"
-version = "0.4.1.dev0"
+version = "0.5.1.dev0"
 description = "CerbIA core library"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -9,6 +9,7 @@ license-files = ["LICENSE", "NOTICE"]
 authors = [
     { name = "Sergio Bugallo Enjamio", email = "sergiobe@inditex.com" },
     { name = "Mario Escobedo Del Rio", email = "marioer@inditex.com" },
+    { name = "Jesús Manuel Maneiro Figueroa", email = "jesusmmfi@inditex.com" },
 ]
 classifiers = [
     "Intended Audience :: Developers",
@@ -25,6 +26,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
+    "httpx2>=2.13.1,<3",
     "pydantic~=2.13",
 ]
 
