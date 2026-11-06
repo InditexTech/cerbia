@@ -1,0 +1,60 @@
+CHANGELOG.md
+  h_d6d31939214ddd 17-18,42-43,115-117
+docs/.release-version
+  h_d6d31939214ddd 1
+docs/package-lock.json
+  h_d6d31939214ddd 4172-4174
+docs/src/modules/cerbia-core/pages/index.adoc
+  h_d6d31939214ddd 16
+docs/src/modules/main/pages/components/scanners/decisions.adoc
+  h_d6d31939214ddd 12,170-176
+packages/cerbia-cli/pyproject.toml
+  h_d6d31939214ddd 3,12,29
+packages/cerbia-core/pyproject.toml
+  h_d6d31939214ddd 3,12,29
+packages/cerbia-core/src/cerbia/core/apis/_http.py
+  h_d6d31939214ddd 6,24,43,62,92,145,147,152
+packages/cerbia-core/tests/integration/cascade_contract_support.py
+  h_d6d31939214ddd 4,46,57,74
+packages/cerbia-core/tests/integration/protocol_support.py
+  h_d6d31939214ddd 3,7,65,72,74,76
+packages/cerbia-core/tests/integration/test_api_cascade.py
+  h_d6d31939214ddd 4,95
+packages/cerbia-core/tests/integration/test_api_runner.py
+  h_d6d31939214ddd 6,16,23,25,28-29,87
+packages/cerbia-core/tests/integration/test_api_yaml_auth.py
+  h_d6d31939214ddd 3,12,59,68,70
+packages/cerbia-core/tests/unit/cerbia/core/apis/conftest.py
+  h_d6d31939214ddd 3,8-10
+packages/cerbia-core/tests/unit/cerbia/core/apis/decisions/test_client.py
+  h_d6d31939214ddd 4,14,21,23,25,67
+packages/cerbia-core/tests/unit/cerbia/core/apis/systemone/test_client.py
+  h_d6d31939214ddd 4,14,20,22,24,59
+packages/cerbia-core/tests/unit/cerbia/core/apis/test_http.py
+  h_d6d31939214ddd 3,13,22,24,38-40,51,67,117,119,121,137,176,178,180,199,201,217,219
+packages/cerbia-core/tests/unit/cerbia/core/apis/test_tls.py
+  h_d6d31939214ddd 1-84
+packages/cerbia-core/tests/unit/cerbia/core/scanners/decisions/conftest.py
+  h_d6d31939214ddd 5,40-42
+packages/cerbia-ml/pyproject.toml
+  h_d6d31939214ddd 3,12,29
+packages/cerbia-presidio/pyproject.toml
+  h_d6d31939214ddd 3,12,29
+packages/cerbia-protectai/pyproject.toml
+  h_d6d31939214ddd 3,12,29-30
+packages/cerbia/pyproject.toml
+  h_d6d31939214ddd 3,12,28,31-34,36-39
+uv.lock
+  h_d6d31939214ddd 133,175,190,193,199,205,220,237,442,477-478,481,484-485,488,491,494,497-500,503-504,507,510,513,1216,1255,1267,1297-1299,1311
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "4f46743b36803df0674929b5a353f2ef8509f408",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
