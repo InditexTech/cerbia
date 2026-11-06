@@ -1,0 +1,38 @@
+packages/cerbia-cli/src/cerbia/cli/config.py
+  h_d6d31939214ddd 6,8,10,16,22,28-29,39-42,62,64-67,69-74
+packages/cerbia-cli/src/cerbia/cli/scan/_command.py
+  h_d6d31939214ddd 3,6,41,56-66,68-69,90,108-114,117-123
+packages/cerbia-cli/src/cerbia/cli/scan/_ui.py
+  h_d6d31939214ddd 4-5,17,25-26,31-34,48-53,59,69,73,75,94-145
+packages/cerbia-cli/src/cerbia/cli/validate/_command.py
+  h_d6d31939214ddd 28-35,37-38
+packages/cerbia-cli/src/cerbia/cli/validate/_ui.py
+  h_d6d31939214ddd 1-2,5,9,25-57
+packages/cerbia-cli/tests/integration/cascade_support.py
+  h_d6d31939214ddd 1-41
+packages/cerbia-cli/tests/integration/test_cascade_scan.py
+  h_d6d31939214ddd 1-241
+packages/cerbia-cli/tests/integration/test_cascade_validate.py
+  h_d6d31939214ddd 1-246
+packages/cerbia-cli/tests/unit/cerbia/cli/scan/test_command.py
+  h_d6d31939214ddd 10,200-201
+packages/cerbia-cli/tests/unit/cerbia/cli/scan/test_ui.py
+  h_d6d31939214ddd 4,9,45-63,99-123,130-255
+packages/cerbia-cli/tests/unit/cerbia/cli/test_config.py
+  h_d6d31939214ddd 5,7,9,50,72-126
+packages/cerbia-cli/tests/unit/cerbia/cli/validate/test_command.py
+  h_d6d31939214ddd 7,96-97
+packages/cerbia-cli/tests/unit/cerbia/cli/validate/test_ui.py
+  h_d6d31939214ddd 5-6,19,35,45-46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "8d3990a29d417eee44c4bba860f6599fd177934a",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
