@@ -7,13 +7,14 @@ import httpx
 import pytest
 from cerbia.core.apis.decisions import DecisionsResponse
 from cerbia.core.apis.systemone import SystemOneResponse
-from cerbia.core.config import CerbIAConfig
+from cerbia.core.config import SimpleGateConfig
 from cerbia.core.exceptions import CerbIAError
 from cerbia.core.models.scans import ScanOutcome
 from cerbia.core.runner import Runner
 from cerbia.core.types import ScannerErrorPolicy
 
 type MockHTTP = Callable[[Callable[[httpx.Request], httpx.Response]], None]
+pytestmark = pytest.mark.integration
 
 
 @pytest.mark.parametrize("malformed", [False, True])
@@ -35,7 +36,7 @@ def test_blocking_verdict_when_runner_scans_risky_text_or_api_fails(mock_http: M
         )
 
     mock_http(handle)
-    config = CerbIAConfig.model_validate(
+    config = SimpleGateConfig.model_validate(
         {
             "name": "text-decisions",
             "threshold": 0.5,
@@ -93,7 +94,7 @@ def test_gate_error_policy_when_application_evaluator_raises(
         )
     )
     runner = Runner(
-        CerbIAConfig.model_validate(
+        SimpleGateConfig.model_validate(
             {
                 "name": "decisions",
                 "on_scanner_error": policy,

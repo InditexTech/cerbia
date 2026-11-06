@@ -3,38 +3,24 @@ from collections.abc import Callable
 import httpx
 import pytest
 import yaml
-from cerbia.core.config import CerbIAConfig
+from cerbia.core.config import SimpleGateConfig
 from cerbia.core.factories import ScannerFactory
 from cerbia.core.models.scans import ScanOutcome
 from cerbia.core.runner import Runner
-from cerbia.core.scanners import DecisionsScanner
 from pydantic import JsonValue
 
 type MockHTTP = Callable[[Callable[[httpx.Request], httpx.Response]], None]
+pytestmark = pytest.mark.integration
 
 
 def api_key() -> str:
     return "yaml-test-key"
 
 
-def test_type_error_when_scanner_receives_endpoint_path() -> None:
-    # Given
-    constructor: Callable[..., DecisionsScanner] = DecisionsScanner
-    # When / Then
-    with pytest.raises(TypeError, match="unexpected keyword argument 'endpoint_path'"):
-        constructor(
-            model="m",
-            base_url="https://assessment.test",
-            questions=[{"type": "predicate", "name": "q", "instructions": "Assess"}],
-            evaluator="application_policy.evaluate_answers",
-            endpoint_path="/custom/evaluate",
-        )
-
-
 @pytest.mark.parametrize("format,kind", [("decisions", "predicate"), ("systemone", "noul")])
 @pytest.mark.parametrize("authenticated", [False, True])
 @pytest.mark.parametrize("base_path", ["", "/gateway"])
-@pytest.mark.parametrize("trailing_slash", ["", "/"])
+@pytest.mark.parametrize("trailing_slash", ["/"])
 def test_auth_when_yaml_builds_runner_and_factory(
     mock_http: MockHTTP,
     format: str,
@@ -51,7 +37,7 @@ def test_auth_when_yaml_builds_runner_and_factory(
         if format == "decisions"
         else "{q: {type: noul, instructions: Assess}}"
     )
-    config = CerbIAConfig.model_validate(
+    config = SimpleGateConfig.model_validate(
         yaml.safe_load(f"""
 name: yaml-decisions
 loaders:

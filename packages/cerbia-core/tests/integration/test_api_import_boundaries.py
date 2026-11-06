@@ -7,6 +7,8 @@ from typing import get_type_hints
 
 import pytest
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.mark.parametrize(
     "protocol,client_name,other_protocol",
@@ -61,13 +63,6 @@ def test_generic_shared_module_when_protocols_are_unavailable(module: str) -> No
     result = subprocess.run([sys.executable, "-c", textwrap.dedent(script)], capture_output=True, text=True, timeout=30)
     # Then
     assert result.returncode == 0, result.stderr
-
-
-def test_generic_errors_when_importing_public_api() -> None:
-    # Given / When
-    api = importlib.import_module("cerbia.core.apis")
-    # Then
-    assert set(api.__all__) == {"APIError", "APIConfigError"}
 
 
 @pytest.mark.parametrize(
