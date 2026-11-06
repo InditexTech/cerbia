@@ -1,0 +1,54 @@
+docs/src/modules/ROOT/pages/index.adoc
+  h_d6d31939214ddd 28-29,33,91,97
+docs/src/modules/cerbia-core/pages/index.adoc
+  h_d6d31939214ddd 2,6-7,31,35
+docs/src/modules/cerbia-ml/pages/index.adoc
+  h_d6d31939214ddd 42
+docs/src/modules/main/pages/about.adoc
+  h_d6d31939214ddd 5
+docs/src/modules/main/pages/additional-information.adoc
+  h_d6d31939214ddd 5
+docs/src/modules/main/pages/architecture.adoc
+  h_d6d31939214ddd 5,9-14,18-21,24,26,30-123,128-132,137,146-147,153,180-186,191,194-196,198-202,208,221
+docs/src/modules/main/pages/cli.adoc
+  h_d6d31939214ddd 5,15-17,21,29,43,52-53,55-56,59-65,71-80,96-125,145,148,151,154
+docs/src/modules/main/pages/components/custom-components.adoc
+  h_d6d31939214ddd 48-50,55-56,76,117-118,164,175-176
+docs/src/modules/main/pages/components/scanners.adoc
+  h_d6d31939214ddd 5,7
+docs/src/modules/main/pages/components/scanners/decisions.adoc
+  h_d6d31939214ddd 6-7,13-21,33-36
+docs/src/modules/main/pages/components/score-aggregators.adoc
+  h_d6d31939214ddd 5-17
+docs/src/modules/main/pages/configuration.adoc
+  h_d6d31939214ddd 5,9-13,19-40,44-49,54-57,60-129,132,134-166,169-206,292-293,305,314,316,319-322,329-331,342,346-350,364-366,369-374,378,384-385
+docs/src/modules/main/pages/contributing.adoc
+  h_d6d31939214ddd 5
+docs/src/modules/main/pages/gate.adoc
+  h_d6d31939214ddd 2,5,9-13,15,21,29,33,40,43-45,48,64-121
+docs/src/modules/main/pages/guides-overview.adoc
+  h_d6d31939214ddd 5
+docs/src/modules/main/pages/i18n.adoc
+  h_d6d31939214ddd 5
+docs/src/modules/main/pages/logging.adoc
+  h_d6d31939214ddd 5,19
+docs/src/modules/main/pages/prerequisites.adoc
+  h_d6d31939214ddd 5
+docs/src/modules/main/pages/quickstart.adoc
+  h_d6d31939214ddd 5,11,18,31-32
+docs/src/modules/main/pages/reference-overview.adoc
+  h_d6d31939214ddd 5
+packages/cerbia-core/README.md
+  h_d6d31939214ddd 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "a354e975be8457e15e5fad563eda430e34990658",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
