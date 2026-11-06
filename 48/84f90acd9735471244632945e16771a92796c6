@@ -1,0 +1,14 @@
+pyproject.toml
+  h_d6d31939214ddd 79,94-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "4884f90acd9735471244632945e16771a92796c6",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
