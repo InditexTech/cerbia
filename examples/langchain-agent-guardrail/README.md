@@ -8,9 +8,9 @@ SPDX-License-Identifier: Apache-2.0
 
 This example demonstrates how to integrate **CerbIA** into **LangChain** and autonomous agent orchestration pipelines using **Agent Middleware** (`CerbiaAgentMiddleware`) and custom callbacks (`CerbiaCallbackHandler`).
 
-It implements a comprehensive security perimeter protecting autonomous AI agents against:
+It demonstrates heuristic checks for these risks; findings are not a security guarantee:
 - **OWASP LLM01: Prompt Injection**: Intercepts direct prompt overrides, jailbreaks, and zero-width invisible text at the prompt boundary before LLM inference.
-- **OWASP LLM02: Sensitive Information Disclosure**: Prevents confidential tokens, canary strings, PII, and infrastructure secrets from leaking in LLM responses.
+- **OWASP LLM02: Sensitive Information Disclosure**: Checks LLM responses for confidential tokens, canary strings, PII, and infrastructure secrets.
 - **Tool input and output checks**: Scans tool arguments for suspicious URL and prompt-injection indicators, and can scan external tool outputs for indirect prompt injection when a tool-output gate is configured. Real tools must separately enforce destination restrictions and safe argument handling.
 
 ---
@@ -71,11 +71,11 @@ sequenceDiagram
 3. **Granular Boundary Enforcement**:
    - `input_gate`: Checks prompts and chat messages before model execution.
    - `tool_gate`: Inspects tool arguments before invoking external functions or web services.
-   - `tool_output_gate`: Sanitizes external tool outputs to shield against indirect prompt injections embedded in retrieved data.
+    - `tool_output_gate`: Scans external tool outputs for indirect prompt injection; middleware blocks flagged output rather than sanitizing its contents.
    - `output_gate`: Scans LLM generations for secret leaks, canary tokens, and PII.
 4. **Flexible Enforcement Modes**:
    - **Enforcement Mode (`raise_error=True`)**: Immediately interrupts agent flow with `CerbiaSecurityException` on security violations.
-   - **Audit / Soft-Intervention Mode (`raise_error=False`)**: Records security findings and risk scores into audit history, blocks tool execution, and returns descriptive error messages into the agent context without terminating execution.
+   - **Audit / Soft-Intervention Mode (`raise_error=False`)**: Both handlers record findings without raising. Middleware returns an error `ToolMessage` instead of executing a blocked tool or passing blocked tool output onward; the callback handler only records the finding.
 
 ---
 
@@ -86,7 +86,7 @@ sequenceDiagram
 Ensure you are in the CerbIA workspace environment:
 
 ```bash
-uv sync
+uv sync --group examples
 ```
 
 ### 2. Run the Interactive Demonstration
@@ -94,8 +94,11 @@ uv sync
 Run the reference agent scenario illustrating safe interactions, prompt injection blocking, canary leak prevention, tool parameter protection, and indirect prompt injection interception:
 
 ```bash
-python examples/langchain-agent-guardrail/agent.py
+uv run --no-sync python examples/langchain-agent-guardrail/agent.py
 ```
+
+The included agent, tool execution, and model responses are simulated; this demo
+does not call an LLM service or external tools.
 
 Expected output:
 
@@ -125,12 +128,15 @@ Audit Summary: {'total_scans': 10, 'blocked_scans': 4, 'safe_scans': 6, 'boundar
 Run the full pytest suite for the middleware, callback handler, and agent guardrails:
 
 ```bash
-pytest examples/langchain-agent-guardrail/test_agent.py -v
+uv run --no-sync pytest examples/langchain-agent-guardrail/test_agent.py -v
 ```
 
 ---
 
 ## Code Example: Using `CerbiaAgentMiddleware` and `CerbiaCallbackHandler`
+
+Run this snippet with `examples/langchain-agent-guardrail` on the Python import
+path so the project-local handler imports resolve.
 
 ```python
 from cerbia.core.scanners import (
@@ -142,14 +148,14 @@ from cerbia.core.scanners import (
     PromptInjectionScanner,
     SecretScanner,
 )
-from cerbia.core.scanners.base import Action
+from cerbia.core.types import Action
 from cerbia.core.score_aggregators import MaxScoreAggregator
-from cerbia.core.security_gate import SecurityGate
+from cerbia.core.security_gate import SimpleGate
 from cerbia_callback import CerbiaCallbackHandler
 from cerbia_middleware import CerbiaAgentMiddleware
 
 # 1. Define input security gate
-input_gate = SecurityGate(
+input_gate = SimpleGate(
     name="agent-input",
     scanners=[
         PromptInjectionScanner(),
@@ -166,21 +172,21 @@ input_gate = SecurityGate(
 )
 
 # 2. Define tool security gate (tool arguments)
-tool_gate = SecurityGate(
+tool_gate = SimpleGate(
     name="agent-tool-input",
     scanners=[MaliciousUrlScanner(), PromptInjectionScanner()],
     score_aggregator=MaxScoreAggregator(),
 )
 
 # 3. Define tool output security gate (indirect prompt injection)
-tool_output_gate = SecurityGate(
+tool_output_gate = SimpleGate(
     name="agent-tool-output",
     scanners=[PromptInjectionScanner()],
     score_aggregator=MaxScoreAggregator(),
 )
 
 # 4. Define output security gate
-output_gate = SecurityGate(
+output_gate = SimpleGate(
     name="agent-output",
     scanners=[
         SecretScanner(),

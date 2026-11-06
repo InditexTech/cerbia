@@ -1,6 +1,6 @@
 # Programmatic usage
 
-This scenario builds a `SecurityGate` directly in Python and scans one safe and
+This scenario builds a `SimpleGate` directly in Python and scans one safe and
 one prompt-injection text value with the built-in `KeywordScanner`.
 
 From this directory, run:

@@ -31,7 +31,7 @@ from cerbia.core.scanners import (
 )
 from cerbia.core.scanners.base import Action
 from cerbia.core.score_aggregators import MaxScoreAggregator
-from cerbia.core.security_gate import SecurityGate
+from cerbia.core.security_gate import SimpleGate
 from cerbia_callback import CerbiaCallbackHandler
 from cerbia_middleware import CerbiaAgentMiddleware, CerbiaSecurityException
 from langchain.agents.middleware import ToolCallRequest
@@ -42,10 +42,10 @@ logger = logging.getLogger("cerbia.agent")
 
 def build_guardrail_gates(
     canary_token: str | None = None,
-) -> tuple[SecurityGate, SecurityGate, SecurityGate, SecurityGate]:
+) -> tuple[SimpleGate, SimpleGate, SimpleGate, SimpleGate]:
     """Create input, output, tool input, and tool output security gates for an enterprise agent."""
     # 1. Input Gate: Detects prompt injection, invisible zero-width characters, and forbidden commands
-    input_gate = SecurityGate(
+    input_gate = SimpleGate(
         name="agent-input-gate",
         scanners=[
             PromptInjectionScanner(),
@@ -62,7 +62,7 @@ def build_guardrail_gates(
     )
 
     # 2. Tool Gate: Protects against SSRF, malicious web targets, and tool input injection
-    tool_gate = SecurityGate(
+    tool_gate = SimpleGate(
         name="agent-tool-gate",
         scanners=[
             MaliciousUrlScanner(),
@@ -72,7 +72,7 @@ def build_guardrail_gates(
     )
 
     # 3. Tool Output Gate: Protects against Indirect Prompt Injection in retrieved external data
-    tool_output_gate = SecurityGate(
+    tool_output_gate = SimpleGate(
         name="agent-tool-output-gate",
         scanners=[
             PromptInjectionScanner(),
@@ -88,7 +88,7 @@ def build_guardrail_gates(
     if canary_token:
         output_scanners.append(CanaryLeakScanner(canary_tokens=[canary_token]))
 
-    output_gate = SecurityGate(
+    output_gate = SimpleGate(
         name="agent-output-gate",
         scanners=output_scanners,
         score_aggregator=MaxScoreAggregator(),

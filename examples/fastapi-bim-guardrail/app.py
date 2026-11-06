@@ -27,7 +27,7 @@ from cerbia.core.scanners import (
 )
 from cerbia.core.scanners.canary._generator import CanaryTokenGenerator
 from cerbia.core.score_aggregators import MaxScoreAggregator, MaxWithBonusScoreAggregator
-from cerbia.core.security_gate import SecurityGate
+from cerbia.core.security_gate import SimpleGate
 from cerbia.core.types import Action, ContentType
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
@@ -42,7 +42,7 @@ app = FastAPI(
 canary_generator = CanaryTokenGenerator(namespace="inditex-bim-tender")
 
 # 2. Input Security Gate: Protects against Prompt Injection, PII, Secrets, and Malicious URLs
-input_gate = SecurityGate(
+input_gate = SimpleGate(
     name="bim-input-security-gate",
     scanners=[
         InvisibleTextScanner(),
@@ -167,7 +167,7 @@ def query_bim_assistant(request: BimQueryRequest) -> BimQueryResponse:
     _, canary_token = canary_generator.inject(f"Confidential Tender Reference: {confidential_budget_code}")
 
     # 3. CONFIGURE OUTPUT GATE FOR THIS INVOCATION
-    output_gate = SecurityGate(
+    output_gate = SimpleGate(
         name="bim-output-security-gate",
         scanners=[
             CanaryLeakScanner(canary_tokens=[canary_token]),
