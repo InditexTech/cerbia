@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-import httpx
+import httpx2
 import pytest
 import yaml
 from cerbia.core.config import SimpleGateConfig
@@ -9,7 +9,7 @@ from cerbia.core.models.scans import ScanOutcome
 from cerbia.core.runner import Runner
 from pydantic import JsonValue
 
-type MockHTTP = Callable[[Callable[[httpx.Request], httpx.Response]], None]
+type MockHTTP = Callable[[Callable[[httpx2.Request], httpx2.Response]], None]
 pytestmark = pytest.mark.integration
 
 
@@ -56,7 +56,7 @@ score_aggregator:
   score_aggregator: cerbia.core.score_aggregators.MaxScoreAggregator
 """)
     )
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
     usage: dict[str, JsonValue] = {"input_tokens": 1, "output_tokens": 0}
     if format == "decisions":
         usage.update(
@@ -65,9 +65,9 @@ score_aggregator:
             output_tokens_details={"reasoning_tokens": 0},
         )
 
-    def handle(request: httpx.Request) -> httpx.Response:
+    def handle(request: httpx2.Request) -> httpx2.Response:
         requests.append(request)
-        return httpx.Response(
+        return httpx2.Response(
             200,
             json={
                 "model": "m",

@@ -2,7 +2,7 @@ import sys
 from collections.abc import Callable
 from types import ModuleType
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis.decisions import DecisionsResponse
 from cerbia.core.apis.systemone import SystemOneResponse
@@ -37,8 +37,8 @@ def application_policy(
 
 
 @pytest.fixture
-def mock_http(monkeypatch: pytest.MonkeyPatch) -> Callable[[Callable[[httpx.Request], httpx.Response]], None]:
-    def install(handler: Callable[[httpx.Request], httpx.Response]) -> None:
-        monkeypatch.setattr(httpx.HTTPTransport, "handle_request", lambda self, request: handler(request))
+def mock_http(monkeypatch: pytest.MonkeyPatch) -> Callable[[Callable[[httpx2.Request], httpx2.Response]], None]:
+    def install(handler: Callable[[httpx2.Request], httpx2.Response]) -> None:
+        monkeypatch.setattr(httpx2.HTTPTransport, "handle_request", lambda self, request: handler(request))
 
     return install

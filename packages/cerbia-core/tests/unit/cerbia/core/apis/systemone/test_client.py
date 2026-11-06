@@ -1,7 +1,7 @@
 import json
 from collections.abc import Callable
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis import APIConfigError, APIError
 from cerbia.core.apis import systemone as api
@@ -11,17 +11,17 @@ pytestmark = pytest.mark.unit
 
 @pytest.mark.parametrize("model,text", [("requested", "Untrusted text"), (" \t ", "")])
 def test_typed_answers_when_client_asks_about_text(
-    mock_http: Callable[[Callable[[httpx.Request], httpx.Response]], None],
+    mock_http: Callable[[Callable[[httpx2.Request], httpx2.Response]], None],
     model: str,
     text: str,
 ) -> None:
     # Given
     question = api.NoulQuestion(instructions="Assess text")
-    requests: list[httpx.Request] = []
+    requests: list[httpx2.Request] = []
 
-    def handle(request: httpx.Request) -> httpx.Response:
+    def handle(request: httpx2.Request) -> httpx2.Response:
         requests.append(request)
-        return httpx.Response(
+        return httpx2.Response(
             200,
             json={
                 "model": "resolved",
@@ -56,7 +56,7 @@ def test_typed_answers_when_client_asks_about_text(
     ],
 )
 def test_client_rejects_malformed_or_wrong_protocol_payload(body: bytes, mock_http) -> None:
-    mock_http(lambda request: httpx.Response(200, content=body))
+    mock_http(lambda request: httpx2.Response(200, content=body))
     with pytest.raises(APIError, match="^API request failed$"):
         api.SystemOneClient(model="m", base_url="https://api.test").ask("text", {"q": api.NoulQuestion()})
 

@@ -3,7 +3,7 @@ from collections.abc import Callable
 from math import isfinite
 from urllib.parse import urlsplit
 
-import httpx
+import httpx2
 
 from .exceptions import APIConfigError, APIError
 
@@ -21,7 +21,7 @@ def _compose_url(base_url: str | None, endpoint_path: str) -> str | None:
     Raises:
         ValueError: If the endpoint path or base URL is invalid.
         TypeError: If a URL argument has an invalid type.
-        httpx.InvalidURL: If HTTPX cannot parse the base URL.
+        httpx2.InvalidURL: If HTTPX2 cannot parse the base URL.
     """
     path = urlsplit(endpoint_path)
     if (
@@ -40,7 +40,7 @@ def _compose_url(base_url: str | None, endpoint_path: str) -> str | None:
     if base_url is None:
         return None
 
-    url = httpx.URL(base_url)
+    url = httpx2.URL(base_url)
     if (
         url.scheme not in {"http", "https"}
         or not url.host
@@ -59,7 +59,7 @@ def _compose_url(base_url: str | None, endpoint_path: str) -> str | None:
 class HTTPClient:
     """Send bounded JSON POST requests without retries, redirects, or logs.
 
-    HTTPX's environment proxy and CA settings are honored.
+    HTTPX2's environment proxy and CA settings are honored.
 
     Args:
         base_url (str | None): HTTP or HTTPS base URL to append the endpoint path to. If ``None``, construction
@@ -89,7 +89,7 @@ class HTTPClient:
 
             self._url: str | None = _compose_url(base_url, endpoint_path)
 
-        except (ValueError, TypeError, httpx.InvalidURL):
+        except (ValueError, TypeError, httpx2.InvalidURL):
             raise APIConfigError() from None
 
         self._timeout = timeout
@@ -142,12 +142,12 @@ class HTTPClient:
 
         try:
             if any("\r" in value or "\n" in value for value in headers.values()):
-                raise httpx.LocalProtocolError("Invalid header value")
+                raise httpx2.LocalProtocolError("Invalid header value")
 
-            response = httpx.post(self._url, content=body, headers=headers, timeout=self._timeout)
+            response = httpx2.post(self._url, content=body, headers=headers, timeout=self._timeout)
             response.raise_for_status()
 
             return response.content
 
-        except (httpx.HTTPError, httpx.InvalidURL, ValueError, TypeError, OSError):
+        except (httpx2.HTTPError, httpx2.InvalidURL, ValueError, TypeError, OSError):
             raise APIError() from None

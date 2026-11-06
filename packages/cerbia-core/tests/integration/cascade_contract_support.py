@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Literal
 
-import httpx
+import httpx2
 import yaml
 from cerbia.core.apis.decisions import DecisionsResponse
 from cerbia.core.apis.systemone import SystemOneResponse
@@ -43,7 +43,7 @@ class Contract:
     protocol: Protocol
     outcome: ScanOutcome
     kind: str = "score"
-    requests: list[httpx.Request] = field(default_factory=list)
+    requests: list[httpx2.Request] = field(default_factory=list)
     evaluations: list[Response] = field(default_factory=list)
     error: Exception | None = None
     mode: str = "valid"
@@ -54,7 +54,7 @@ class Contract:
             raise self.error
         return self.outcome
 
-    def handle(self, request: httpx.Request) -> httpx.Response:
+    def handle(self, request: httpx2.Request) -> httpx2.Response:
         self.requests.append(request)
         if self.mode == "transport":
             assert self.error is not None
@@ -71,7 +71,7 @@ class Contract:
         }
         if self.mode == "malformed":
             body["answers"] = None
-        return httpx.Response(200, json=body)
+        return httpx2.Response(200, json=body)
 
     def runner(self, *, policy: str = "fail", base_path: str = "/gateway/") -> Runner:
         question, _ = case(self.protocol, self.kind)

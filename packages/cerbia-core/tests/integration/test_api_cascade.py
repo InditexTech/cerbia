@@ -1,7 +1,7 @@
 import json
 from types import ModuleType
 
-import httpx
+import httpx2
 import pytest
 from cerbia.core.apis import APIError
 from cerbia.core.apis.decisions import DecisionsResponse
@@ -92,7 +92,7 @@ def test_failure_refusal_or_invalid_evidence_never_allows(
     contract = Contract(protocol, ScanOutcome(risk_score=0.19, rationale="opaque"), mode=mode)
     cause = RuntimeError("private evaluator detail")
     if mode == "transport":
-        cause = httpx.ConnectError("fixture transport")
+        cause = httpx2.ConnectError("fixture transport")
         contract.error = cause
     elif mode == "evaluator":
         contract.error = cause

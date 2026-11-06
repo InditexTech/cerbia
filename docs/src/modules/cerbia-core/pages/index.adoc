@@ -13,7 +13,7 @@ its `SimpleGate` and `CascadeGate` implementations.
 pip install cerbia-core
 ----
 
-The core package requires Python 3.12 or later, Pydantic, and `httpx>=0.28,<1`. It does not require
+The core package requires Python 3.12 or later, Pydantic, and `httpx2>=2.13.1,<3`. It does not require
 the optional ML or NLP runtimes; those capabilities are provided by separate
 distributions.
 
