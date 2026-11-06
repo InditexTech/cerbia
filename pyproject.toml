@@ -76,6 +76,7 @@ select = [
     "B",    # flake8-bugbear
     "SIM",  # flake8-simplify
     "C4",   # flake8-comprehensions
+    "C901", # McCabe cyclomatic complexity
     "UP",   # pyupgrade
     "D",    # pydocstyle /flake8-docstrings
 ]
@@ -89,6 +90,9 @@ per-file-ignores = {"**/tests/**" = ["D"]}
 
 fixable = ["ALL"]
 unfixable = []
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
 
 
 [tool.ruff.lint.pydocstyle]
