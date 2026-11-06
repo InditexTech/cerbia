@@ -2,9 +2,9 @@
 :description: Browse scanners for hidden text, prompt injection, PII, secrets, URLs, keywords, and other findings.
 :page-tags: Reference, Components
 
-Scanners inspect one entry at a time and return a `ScanOutcome` with a risk score, rationale, and optional match spans. The pipeline adds each scanner's configured severity and action to form a finding. Only `BLOCK` findings affect the aggregate verdict; other findings remain visible for review.
+Scanners inspect one entry at a time and return a `ScanOutcome` with a risk score, rationale, and optional match spans. The pipeline adds each scanner's configured severity and action to form a finding. Only positive `BLOCK` findings are eligible for numerical decisions; other findings remain visible for review.
 
-Every scanner accepts `severity`, `action`, and `content_types`, although their defaults differ. `content_types: null` accepts every entry type. An incompatible scanner is skipped and recorded rather than executed.
+Every scanner accepts `severity`, `action`, and `content_types`, although their defaults differ. `content_types: null` accepts every entry type. In a simple gate, a known-type mismatch is skipped and recorded; `ContentType.UNKNOWN` is eligible for all scanners. In a cascade, a known-type mismatch from a required scanner is an `unsupported_content` operational fault: `fail` raises it, `block` returns an unsafe operational verdict, remaining scanners in that stage do not run, and later stages are `not_reached`. An `UNKNOWN` entry type reaches scanners and follows the same score-only stage decisions as other eligible inputs.
 
 [options="header"]
 |===

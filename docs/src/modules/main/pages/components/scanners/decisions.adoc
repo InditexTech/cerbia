@@ -3,14 +3,22 @@
 :page-tags: Reference, Scanner, Core
 
 `cerbia.core.scanners.DecisionsScanner` and
-`cerbia.core.scanners.SystemOneScanner` follow a text-only flow:
+`cerbia.core.scanners.SystemOneScanner` accept text and follow a typed question/
+response flow:
 
 `text -> configured questions -> typed API response -> application evaluator -> ScanOutcome`
 
 It is included in `cerbia-core` (also installed by `cerbia`), with mandatory
 `httpx>=0.28,<1`. No extra, provider SDK, or local ML package is needed.
-Conversations, tools, images, arbitrary JSON input, and structured-result
-reporting are not supported.
+The current scanner input is text. It does not accept conversations, tools,
+images, or arbitrary JSON input. Decisions questions and response answers are
+typed: Decisions supports predicate, choice, and score questions/answers;
+SystemOne supports Noul, choice, and score questions/answers. The configured
+application evaluator receives the corresponding typed response and returns a
+`ScanOutcome`; callers inspect structured typed answers inside the evaluator and
+map the assessment explicitly to the scanner result. Unsupported protocol features,
+refusals, malformed responses, and inconsistent answers fail rather than being
+silently flattened or treated as benign.
 
 == Responsibilities
 
@@ -21,6 +29,10 @@ reporting are not supported.
 * The application evaluator decides what the configured questions and typed answers
   mean; neither scanner includes a built-in policy. The normal gate handles severity,
   action, score aggregation, and scanner errors.
+
+Evaluators return standard scores, rationale, and optional match spans. Cascade
+decisions use only the resulting stage score and its configured bands. A low
+score does not prove detection correctness.
 
 == Decisions scanner
 

@@ -2,7 +2,7 @@
 :description: Requirements and installation steps before using CerbIA.
 :page-tags: getting started, installation
 :repo-url: https://github.com/InditexTech/cerbia
-:example-config-url: {repo-url}/blob/main/examples/cli-usage/config.cerbia.yaml
+:example-config-url: {repo-url}/blob/main/examples/cli-usage/simple.cerbia.yaml
 
 // Source: README.md Python badge and Quickstart; docs/app/page.tsx install command.
 

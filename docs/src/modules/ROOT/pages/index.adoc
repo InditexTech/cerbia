@@ -25,12 +25,12 @@ text:
 [source,bash]
 ----
 pip install "cerbia[cli]"
-cerbia validate examples/cli-usage/config.cerbia.yaml
-cerbia scan --config examples/cli-usage/config.cerbia.yaml --text "A short message"
+cerbia validate examples/cli-usage/simple.cerbia.yaml
+cerbia scan --config examples/cli-usage/simple.cerbia.yaml --text "A short message"
 ----
 
 The commands above use the
-https://github.com/inditextech/cerbia/blob/main/examples/cli-usage/config.cerbia.yaml[CLI example configuration].
+https://github.com/inditextech/cerbia/blob/main/examples/cli-usage/simple.cerbia.yaml[CLI example configuration].
 Follow the xref:main:prerequisites.adoc[prerequisites] to get ready, or read
 xref:main:about.adoc[about CerbIA] for its scope and limitations.
 
@@ -88,13 +88,13 @@ pip install "cerbia[cli]"
 .Validate configuration
 [source,bash]
 ----
-cerbia validate examples/cli-usage/config.cerbia.yaml
+cerbia validate examples/cli-usage/simple.cerbia.yaml
 ----
 
 .Scan content
 [source,bash]
 ----
-cerbia scan --config examples/cli-usage/config.cerbia.yaml --text "A short message"
+cerbia scan --config examples/cli-usage/simple.cerbia.yaml --text "A short message"
 ----
 
 == Free and open source

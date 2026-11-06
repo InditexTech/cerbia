@@ -2,7 +2,7 @@
 :description: Guided paths for trying and extending CerbIA security gates.
 :page-tags: guides, workflows
 :repo-url: https://github.com/InditexTech/cerbia
-:example-config-url: {repo-url}/blob/main/examples/cli-usage/config.cerbia.yaml
+:example-config-url: {repo-url}/blob/main/examples/cli-usage/simple.cerbia.yaml
 
 // Source: README.md Quickstart and Features; CONTRIBUTING.md Development workflow.
 

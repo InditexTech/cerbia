@@ -1,23 +1,24 @@
 = Gate behavior
-:description: Understand how SecurityGate combines scanner findings, actions, scores, and thresholds into a verdict.
+:description: Understand how SimpleGate and CascadeGate combine scanner findings, actions, scores, and thresholds into a verdict.
 :page-tags: reference, gate, verdict
 :repo-url: https://github.com/InditexTech/cerbia
-:example-config-url: {repo-url}/blob/main/examples/cli-usage/config.cerbia.yaml
+:example-config-url: {repo-url}/blob/main/examples/cli-usage/simple.cerbia.yaml
 
 // Source: docs/content/docs/gate.mdx (local MDX; source SHA-256 recorded in legacy-routes.json).
 
-`SecurityGate` evaluates one entry with an ordered set of scanners and turns
-their findings into a verdict. It is created by `Runner` from the configured
-scanners, score aggregator, threshold, fail-fast setting, and scanner-error
-policy.
+`SecurityGate` is the scanner-agnostic, runtime-checkable protocol for
+`scan(text, *, content_type) -> GateVerdict`. `Runner` supports its concrete
+`SimpleGate` and `CascadeGate` implementations. A simple gate evaluates one ordered scanner list. A cascade
+runs ordered stages, each with its own configured scanners and decision rule.
+Absent root `type` or `type: simple` keeps existing simple-gate behavior.
 
-== Findings and scores
+== Simple gate: findings and scores
 
 A scanner emits a `ScanOutcome`: risk score, rationale, and optional match
 spans. The gate adds the scanner ID, display name, severity, and action to make
 a `Finding`.
 
-Only findings with action `BLOCK` contribute to the aggregate. Their input to
+Only positive-risk findings with action `BLOCK` contribute to the aggregate. Their input to
 the configured score aggregator is:
 
 [source,text]
@@ -25,24 +26,26 @@ the configured score aggregator is:
 weighted score = finding.risk_score × finding.severity.weight
 ----
 
-The entry is safe when there are no blocking findings or when the aggregate is
+The entry is safe when there are no positive-risk blocking findings or when the aggregate is
 strictly below `threshold`. `WARN` and `PASS` findings are retained for review
 but do not contribute to the aggregate.
 
-== Content-type routing
+== Simple gate: content-type routing
 
 Scanners may restrict their accepted `content_types`. Before calling a scanner,
 the gate compares the entry's type with that restriction. A non-matching scanner
 is recorded as skipped with its reason; it does not produce a finding or affect
 the aggregate.
 
-== Fail-fast behavior
+== Simple gate: fail-fast behavior
 
 When `fail_fast` is enabled, the gate stops after the first blocking finding
-whose severity-weighted score reaches the configured threshold. With it disabled,
+whose risk score is not within `1e-9` of zero and whose severity-weighted score
+reaches the configured threshold. Near-zero positive scores still contribute to
+the aggregate. With fail-fast disabled,
 the gate runs every compatible scanner and returns all findings.
 
-== Scanner errors
+== Simple gate: scanner errors
 
 `on_scanner_error` determines how scanner exceptions affect the result:
 
@@ -58,3 +61,61 @@ The output `GateVerdict` includes `is_safe`, aggregate `score`, rationale,
 findings, and skipped scanners. See
 xref:components/score-aggregators.adoc[Score aggregators] for the available
 combination strategies.
+
+== Cascade stages
+
+Each stage runs its scanners in configured order. All compatible scanners in a
+reached stage run before its decision is evaluated, unless an operational
+scanner failure stops execution immediately. Unlike a simple-gate skip, a
+cascade scanner whose `content_types` reject the entry is `unsupported_content`
+and is an operational fault: `fail` raises it, while `block` returns an unsafe
+operational verdict. It stops the cascade; remaining scanners in that stage
+do not run and later stages have `result: not_reached`. A terminal allow or block
+prevents later stages from running. Every stage is numerical; the final stage
+allows every score not blocked. See xref:configuration.adoc[Flat cascade
+configuration] for the exact YAML schema. Every nonfinal stage requires an
+explicit `defer_above` smaller than its resolved threshold. The final stage
+forbids `defer_above`, including in a single-stage cascade.
+
+=== Stages and evidence
+
+A stage uses only its own completed raw scanner outcomes. Earlier outcomes and
+aggregate scores are never selected or rescored. Eligible scores
+are positive own BLOCK findings weighted by configured severity and passed
+unchanged to the configured aggregator. No eligible evidence means score `0`
+without an aggregator call. A block requires aggregate `score > threshold`;
+equality does not block. Stage `threshold` overrides the optional root default.
+
+For instance, an earlier deferred score `0.60` does not affect a final stage
+with threshold `0.55` and own score `0.0`: the final stage allows. Earlier
+findings remain visible in output. Max aggregation does not prove scanner
+independence or probability calibration.
+
+=== Score-only stage decisions
+
+Blocking is evaluated first. On a nonfinal stage, required `defer_above` defers
+scores strictly above it; equality is eligible for allow. Missing nonfinal
+bands and any final-stage band are configuration errors. Otherwise the stage
+allows, including at score zero or equality with `defer_above`. Content type
+does not add an early-allow condition; scanner eligibility remains separate.
+
+The final stage allows every unblocked score and must not configure a defer band.
+Required scanner failures and known-type
+mismatches still fail or block before any stage decision can allow.
+
+=== Cascade operational errors and trace
+
+The gate-level `on_scanner_error` is `fail` by default or `block`. `fail`
+preserves the original scanner/transport error where possible. `block` returns
+an unsafe operational verdict with a bounded failure category in `rationale`;
+it does not fabricate a threat finding. The entry score `1.0` is a fail-closed
+sentinel, not model risk, and the blocking stage omits its score. Remaining
+scanners in that stage do not run; later stages have `result: not_reached`.
+
+Public `StageResult` summaries expose only `id`, `result`, and optional `score`.
+Normal reached stages include their diagnostic score; unreached stages omit it.
+`Finding.stage` identifies the stage that executed that scanner. All completed
+findings remain in one flat list in execution order, including deferred stages,
+without duplicating or rescoring earlier findings. Simple gates serialize `stages: null`
+and omit unset finding stage fields. Top-level result data can
+still contain text and finding rationale.
