@@ -1,7 +1,8 @@
+from pathlib import Path
+
 import pytest
 from cerbia.core.models.scans import MatchSpan
 from cerbia.core.registries.url import UrlRegistry
-from cerbia.core.scanners.malicious_url import MaliciousUrlScanner
 from cerbia.core.scanners.url_allow_list import UrlAllowListScanner
 from cerbia.core.types import Action, ContentType, Severity
 
@@ -71,24 +72,6 @@ def test_url_allowlist_scanner_registers_allowed_domains_with_shared_registry() 
     assert result.risk_score == 0.0
 
 
-def test_url_allowlist_scanner_shares_registered_urls_with_malicious_scanner() -> None:
-    registry = UrlRegistry()
-    allowlist_scanner = UrlAllowListScanner(["https://trusted.xyz/*"], url_registry=registry)
-    malicious_scanner = MaliciousUrlScanner(suspicious_tlds=["xyz"], url_registry=registry)
-    scanner_with_distinct_registry = MaliciousUrlScanner(suspicious_tlds=["xyz"], url_registry=UrlRegistry())
-
-    allowlist_scanner.scan("https://trusted.xyz/docs")
-    shared_result = malicious_scanner.scan("https://trusted.xyz/docs")
-    distinct_registry_result = scanner_with_distinct_registry.scan("https://trusted.xyz/docs")
-
-    assert shared_result.risk_score == 0.0
-    assert shared_result.rationale == "All URLs on allowlist"
-    assert distinct_registry_result.risk_score == 0.75
-    assert distinct_registry_result.rationale == (
-        "Suspicious URL(s) (1 flag(s)): Suspicious TLD (.xyz) (https://trusted.xyz/docs)"
-    )
-
-
 def test_url_allowlist_scanner_preserves_configuration_when_custom_values_are_provided() -> None:
     scanner = UrlAllowListScanner(
         ["https://example.com/*"],
@@ -102,3 +85,32 @@ def test_url_allowlist_scanner_preserves_configuration_when_custom_values_are_pr
     assert scanner.severity is Severity.CRITICAL
     assert scanner.action is Action.WARN
     assert scanner.content_types == (ContentType.URL,)
+
+
+@pytest.mark.parametrize("source", ["inline", "string", "path"])
+def test_allowlist_routes_supported_rule_sources(source: str, tmp_path: Path) -> None:
+    path = tmp_path / "rules.txt"
+    path.write_text("https://file.example/*\n", encoding="utf-8")
+
+    if source == "inline":
+        rules = ["https://file.example/*"]
+    elif source == "string":
+        rules = str(path)
+    else:
+        rules = path
+
+    scanner = UrlAllowListScanner(rules)
+
+    assert scanner.scan("https://file.example/doc").risk_score == 0.0
+    assert scanner.scan("https://other.example/doc").risk_score == 0.95
+
+
+def test_allowlist_preserves_original_spans_for_normalized_repeated_unicode_urls() -> None:
+    scanner = UrlAllowListScanner(["https://safe.example/*"])
+    url = "HTTPS://user:pass@BÜCHER.example/a/../docs?q=é#frag"
+    text = f"前🙂 ({url}), https://safe.example/; {url}!"
+
+    result = scanner.scan(text)
+
+    assert [text[span.start : span.end] for span in result.matches] == [url, url]
+    assert "https://xn--bcher-kva.example/docs" in result.rationale

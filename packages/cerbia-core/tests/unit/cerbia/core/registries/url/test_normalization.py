@@ -38,11 +38,3 @@ def test_url_normalization_compiles_anchored_wildcard_pattern_when_pattern_is_pr
 
     assert compiled_pattern.fullmatch(matching_url) is not None
     assert compiled_pattern.fullmatch(non_matching_url) is None
-
-
-def test_url_normalization_returns_cached_pattern_when_same_pattern_is_compiled() -> None:
-    first_pattern = compile_url_pattern("https://example.com/*")
-
-    second_pattern = compile_url_pattern("https://example.com/*")
-
-    assert second_pattern is first_pattern

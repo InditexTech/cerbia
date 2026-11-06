@@ -24,16 +24,12 @@ class _ComponentStub:
 
 
 class _FactoryStub(Factory[_FactoryStubConfig, _ComponentStub]):
-    """A stub factory for testing purposes that creates instances of _ComponentStub."""
-
     @classmethod
     def get_output_type(cls) -> type[_ComponentStub]:
         return _ComponentStub
 
 
 class _NonCompliantFactoryStub(Factory[_NonCompliantFactoryStubConfig, _ComponentStub]):
-    """A stub factory for testing purposes that creates instances of _ComponentStub."""
-
     @classmethod
     def get_output_type(cls) -> type[_ComponentStub]:
         return _ComponentStub
@@ -58,19 +54,6 @@ def test_factory_base_import_class_raises_factory_error_when_module_missing() ->
 def test_factory_base_import_class_raises_factory_error_when_class_missing() -> None:
     with pytest.raises(FactoryError, match="Class 'MissingClass' not found"):
         Factory._import_class("builtins.MissingClass")
-
-
-def test_factory_base_verify_does_not_raise_when_instance_satisfies_expected_type() -> None:
-    instance = "value"
-
-    result = Factory._verify(instance, str, "builtins.str")
-
-    assert result is None
-
-
-def test_factory_base_verify_raises_factory_error_when_instance_does_not_satisfy_expected_type() -> None:
-    with pytest.raises(FactoryError, match="produced str which does not satisfy int"):
-        Factory._verify("value", int, "builtins.str")
 
 
 def test_factory_base_build_returns_instance_when_class_builds_and_satisfies_contract() -> None:

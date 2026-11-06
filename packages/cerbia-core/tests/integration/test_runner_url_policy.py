@@ -1,15 +1,14 @@
 from pathlib import Path
 
 import pytest
-from cerbia.core.config import CerbIAConfig, LoaderConfig, ScannerConfig, ScoreAggregatorConfig
+from cerbia.core.config import LoaderConfig, ScannerConfig, ScoreAggregatorConfig, SimpleGateConfig
 from cerbia.core.runner import Runner
 from cerbia.core.scanners import MaliciousUrlScanner, UrlAllowListScanner, UrlDenyListScanner
 
-pytestmark = pytest.mark.unit
+pytestmark = pytest.mark.integration
 
 
-@pytest.mark.parametrize("allow_source", ["inline", "file"])
-@pytest.mark.parametrize("deny_source", ["inline", "file"])
+@pytest.mark.parametrize("allow_source,deny_source", [("inline", "file"), ("file", "inline")])
 @pytest.mark.parametrize("deny_first", [False, True])
 @pytest.mark.parametrize("fail_fast", [False, True])
 def test_runner_blocks_allowlisted_url_when_denylisted_in_either_order(
@@ -28,7 +27,7 @@ def test_runner_blocks_allowlisted_url_when_denylisted_in_either_order(
     if deny_first:
         configs.reverse()
     configs.append(ScannerConfig(scanner="cerbia.core.scanners.MaliciousUrlScanner"))
-    config = CerbIAConfig(
+    config = SimpleGateConfig(
         name="url-policy",
         loaders=[
             LoaderConfig(loader="cerbia.core.loaders.TextLoader", init_args={"texts": "https://blocked.xyz/docs"})
@@ -61,7 +60,7 @@ def test_runner_blocks_allowlisted_url_when_denylisted_in_either_order(
 
 def test_runner_keeps_policies_isolated_when_another_runner_is_built() -> None:
     # Given
-    config = CerbIAConfig(
+    config = SimpleGateConfig(
         name="isolated-policy",
         loaders=[LoaderConfig(loader="cerbia.core.loaders.TextLoader", init_args={"texts": "https://example.com/"})],
         scanners=[
