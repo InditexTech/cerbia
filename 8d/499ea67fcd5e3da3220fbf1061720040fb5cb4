@@ -1,0 +1,19 @@
+uv.lock
+  s_c77e3826cdc483::t_185f50407e37be 193,199
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "8d499ea67fcd5e3da3220fbf1061720040fb5cb4",
+  "prompts": {},
+  "sessions": {
+    "s_c77e3826cdc483": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e5a790a84ffeJ8OT7aEgyc2FSs",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

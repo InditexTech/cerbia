@@ -1,0 +1,16 @@
+docs/src/modules/cerbia-core/pages/index.adoc
+  h_d6d31939214ddd 15
+docs/src/modules/main/pages/components/scanners/decisions.adoc
+  h_d6d31939214ddd 11,158-164
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "13231adbbe17f0198c5d28d41826fc04238dfa93",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
