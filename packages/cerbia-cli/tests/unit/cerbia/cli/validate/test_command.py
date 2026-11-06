@@ -4,7 +4,7 @@ import pytest
 import typer
 from cerbia.cli import app
 from cerbia.cli.validate._command import validate
-from cerbia.core.config import CerbIAConfig, LoaderConfig, ScannerConfig, ScoreAggregatorConfig
+from cerbia.core.config import LoaderConfig, ScannerConfig, ScoreAggregatorConfig, SimpleGateConfig
 from cerbia.core.exceptions import CerbIAError
 from typer.testing import CliRunner
 
@@ -93,8 +93,8 @@ def test_validate_hides_unexpected_runner_exceptions(mocker, tmp_path: Path) -> 
     console.print.assert_called_once_with("[red bold]✗ Config validation failed.[/red bold]")
 
 
-def _build_config() -> CerbIAConfig:
-    return CerbIAConfig(
+def _build_config() -> SimpleGateConfig:
+    return SimpleGateConfig(
         name="test-gate",
         loaders=[LoaderConfig(loader="test.Loader")],
         scanners=[ScannerConfig(scanner="test.Scanner")],

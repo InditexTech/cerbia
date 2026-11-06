@@ -25,9 +25,17 @@ def validate(
 ) -> None:
     """Validate a single YAML configuration file and report gate structure.
 
+    Parses the schema first, then eagerly initializes every configured component,
+    including models. Does not scan inputs or assess model quality.
+
+    Args:
+        config (Path): YAML configuration path.
+        log_level (str | None): Optional logging level override.
+        log_file (Path | None): Optional log file path; an existing log file is overwritten.
+
     Raises:
-        typer.Exit: Raised with a non-zero code when the configuration path is invalid or the configuration fails
-            validation.
+        typer.Exit: With code 2 for handled file, schema, logging-level, or constructor type errors; with code 1
+            for CerbIAError during component construction or summary rendering.
     """
     err_console = Console(stderr=True)
 

@@ -1,9 +1,9 @@
 import logging
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, assert_never
 
 import typer
-from cerbia.core.config import LoaderConfig
+from cerbia.core.config import CascadeGateConfig, LoaderConfig, SimpleGateConfig
 from cerbia.core.exceptions import CerbIAError
 from cerbia.core.models.results import ScanResult
 from cerbia.core.runner import Runner
@@ -38,7 +38,7 @@ def scan(
     ] = None,
     threshold: Annotated[
         float | None,
-        typer.Option("--threshold", help="Ensemble score threshold for BLOCK verdict (overrides config)."),
+        typer.Option("--threshold", help="Override root threshold; explicit cascade stage thresholds take precedence."),
     ] = None,
     unsafe_only: Annotated[
         bool,
@@ -53,9 +53,20 @@ def scan(
 ) -> None:
     """Run security gates against input text or config-file entries.
 
+    Args:
+        config (Path): YAML configuration path.
+        text (list[str] | None): Text inputs that override configured loaders, alone or together with file inputs.
+        file (list[Path] | None): File inputs that override configured loaders, alone or together with text inputs.
+        output_path (Path | None): Optional .json output path; an existing file is overwritten.
+        log_level (str | None): Optional logging level override.
+        log_file (Path | None): Optional log file path; an existing log file is overwritten.
+        threshold (float | None): Root threshold override; explicit cascade stage thresholds take precedence.
+        unsafe_only (bool): Filter output to unsafe entries and omit zero-risk findings and skipped scanners from
+            console panels. Scan execution is unchanged.
+
     Raises:
-        typer.Exit: Always raised to terminate the command with the appropriate
-            exit code after validation or execution.
+        typer.Exit: With code 2 for handled configuration, input, logging, or scan errors; otherwise with code 0
+            when the output results are safe, or 1 when they contain an unsafe entry.
     """
     err_console = Console(stderr=True)
 
@@ -76,7 +87,7 @@ def scan(
             err_console.print("[red]Error:[/red] --output path must have a .json extension.")
             raise typer.Exit(code=2)
 
-        cfg = load_config_from_yaml(config, err_console)
+        cfg = load_config_from_yaml(config, err_console, threshold=threshold)
         configure_logging(log_level, log_file, err_console)
 
         loaders: list[LoaderConfig] = []
@@ -94,10 +105,22 @@ def scan(
             if cfg.loaders:
                 logger.warning("CLI input overrides the loaders configured in the config file")
 
-            cfg.loaders = loaders
+            match cfg:
+                case SimpleGateConfig():
+                    cfg.loaders = loaders
+                case CascadeGateConfig():
+                    cfg = cfg.model_copy(update={"loaders": loaders})
+                case unreachable:
+                    assert_never(unreachable)
 
         if threshold is not None:
-            cfg.threshold = threshold
+            match cfg:
+                case SimpleGateConfig():
+                    cfg.threshold = threshold
+                case CascadeGateConfig():
+                    pass
+                case unreachable:
+                    assert_never(unreachable)
 
         if not cfg.loaders:
             err_console.print("[red]Error:[/red] provide --text, --file, or configure loaders in your config.")
