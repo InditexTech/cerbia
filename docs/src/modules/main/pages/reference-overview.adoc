@@ -2,7 +2,7 @@
 :description: CerbIA configuration, command, component, and package reference.
 :page-tags: reference, configuration, cli
 :repo-url: https://github.com/InditexTech/cerbia
-:example-config-url: {repo-url}/blob/main/examples/cli-usage/config.cerbia.yaml
+:example-config-url: {repo-url}/blob/main/examples/cli-usage/simple.cerbia.yaml
 
 // Source: README.md Documentation and Features; docs/content/docs/meta.json navigation inventory.
 

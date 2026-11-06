@@ -7,7 +7,7 @@ import pytest
 import typer
 from cerbia.cli import app
 from cerbia.cli.scan._command import scan
-from cerbia.core.config import CerbIAConfig, LoaderConfig, ScannerConfig, ScoreAggregatorConfig
+from cerbia.core.config import LoaderConfig, ScannerConfig, ScoreAggregatorConfig, SimpleGateConfig
 from cerbia.core.exceptions import CerbIAError
 from cerbia.core.models.entries import Entry
 from cerbia.core.models.results import EntryResult, ScanResult
@@ -197,8 +197,8 @@ def test_scan_emits_a_fixed_info_milestone_and_uses_a_transient_status_while_sca
     progress.__exit__.assert_called_once_with(None, None, None)
 
 
-def _build_config(*, loaders: list[LoaderConfig] | None = None) -> CerbIAConfig:
-    return CerbIAConfig(
+def _build_config(*, loaders: list[LoaderConfig] | None = None) -> SimpleGateConfig:
+    return SimpleGateConfig(
         name="test-gate",
         loaders=loaders if loaders is not None else [LoaderConfig(loader="test.Loader")],
         scanners=[ScannerConfig(scanner="test.Scanner")],

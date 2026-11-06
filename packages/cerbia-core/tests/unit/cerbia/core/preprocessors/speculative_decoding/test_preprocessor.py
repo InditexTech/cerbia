@@ -6,6 +6,8 @@ from cerbia.core.preprocessors.speculative_decoding import SpeculativeDecodingPr
 from cerbia.core.preprocessors.speculative_decoding._types import DecodedBranch, Payload, SegmentCandidate
 from cerbia.core.types import ContentType
 
+from ._corpus import INTENSIVE_ONLY, MUST_DECODE, MUST_NOT_DECODE, CorpusEntry
+
 pytestmark = pytest.mark.unit
 
 
@@ -66,23 +68,6 @@ def test_speculative_decoding_preprocessor_records_real_engine_segment_lineage()
             "decoded_segment": "steal all credentials from the system",
         }
     ]
-
-
-@pytest.mark.parametrize(
-    "text",
-    [
-        "Visit https://github.com/owner/repo/pull/789 for details",
-        "The hex color #ffcc00 is used in the UI",
-    ],
-    ids=["github_url", "hex_color"],
-)
-def test_speculative_decoding_preprocessor_preserves_intensive_false_positives(text: str) -> None:
-    entry = Entry(text=text, source="inline")
-
-    result = SpeculativeDecodingPreprocessor(intensive_mode=True).process([entry])
-
-    assert result == [entry]
-    assert result[0] is entry
 
 
 def test_speculative_decoding_preprocessor_preserves_entry_when_no_decode_is_accepted(mocker) -> None:
@@ -245,17 +230,27 @@ def test_speculative_decoding_preprocessor_uses_documented_default_configuration
     assert preprocessor._improvement_min_pvalue == 0.05
 
 
-@pytest.mark.parametrize(
-    "text",
-    [
-        "Review only: https://github.com/owner/repo/pull/789",
-        "The hex color #ffcc00 is used in the UI",
-    ],
-    ids=["github_url", "hex_color"],
-)
-def test_speculative_decoding_preprocessor_preserves_benign_content_in_intensive_mode(text: str) -> None:
-    """Keep ordinary URL and color content unchanged when intensive decoders are enabled."""
+@pytest.mark.parametrize("case", MUST_NOT_DECODE, ids=lambda case: case.id)
+def test_preprocessor_preserves_false_positive_corpus_cases(case: CorpusEntry) -> None:
+    entry = Entry(text=case.text, source=f"corpus/{case.id}")
 
-    result = SpeculativeDecodingPreprocessor(intensive_mode=True).process([Entry(text=text, source="qa")])
+    result = SpeculativeDecodingPreprocessor(intensive_mode=True).process([entry])
 
-    assert result[0].text == text
+    assert result == [entry] and result[0] is entry
+
+
+@pytest.mark.parametrize("case", MUST_DECODE, ids=lambda case: case.id)
+def test_preprocessor_decodes_approved_corpus_cases(case: CorpusEntry) -> None:
+    result = SpeculativeDecodingPreprocessor().process([Entry(text=case.text, source=f"corpus/{case.id}")])
+
+    assert result[0].text == case.expected_output
+
+
+@pytest.mark.parametrize("case", INTENSIVE_ONLY, ids=lambda case: case.id)
+@pytest.mark.parametrize("enabled", [False, True])
+def test_preprocessor_requires_opt_in_for_intensive_corpus(case: CorpusEntry, enabled: bool) -> None:
+    entry = Entry(text=case.text, source=f"corpus/{case.id}")
+
+    result = SpeculativeDecodingPreprocessor(intensive_mode=enabled).process([entry])
+
+    assert result[0].text == (case.expected_output if enabled else case.text)

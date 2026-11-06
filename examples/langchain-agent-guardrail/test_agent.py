@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 import pytest
 from agent import StoreRolloutAgent, build_guardrail_gates
-from cerbia.core.security_gate import SecurityGate
+from cerbia.core.security_gate import SimpleGate
 from cerbia_callback import CerbiaCallbackHandler
 from cerbia_middleware import CerbiaAgentMiddleware, CerbiaSecurityException, _extract_text_content
 from langchain.agents.middleware import ToolCallRequest
@@ -43,7 +43,7 @@ class MockChatMessage:
     role: str = "user"
 
 
-GuardrailGates = tuple[SecurityGate, SecurityGate, SecurityGate, SecurityGate]
+GuardrailGates = tuple[SimpleGate, SimpleGate, SimpleGate, SimpleGate]
 
 
 @pytest.fixture

@@ -3,7 +3,10 @@ from collections.abc import Callable
 
 import httpx2
 import pytest
+from cerbia.core.apis import APIConfigError, APIError
 from cerbia.core.apis import decisions as api
+
+pytestmark = pytest.mark.unit
 
 
 @pytest.mark.parametrize("model,text", [("requested", "Untrusted text"), (" \t ", "")])
@@ -49,3 +52,30 @@ def test_typed_answers_when_client_asks_about_text(
     assert requests[0].url.path == "/v1/decisions"
     assert "Authorization" not in requests[0].headers
     assert requests[0].headers["Content-Type"] == "application/json"
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        b"secret-not-json",
+        b'{"model":"m","answers":[],"usage":{}}',
+        b'{"model":"m","model":"other"}',
+        b'{"model":"m","answers":[{"type":"refusal","name":null}],"usage":{"input_tokens":1,"output_tokens":0,"total_tokens":1,"input_tokens_details":{"cached_tokens":0,"cache_write_tokens":0},"output_tokens_details":{"reasoning_tokens":0}}}',
+    ],
+)
+def test_client_sanitizes_malformed_or_refused_external_payload(body: bytes, mock_http) -> None:
+    mock_http(lambda request: httpx2.Response(200, content=body))
+    client = api.DecisionsClient(model="m", base_url="https://api.test")
+
+    with pytest.raises(APIError, match="^API request failed$"):
+        client.ask("text", [api.PredicateQuestion(name="q", instructions="Assess")])
+
+
+def test_client_rejects_invalid_model_and_nontext_before_transport(mock_http) -> None:
+    with pytest.raises(APIConfigError):
+        api.DecisionsClient(model="")
+    mock_http(lambda request: pytest.fail("invalid text sent"))
+    with pytest.raises(APIError):
+        api.DecisionsClient(model="m", base_url="https://api.test").ask(
+            None, [api.PredicateQuestion(name="q", instructions="Assess")]
+        )

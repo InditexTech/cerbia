@@ -2,7 +2,7 @@
 :description: Security gates for AI agents' inputs and outputs.
 :page-tags: overview, security, architecture
 :repo-url: https://github.com/InditexTech/cerbia
-:example-config-url: {repo-url}/blob/main/examples/cli-usage/config.cerbia.yaml
+:example-config-url: {repo-url}/blob/main/examples/cli-usage/simple.cerbia.yaml
 
 // Source: docs/content/docs/index.mdx (local MDX; source SHA-256 recorded in legacy-routes.json).
 // Source: README.md About and Features sections; docs/app/page.tsx product framing.

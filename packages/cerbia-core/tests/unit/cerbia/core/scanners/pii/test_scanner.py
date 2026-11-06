@@ -1,4 +1,5 @@
 import pytest
+from cerbia.core.exceptions import CerbIAConfigError
 from cerbia.core.scanners.pii import PiiScanner
 from cerbia.core.types import Action, ContentType, Severity
 
@@ -318,3 +319,142 @@ def test_pii_scanner_applies_custom_validator_to_valid_ipv6_when_checksums_enabl
     # Then
     assert result.risk_score == (0.0 if validate_checksums else 0.70)
     assert [(match.start, match.end) for match in result.matches] == ([] if validate_checksums else [(0, 3)])
+
+
+@pytest.mark.parametrize(
+    "address,expected",
+    [
+        ("JANE@EXAMPLE.COM", True),
+        ("jane@sub.example.com", False),
+        ("jane@example.com.evil", False),
+        ("jane@example.com-evil", False),
+        ("jane@example.com_ignored", False),
+        ("jane@example.com123", False),
+        ("jane@example.comé", False),
+        ("jane@example.com.", True),
+    ],
+)
+def test_email_domain_filter_matches_exact_domain_not_continuations(address: str, expected: bool) -> None:
+    assert bool(PiiScanner(email_domains=["example.com"]).scan(address).matches) is expected
+
+
+@pytest.mark.parametrize(
+    "address", ["jane [at] example [dot] com", "JANE ( AT ) EXAMPLE ( DOT ) COM", "jane [arroba] example [punto] com"]
+)
+def test_obfuscated_email_filter_preserves_original_unicode_offsets(address: str) -> None:
+    result = PiiScanner(email_domains=["example.com"]).scan(f"你好 🙂 {address}!")
+
+    assert [(span.start, span.end) for span in result.matches] == [(5, 5 + len(address))]
+    assert result.risk_score == 0.85
+
+
+@pytest.mark.parametrize("suffix", ["", ".evil", " [dot] evil", " (punto) evil"])
+@pytest.mark.parametrize(
+    "address", ["jane [at] sub [dot] example-1.com", "JANE (ARROBA) SUB (PUNTO) EXAMPLE-1 (PUNTO) COM"]
+)
+def test_obfuscated_subdomain_filter_resolves_whole_domain_and_rejects_suffix(address: str, suffix: str) -> None:
+    result = PiiScanner(email_domains=["sub.example-1.com"]).scan(f"你好 🙂 {address}{suffix}!")
+
+    assert [(span.start, span.end) for span in result.matches] == ([] if suffix else [(5, 5 + len(address))])
+
+
+@pytest.mark.parametrize("domains,expected", [(None, 3), ([], 0), (["example.com"], 2)])
+def test_email_filter_preserves_none_empty_and_explicit_domain_semantics(domains, expected: int) -> None:
+    text = "🙂 jane@example.com bob@other.com jane [at] example [dot] com"
+    result = PiiScanner(email_domains=domains).scan(text)
+
+    assert len(result.matches) == expected
+
+
+@pytest.mark.parametrize(
+    "domain",
+    [
+        "",
+        " example.com",
+        "*.example.com",
+        "example.com/path",
+        "example.com:443",
+        "example",
+        "example..com",
+        "-example.com",
+        "éxample.com",
+        "a" * 64 + ".com",
+    ],
+)
+def test_email_filter_rejects_invalid_custom_domain_configuration(domain: str) -> None:
+    with pytest.raises(CerbIAConfigError, match="email_domains"):
+        PiiScanner(email_domains=[domain])
+
+
+def test_email_filter_copies_domains_and_preserves_same_named_custom_patterns() -> None:
+    domains = ["example.com"]
+    scanner = PiiScanner(email_domains=domains, extra_patterns=[("Email", "CUSTOM-A")])
+    domains.append("other.com")
+
+    result = scanner.scan("CUSTOM-A jane@other.com")
+
+    assert len(result.matches) == 1
+    assert result.matches[0].end == len("CUSTOM-A")
+
+
+@pytest.mark.parametrize("checksums", [False, True])
+def test_email_filter_does_not_change_other_pii_checksum_validation(checksums: bool) -> None:
+    text = "12345678Z 12345678A 192.0.2.1"
+    result = PiiScanner(email_domains=[], validate_checksums=checksums).scan(text)
+
+    assert [text[span.start : span.end] for span in result.matches] == (
+        ["12345678Z", "192.0.2.1"] if checksums else ["12345678Z", "12345678A", "192.0.2.1"]
+    )
+
+
+@pytest.mark.parametrize(
+    "text,valid",
+    [
+        ("4111 1111 1111 1111", True),
+        ("4111 1111 1111 1112", False),
+        ("IMEI: 490154203237518", True),
+        ("IMEI: 490154203237519", False),
+        ("X1234567L", True),
+        ("X1234567A", False),
+    ],
+)
+def test_checksum_enabled_scanner_filters_invalid_product_matches(text: str, valid: bool) -> None:
+    result = PiiScanner(validate_checksums=True).scan(text)
+
+    assert bool(result.matches) is valid
+
+
+@pytest.mark.parametrize(
+    "iban",
+    [
+        "ES9121000418450200051332",
+        "ES91 2100 0418 4502 0005 1332",
+        "ES91-2100-0418-4502-0005-1332",
+        "GB29NWBK60161331926819",
+        "IQ90 BAPI 0000 0000 0000 123",
+    ],
+)
+def test_checksum_scanner_iban_span_excludes_following_text(iban: str) -> None:
+    text = f"{iban} hello"
+    result = PiiScanner(validate_checksums=True).scan(text)
+
+    assert result.risk_score == 0.92
+    assert [text[span.start : span.end] for span in result.matches] == [iban]
+
+
+@pytest.mark.parametrize("text,valid", [("CID-1234", False), ("CID-1299", True)])
+def test_custom_checksum_validator_controls_custom_pattern(text: str, valid: bool) -> None:
+    result = PiiScanner(
+        extra_patterns=[("Custom ID", r"CID-\d{4}")],
+        validate_checksums=True,
+        custom_validators={"Custom ID": lambda value: value.endswith("99")},
+    ).scan(text)
+
+    assert bool(result.matches) is valid
+
+
+def test_unconfigured_email_filter_preserves_truncated_legacy_span() -> None:
+    address = "jane [at] sub [dot] example [dot] com"
+    result = PiiScanner().scan(address)
+
+    assert [(span.start, span.end) for span in result.matches] == [(0, len("jane [at] sub [dot] example"))]

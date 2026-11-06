@@ -1,9 +1,12 @@
-from pydantic import BaseModel, Field, computed_field
+from typing import Self
+
+from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
 from .entries import Entry
 from .scans import Finding, SkippedScanner
+from .stages import StageResult, validate_stages
 
-__all__ = ["EntryResult", "ScanResult"]
+__all__ = ["EntryResult", "ScanResult", "StageResult"]
 
 
 class EntryResult(BaseModel):
@@ -12,12 +15,16 @@ class EntryResult(BaseModel):
     Attributes:
         entry (Entry): The input entry that was scanned.
         is_safe (bool): Whether the gate passed for this entry.
-        aggregated_score (float): Aggregated risk score across blocked scanners, ``0.0`` to ``1.0``.
+        aggregated_score (float): Simple gate's weighted BLOCK aggregate or cascade terminal score in [0.0, 1.0].
+            Cascade operational blocks use 1.0 when the terminal stage has no score.
         rationale (str): Summary explanation of the gate verdict.
         findings (list[Finding]): Individual scanner results collected during the scan.
         skipped_scanners (list[SkippedScanner]): Scanners skipped due to content-type routing or the explicit
-            ``"skip"`` on error policy.
+            ``"skip"`` on error policy in a simple gate; empty for a cascade.
+        stages (tuple[StageResult, ...] | None): Ordered cascade summaries, including unreached stages; None for simple.
     """
+
+    model_config = ConfigDict(extra="forbid")
 
     entry: Entry
     is_safe: bool = True
@@ -25,6 +32,20 @@ class EntryResult(BaseModel):
     rationale: str = ""
     findings: list[Finding] = Field(default_factory=list)
     skipped_scanners: list[SkippedScanner] = Field(default_factory=list)
+    stages: tuple[StageResult, ...] | None = None
+
+    @model_validator(mode="after")
+    def validate_stage_results(self) -> Self:
+        """Check stage routing, scores, and finding ownership.
+
+        Returns:
+            Self: This validated entry result.
+
+        Raises:
+            PydanticCustomError: If stage routing, scores, finding ownership, or skipped scanners are inconsistent.
+        """
+        validate_stages(self, self.aggregated_score)
+        return self
 
 
 class ScanResult(BaseModel):

@@ -42,6 +42,7 @@ class Finding(BaseModel):
         action (Action): Action to take for this finding (inherited from the scanner).
         rationale (str): Human-readable explanation.
         matches (list[MatchSpan]): Spans of matched content, forwarded from the scanner's ``ScanOutcome``.
+        stage (str | None): Owning cascade stage ID; None for a simple gate and omitted from serialization when None.
     """
 
     scanner_id: str
@@ -51,6 +52,7 @@ class Finding(BaseModel):
     action: Action
     rationale: str
     matches: list[MatchSpan] = Field(default_factory=list)
+    stage: str | None = Field(default=None, exclude_if=lambda value: value is None)
 
 
 class SkippedScanner(BaseModel):

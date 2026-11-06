@@ -1,4 +1,7 @@
+import re
+
 import pytest
+from cerbia.core.preprocessors.speculative_decoding._observability import capture_rejections
 from cerbia.core.preprocessors.speculative_decoding._search import _expansion
 from cerbia.core.preprocessors.speculative_decoding._types import DecoderSpec, OutputPolicy, Payload, RejectionReason
 
@@ -40,3 +43,19 @@ def test_expand_node_rejects_decoder_when_any_validation_stage_fails(mocker, sta
     children = _expansion.expand_node(payload, (), frozenset({"base64"}), 0, (decoder,), intensive_mode=False)
 
     assert children == []
+
+
+def test_expansion_rejects_runtime_gate_without_decoding() -> None:
+    decoder = DecoderSpec(
+        decoder_id="runtime-gated",
+        extract_patterns=(re.compile(r"token=([A-Z]+)"),),
+        input_gate=lambda text: text == "allowed",
+        decode=lambda payload: pytest.fail("rejected candidate decoded"),
+    )
+
+    with capture_rejections() as rejections:
+        children = _expansion.expand_node(
+            Payload.from_text("token=blocked"), (), frozenset({"runtime-gated"}), 0, (decoder,), intensive_mode=False
+        )
+
+    assert children == [] and rejections == {RejectionReason.INPUT_GATE_FAILED: 1}

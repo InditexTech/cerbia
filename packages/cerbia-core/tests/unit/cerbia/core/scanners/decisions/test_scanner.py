@@ -1,148 +1,113 @@
-import json
-from collections.abc import Callable
+from types import ModuleType
 
-import httpx2
 import pytest
-from cerbia.core.apis import APIError
-from cerbia.core.apis.decisions import DecisionsResponse
-from cerbia.core.apis.systemone import SystemOneResponse
+from cerbia.core.apis.decisions import DecisionsResponse, PredicateQuestion
+from cerbia.core.exceptions import CerbIAConfigError, CerbIAError
 from cerbia.core.models.scans import ScanOutcome
-from cerbia.core.scanners import DecisionsScanner, SystemOneScanner
-from pydantic import JsonValue
+from cerbia.core.scanners import DecisionsScanner
 
-type MockHTTP = Callable[[Callable[[httpx2.Request], httpx2.Response]], None]
-
-
-def usage(format: str) -> dict[str, JsonValue]:
-    result: dict[str, JsonValue] = {"input_tokens": 12, "output_tokens": 2}
-    if format == "decisions":
-        result.update(
-            input_tokens_details={"cached_tokens": 3, "cache_write_tokens": 1},
-            output_tokens_details={"reasoning_tokens": 0},
-            total_tokens=14,
-        )
-    return result
+pytestmark = pytest.mark.unit
 
 
-def case(format: str, kind: str) -> tuple[dict[str, JsonValue], dict[str, JsonValue]]:
-    question: dict[str, JsonValue] = {"type": kind, "instructions": "Assess evidence"}
-    answer: dict[str, JsonValue] = {"type": kind}
-    if format == "decisions":
-        question["name"] = "q"
-        answer["name"] = "q"
-    match kind:
-        case "predicate":
-            answer["probability"] = 0.8
-        case "noul":
-            answer["noul"] = 0.8
-        case "choice":
-            question.update(
-                {"choices": [{"value": "safe"}, {"value": "risk"}]}
-                if format == "decisions"
-                else {"criteria": {"safe": "Allowed", "risk": "Threat"}}
-            )
-            answer.update(choice="safe", confidence=0.07)
-            answer["probabilities"] = (
-                [{"value": "safe", "probability": 0.6}, {"value": "risk", "probability": 0.4}]
-                if format == "decisions"
-                else {"safe": 0.6, "risk": 0.4}
-            )
-        case "score":
-            question.update(
-                {"levels": [{"label": "Low"}, {"label": "High"}]}
-                if format == "decisions"
-                else {"criteria": ["Low", "High"]}
-            )
-            answer.update(score=0.8, confidence=0.02)
-            answer["probabilities"] = (
-                [{"value": 0, "label": "Low", "probability": 0.2}, {"value": 1, "label": "High", "probability": 0.8}]
-                if format == "decisions"
-                else {"0": 0.2, "1": 0.8}
-            )
-            if format == "systemone":
-                answer["legend"] = {"0": "Low", "1": "High"}
-        case _:
-            raise AssertionError(kind)
-    return question, answer
-
-
-def make_scanner(
-    mock_http: MockHTTP, format: str, kind: str
-) -> tuple[DecisionsScanner | SystemOneScanner, list[httpx2.Request]]:
-    question, answer = case(format, kind)
-    body = {
-        "model": "resolved-model",
-        "answers": [answer] if format == "decisions" else {"q": answer},
-        "usage": usage(format),
-    }
-    requests: list[httpx2.Request] = []
-
-    def handle(request: httpx2.Request) -> httpx2.Response:
-        requests.append(request)
-        return httpx2.Response(200, json=body)
-
-    mock_http(handle)
-    if format == "decisions":
-        return DecisionsScanner(
-            questions=[question],
-            model="requested-model",
-            base_url="https://assessment.test",
-            evaluator="application_policy.evaluate_answers",
-        ), requests
-    scanner = SystemOneScanner(
-        model="requested-model",
-        base_url="https://assessment.test",
-        questions={"q": question},
-        evaluator="application_policy.evaluate_answers",
+def subject() -> DecisionsScanner:
+    return DecisionsScanner(
+        [PredicateQuestion(name="q", instructions="Assess")], "application_policy.evaluate_answers", "m"
     )
-    return scanner, requests
+
+
+def test_evaluator_resolved_once_receives_typed_response_and_returns_own_outcome(
+    application_policy: ModuleType, monkeypatch: pytest.MonkeyPatch, mocker, application_outcome: ScanOutcome
+) -> None:
+    scanner = subject()
+    response = mocker.Mock(spec=DecisionsResponse)
+    ask = mocker.patch.object(scanner._api, "ask", return_value=response)
+    evaluations = []
+    scanner._evaluator = lambda result: evaluations.append(result) or application_outcome
+    monkeypatch.setattr(application_policy, "evaluate_answers", lambda response: pytest.fail("resolved again"))
+
+    assert scanner.scan("first") is application_outcome
+    assert scanner.scan("second") is application_outcome
+
+    assert evaluations == [response, response] and ask.call_count == 2
+    assert scanner._questions == (PredicateQuestion(name="q", instructions="Assess"),)
 
 
 @pytest.mark.parametrize(
-    "format,kind",
+    "path,cause",
     [
-        ("decisions", "predicate"),
-        ("decisions", "choice"),
-        ("decisions", "score"),
-        ("systemone", "noul"),
-        ("systemone", "choice"),
-        ("systemone", "score"),
+        ("literal", None),
+        ("missing_policy.evaluate", ModuleNotFoundError),
+        ("application_policy.missing", AttributeError),
+        ("application_policy.__name__", None),
+        (None, AttributeError),
     ],
 )
-def test_wire_and_evidence_when_scanning(
-    mock_http: MockHTTP,
-    format: str,
-    kind: str,
-    evaluations: list[DecisionsResponse | SystemOneResponse],
-    application_outcome: ScanOutcome,
-) -> None:
-    # Given
-    scanner, requests = make_scanner(mock_http, format, kind)
-    question, answer = case(format, kind)
-    # When
-    outcome = scanner.scan("evidence")
-    # Then
-    assert outcome is application_outcome
-    assert len(evaluations) == 1
-    assert evaluations[0].model_dump(mode="json") == {
-        "model": "resolved-model",
-        "answers": [answer] if format == "decisions" else {"q": answer},
-        "usage": usage(format),
-    }
-    assert set(outcome.model_dump()) == {"risk_score", "rationale", "matches"}
-    assert requests[0].url.path == f"/v1/{format}"
-    assert json.loads(requests[0].content) == {
-        "model": "requested-model",
-        "input" if format == "decisions" else "state": "evidence",
-        "questions": [question] if format == "decisions" else {"q": question},
-    }
+def test_invalid_evaluator_configuration_is_owned_and_chained(path, cause) -> None:
+    with pytest.raises(CerbIAConfigError) as caught:
+        DecisionsScanner([PredicateQuestion(name="q", instructions="Assess")], path, "m")
+    if cause is not None:
+        assert isinstance(caught.value.__cause__, cause)
+    assert "missing_policy" not in str(caught.value)
 
 
-@pytest.mark.parametrize("text", [None, 42, {"input": "text"}, ["text"]])
-def test_error_when_input_is_not_text(mock_http: MockHTTP, text: str) -> None:
-    # Given
-    scanner, requests = make_scanner(mock_http, "decisions", "predicate")
-    # When / Then
-    with pytest.raises(APIError):
-        scanner.scan(text)
-    assert requests == []
+def test_evaluator_import_failure_keeps_original_cause(monkeypatch: pytest.MonkeyPatch) -> None:
+    original = RuntimeError("private import")
+
+    def fail(name):
+        raise original
+
+    monkeypatch.setattr("importlib.import_module", fail)
+
+    with pytest.raises(CerbIAConfigError, match="Could not import evaluator") as caught:
+        subject()
+    assert caught.value.__cause__ is original
+
+
+@pytest.mark.parametrize("invalid", [None, {"risk_score": 0, "rationale": "private"}])
+def test_evaluator_must_return_scan_outcome(invalid, mocker) -> None:
+    scanner = subject()
+    mocker.patch.object(scanner._api, "ask", return_value=mocker.Mock())
+    scanner._evaluator = lambda response: invalid
+
+    with pytest.raises(CerbIAError, match="^Evaluator must return ScanOutcome$"):
+        scanner.scan("text")
+
+
+def test_evaluator_exception_is_chained_but_api_exception_propagates(mocker) -> None:
+    scanner = subject()
+    original = RuntimeError("private evaluator")
+
+    def fail(response):
+        raise original
+
+    scanner._evaluator = fail
+    mocker.patch.object(scanner._api, "ask", return_value=mocker.Mock())
+
+    with pytest.raises(CerbIAError, match="Decision evaluator raised") as caught:
+        scanner.scan("text")
+    assert caught.value.__cause__ is original
+    mocker.patch.object(scanner._api, "ask", side_effect=original)
+    with pytest.raises(RuntimeError) as caught:
+        scanner.scan("text")
+    assert caught.value is original
+
+
+@pytest.mark.parametrize("count", [1, 400])
+def test_question_count_boundary_accepts_supported_count(count: int) -> None:
+    questions = [PredicateQuestion(name=f"q{index}", instructions="Assess") for index in range(count)]
+    scanner = DecisionsScanner(questions, "application_policy.evaluate_answers", "m")
+    assert scanner._questions == tuple(questions)
+
+
+@pytest.mark.parametrize(
+    "questions",
+    [
+        [],
+        [{"type": "predicate", "name": "q", "instructions": "Assess"}] * 2,
+        [{"type": "predicate", "name": f"q{index}", "instructions": "Assess"} for index in range(401)],
+        {"q": {"type": "noul"}},
+    ],
+)
+def test_question_topology_rejects_empty_duplicate_over_limit_and_other_protocol(questions) -> None:
+    with pytest.raises(CerbIAConfigError, match="Invalid Decisions scanner questions"):
+        DecisionsScanner(questions, "application_policy.evaluate_answers", "m")

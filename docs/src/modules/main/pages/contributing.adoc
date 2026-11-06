@@ -2,7 +2,7 @@
 :description: Ways to contribute to CerbIA and links to its contribution rules.
 :page-tags: contributing, community
 :repo-url: https://github.com/InditexTech/cerbia
-:example-config-url: {repo-url}/blob/main/examples/cli-usage/config.cerbia.yaml
+:example-config-url: {repo-url}/blob/main/examples/cli-usage/simple.cerbia.yaml
 
 // Source: CONTRIBUTING.md; CODE_OF_CONDUCT.md; README.md Contributing section.
 

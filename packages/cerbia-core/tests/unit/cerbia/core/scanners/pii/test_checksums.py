@@ -1,5 +1,4 @@
 import pytest
-from cerbia.core.scanners.pii import PiiScanner
 from cerbia.core.scanners.pii._checksums import (
     validate_cpf_checksum,
     validate_dni_checksum,
@@ -110,82 +109,6 @@ def test_validate_cpf_checksum(cpf: str, expected: bool) -> None:
     assert validate_cpf_checksum(cpf) is expected
 
 
-def test_pii_scanner_with_validate_checksums_filters_false_positives() -> None:
-    scanner = PiiScanner(validate_checksums=True)
-
-    # 12345678A is an invalid DNI (checksum fails)
-    # 4111 1111 1111 1112 is an invalid Visa (Luhn fails)
-    # X1234567A is an invalid NIE (checksum fails)
-    text = "Order 12345678A, ref 4111 1111 1111 1112, client X1234567A"
-    result = scanner.scan(text)
-
-    assert result.risk_score == 0.0
-    assert result.rationale == "No PII detected"
-    assert result.matches == []
-
-
-def test_pii_scanner_with_validate_checksums_preserves_valid_pii() -> None:
-    scanner = PiiScanner(validate_checksums=True)
-
-    text = "DNI: 12345678Z, Visa: 4111 1111 1111 1111, Email: user@example.com"
-    result = scanner.scan(text)
-
-    assert result.risk_score == 0.90
-    assert "DNI (Spain)" in result.rationale
-    assert "Credit Card (Visa)" in result.rationale
-    assert "Email" in result.rationale
-    assert len(result.matches) == 3
-
-
-def test_pii_scanner_iban_with_following_text() -> None:
-    scanner = PiiScanner(validate_checksums=True)
-
-    # Compact IBAN followed by text: match span must end exactly at the IBAN
-    text_compact = "ES9121000418450200051332 hello"
-    res_compact = scanner.scan(text_compact)
-    assert res_compact.risk_score == 0.92
-    assert len(res_compact.matches) == 1
-    assert res_compact.matches[0].start == 0
-    assert res_compact.matches[0].end == 24
-    assert text_compact[res_compact.matches[0].start : res_compact.matches[0].end] == "ES9121000418450200051332"
-
-    # Spaced IBAN followed by text: match span must end exactly at the IBAN
-    text_spaced = "ES91 2100 0418 4502 0005 1332 hello"
-    res_spaced = scanner.scan(text_spaced)
-    assert res_spaced.risk_score == 0.92
-    assert len(res_spaced.matches) == 1
-    assert res_spaced.matches[0].start == 0
-    assert res_spaced.matches[0].end == 29
-    assert text_spaced[res_spaced.matches[0].start : res_spaced.matches[0].end] == "ES91 2100 0418 4502 0005 1332"
-
-
-def test_pii_scanner_with_custom_validators() -> None:
-    custom_validators = {
-        "Custom ID": lambda val: val.endswith("99"),
-    }
-    scanner = PiiScanner(
-        extra_patterns=[("Custom ID", r"CID-\d{4}")],
-        validate_checksums=True,
-        custom_validators=custom_validators,
-    )
-
-    # CID-1234 should be rejected by custom validator
-    result_invalid = scanner.scan("CID-1234")
-    assert result_invalid.risk_score == 0.0
-    assert result_invalid.matches == []
-
-    # CID-1299 ends with 99 and should pass
-    result_valid = scanner.scan("CID-1299")
-    assert result_valid.risk_score == 0.80
-    assert len(result_valid.matches) == 1
-    assert "Custom ID" in result_valid.rationale
-
-
-def test_pii_scanner_initialization_attributes() -> None:
-    scanner = PiiScanner(validate_checksums=True)
-    assert scanner.validate_checksums is True
-
-
 @pytest.mark.parametrize(
     ("imei", "expected"),
     [
@@ -204,46 +127,3 @@ def test_pii_scanner_initialization_attributes() -> None:
 )
 def test_validate_imei_checksum(imei: str, expected: bool) -> None:
     assert validate_imei_checksum(imei) is expected
-
-
-def test_pii_scanner_imei_labeled_checksum() -> None:
-    scanner = PiiScanner(validate_checksums=True)
-
-    # Valid labeled IMEI must be detected with checksum enabled
-    text_valid = "Device IMEI: 490154203237518 registered"
-    res_valid = scanner.scan(text_valid)
-    assert res_valid.risk_score == 0.85
-    assert "IMEI" in res_valid.rationale
-    assert len(res_valid.matches) == 1
-    assert text_valid[res_valid.matches[0].start : res_valid.matches[0].end] == "IMEI: 490154203237518"
-
-    # Invalid checksum labeled IMEI must be discarded when validate_checksums=True
-    text_invalid = "Device IMEI: 490154203237519 registered"
-    res_invalid = scanner.scan(text_invalid)
-    assert res_invalid.risk_score == 0.0
-    assert res_invalid.matches == []
-
-
-@pytest.mark.parametrize(
-    "iban",
-    [
-        "ES9121000418450200051332",
-        "ES91 21000418450200051332",
-        "ES91 2100 0418 4502 0005 1332",
-        "ES91-2100-0418-4502-0005-1332",
-        "DE89370400440532013000",
-        "DE89 3704 0044 0532 0130 00",
-        "GB29NWBK60161331926819",
-        "GB29 NWBK 6016 1331 9268 19",
-        "IQ90BAPI000000000000123",
-        "IQ90 BAPI 0000 0000 0000 123",
-    ],
-)
-def test_pii_scanner_iban_formats_and_spacing_followed_by_text(iban: str) -> None:
-    scanner = PiiScanner(validate_checksums=True)
-    text = f"{iban} hello"
-    res = scanner.scan(text)
-    assert res.risk_score == 0.92
-    assert len(res.matches) == 1
-    assert "IBAN" in res.rationale
-    assert text[res.matches[0].start : res.matches[0].end] == iban
