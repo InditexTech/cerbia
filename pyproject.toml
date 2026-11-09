@@ -7,14 +7,14 @@ default = true
 
 [dependency-groups]
 dev = [
-    "pre-commit==4.6.1",
-    "pytest==9.1.1",
+    "pre-commit==4.7.0",
+    "pytest==9.2.0",
     "pytest-cov==7.1.0",
-    "pytest-mock==3.15.1",
-    "reuse[charset-normalizer]==6.2.0",
-    "ruff==0.15.22",
-    "ty==0.0.62",
-    "typer==0.27.0",
+    "pytest-mock==3.17.0",
+    "reuse[charset-normalizer]==6.3.0",
+    "ruff==0.17.3",
+    "ty==0.0.99",
+    "typer==0.27.3",
 ]
 
 examples = [

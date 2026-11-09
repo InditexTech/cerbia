@@ -148,11 +148,8 @@ class _GateConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     name: str
-    type: GateType = GateType.SIMPLE
     loaders: list[LoaderConfig] = Field(default_factory=list)
     preprocessors: list[PreprocessorConfig] = Field(default_factory=list)
-    threshold: float | None = None
-    on_scanner_error: ScannerErrorPolicy = ScannerErrorPolicy.BLOCK
 
 
 class SimpleGateConfig(_GateConfig):
@@ -172,6 +169,7 @@ class SimpleGateConfig(_GateConfig):
     """
 
     type: Literal[GateType.SIMPLE] = GateType.SIMPLE
+    on_scanner_error: ScannerErrorPolicy = ScannerErrorPolicy.BLOCK
     fail_fast: bool = True
     threshold: float = Field(default=0.0, ge=0.0, le=1.0)
     scanners: list[ScannerConfig] = Field(default_factory=list)
