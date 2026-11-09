@@ -130,7 +130,7 @@ wheels = [
 
 [[package]]
 name = "cerbia"
-version = "0.5.1.dev0"
+version = "0.6.1.dev0"
 source = { editable = "packages/cerbia" }
 dependencies = [
     { name = "cerbia-core" },
@@ -172,7 +172,7 @@ provides-extras = ["cli", "ml", "presidio", "protectai", "all"]
 
 [[package]]
 name = "cerbia-cli"
-version = "0.5.1.dev0"
+version = "0.6.1.dev0"
 source = { editable = "packages/cerbia-cli" }
 dependencies = [
     { name = "cerbia-core" },
@@ -187,7 +187,7 @@ requires-dist = [
 
 [[package]]
 name = "cerbia-core"
-version = "0.5.1.dev0"
+version = "0.6.1.dev0"
 source = { editable = "packages/cerbia-core" }
 dependencies = [
     { name = "httpx2" },
@@ -202,7 +202,7 @@ requires-dist = [
 
 [[package]]
 name = "cerbia-ml"
-version = "0.5.1.dev0"
+version = "0.6.1.dev0"
 source = { editable = "packages/cerbia-ml" }
 dependencies = [
     { name = "cerbia-core" },
@@ -217,7 +217,7 @@ requires-dist = [
 
 [[package]]
 name = "cerbia-presidio"
-version = "0.5.1.dev0"
+version = "0.6.1.dev0"
 source = { editable = "packages/cerbia-presidio" }
 dependencies = [
     { name = "cerbia-core" },
@@ -234,7 +234,7 @@ requires-dist = [
 
 [[package]]
 name = "cerbia-protectai"
-version = "0.5.1.dev0"
+version = "0.6.1.dev0"
 source = { editable = "packages/cerbia-protectai" }
 dependencies = [
     { name = "cerbia-core" },
