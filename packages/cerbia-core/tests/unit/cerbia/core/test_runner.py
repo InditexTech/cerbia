@@ -1,11 +1,14 @@
 import pytest
-from cerbia.core.config import CerbIAConfig, LoaderConfig, PreprocessorConfig, ScannerConfig, ScoreAggregatorConfig
+from cerbia.core.config import LoaderConfig, PreprocessorConfig, ScannerConfig, ScoreAggregatorConfig, SimpleGateConfig
 from cerbia.core.exceptions import CerbIAConfigError
 from cerbia.core.models.entries import Entry
 from cerbia.core.models.scans import Finding, SkippedScanner
 from cerbia.core.runner import Runner
+from cerbia.core.security_gate import SimpleGate
 from cerbia.core.security_gate._models import GateVerdict
 from cerbia.core.types import Action, ContentType, ScannerErrorPolicy, Severity
+
+from .security_gate.cascade_support import Leaf, config, leaf, numerical, veto
 
 pytestmark = pytest.mark.unit
 
@@ -21,12 +24,15 @@ def test_runner_builds_configured_components_and_security_gate(mocker) -> None:
     loader_factory = mocker.patch("cerbia.core.runner.LoaderFactory.build", return_value=loader)
     preprocessor_factory = mocker.patch("cerbia.core.runner.PreprocessorFactory.build", return_value=preprocessor)
     scanner_factory = mocker.patch(
-        "cerbia.core.runner.ScannerFactory.build", side_effect=[first_scanner, second_scanner]
+        "cerbia.core.factories.gate.ScannerFactory.build", side_effect=[first_scanner, second_scanner]
     )
     score_aggregator_factory = mocker.patch(
-        "cerbia.core.runner.ScoreAggregatorFactory.build", return_value=score_aggregator
+        "cerbia.core.factories.gate.ScoreAggregatorFactory.build", return_value=score_aggregator
     )
-    security_gate = mocker.patch("cerbia.core.runner.SecurityGate")
+    security_gate = mocker.patch("cerbia.core.factories.gate.SimpleGate")
+    security_gate.return_value = mocker.Mock(spec=SimpleGate)
+    security_gate.return_value.scanners = [first_scanner, second_scanner]
+    security_gate.return_value.score_aggregator = score_aggregator
 
     runner = Runner(config)
 
@@ -99,9 +105,9 @@ def test_runner_scans_loaded_entry_when_no_preprocessors_are_configured(mocker) 
         skipped_scanners=[],
     )
     mocker.patch("cerbia.core.runner.LoaderFactory.build", return_value=loader)
-    mocker.patch("cerbia.core.runner.ScannerFactory.build", return_value=mocker.Mock())
-    mocker.patch("cerbia.core.runner.ScoreAggregatorFactory.build", return_value=mocker.Mock())
-    mocker.patch("cerbia.core.runner.SecurityGate", return_value=gate)
+    mocker.patch("cerbia.core.factories.gate.ScannerFactory.build", return_value=mocker.Mock())
+    mocker.patch("cerbia.core.factories.gate.ScoreAggregatorFactory.build", return_value=mocker.Mock())
+    mocker.patch("cerbia.core.factories.gate.SimpleGate", return_value=gate)
 
     runner = Runner(config)
 
@@ -125,9 +131,9 @@ def test_runner_preserves_entry_result_fields_when_scanning(mocker) -> None:
         skipped_scanners=[],
     )
     mocker.patch("cerbia.core.runner.LoaderFactory.build", return_value=loader)
-    mocker.patch("cerbia.core.runner.ScannerFactory.build", return_value=mocker.Mock())
-    mocker.patch("cerbia.core.runner.ScoreAggregatorFactory.build", return_value=mocker.Mock())
-    mocker.patch("cerbia.core.runner.SecurityGate", return_value=gate)
+    mocker.patch("cerbia.core.factories.gate.ScannerFactory.build", return_value=mocker.Mock())
+    mocker.patch("cerbia.core.factories.gate.ScoreAggregatorFactory.build", return_value=mocker.Mock())
+    mocker.patch("cerbia.core.factories.gate.SimpleGate", return_value=gate)
 
     result = Runner(_build_config()).scan()
 
@@ -171,9 +177,9 @@ def test_runner_returns_entry_results_when_loaders_provide_entries(mocker) -> No
     ]
     mocker.patch("cerbia.core.runner.LoaderFactory.build", side_effect=[first_loader, second_loader])
     mocker.patch("cerbia.core.runner.PreprocessorFactory.build", return_value=preprocessor)
-    mocker.patch("cerbia.core.runner.ScannerFactory.build", return_value=mocker.Mock())
-    mocker.patch("cerbia.core.runner.ScoreAggregatorFactory.build", return_value=mocker.Mock())
-    mocker.patch("cerbia.core.runner.SecurityGate", return_value=gate)
+    mocker.patch("cerbia.core.factories.gate.ScannerFactory.build", return_value=mocker.Mock())
+    mocker.patch("cerbia.core.factories.gate.ScoreAggregatorFactory.build", return_value=mocker.Mock())
+    mocker.patch("cerbia.core.factories.gate.SimpleGate", return_value=gate)
 
     runner = Runner(config)
 
@@ -204,9 +210,9 @@ def test_runner_returns_empty_safe_result_when_loaders_provide_no_entries(mocker
     loader.load.return_value = []
     gate = mocker.Mock()
     mocker.patch("cerbia.core.runner.LoaderFactory.build", return_value=loader)
-    mocker.patch("cerbia.core.runner.ScannerFactory.build", return_value=mocker.Mock())
-    mocker.patch("cerbia.core.runner.ScoreAggregatorFactory.build", return_value=mocker.Mock())
-    mocker.patch("cerbia.core.runner.SecurityGate", return_value=gate)
+    mocker.patch("cerbia.core.factories.gate.ScannerFactory.build", return_value=mocker.Mock())
+    mocker.patch("cerbia.core.factories.gate.ScoreAggregatorFactory.build", return_value=mocker.Mock())
+    mocker.patch("cerbia.core.factories.gate.SimpleGate", return_value=gate)
 
     runner = Runner(config)
 
@@ -219,14 +225,52 @@ def test_runner_returns_empty_safe_result_when_loaders_provide_no_entries(mocker
     gate.scan.assert_not_called()
 
 
+def test_runner_when_cascade_configured_executes_and_maps_trace() -> None:
+    settings = config([veto([leaf("guard", 0.2, severity="low")]), numerical("last", [leaf("last")])])
+
+    entry = Runner(settings).scan().entry_results[0]
+
+    assert not entry.is_safe
+    assert entry.aggregated_score == 0.05
+    assert Leaf.calls == ["guard"]
+    assert entry.findings[0].stage == "guard"
+    assert entry.model_dump(mode="json")["stages"] == [
+        {"id": "guard", "result": "block", "score": 0.05},
+        {"id": "last", "result": "not_reached"},
+    ]
+
+
+def test_runner_results_and_components_are_isolated_across_reuse() -> None:
+    settings = SimpleGateConfig(
+        name="legacy",
+        loaders=[LoaderConfig(loader="cerbia.core.loaders.TextLoader", init_args={"texts": "synthetic"})],
+        scanners=[
+            ScannerConfig(scanner="cerbia.core.scanners.CanaryLeakScanner", init_args={"canary_tokens": ["TOKEN"]})
+        ],
+        score_aggregator=ScoreAggregatorConfig(score_aggregator="cerbia.core.score_aggregators.MeanScoreAggregator"),
+    )
+    first, second = Runner(settings), Runner(settings)
+    assert isinstance(first.gate, SimpleGate)
+    first.scan().entry_results[0].entry.text = "changed result only"
+
+    repeated, independent = first.scan(), second.scan()
+
+    assert first.gate.scanners is first.scanners
+    assert first.gate.score_aggregator is first.score_aggregator
+    assert first.scanners[0] is not second.scanners[0]
+    assert first.loaders[0] is not second.loaders[0]
+    assert repeated == independent
+    assert repeated.entry_results[0].entry.text == "synthetic"
+
+
 def _build_config(
     *,
     loaders: list[LoaderConfig] | None = None,
     preprocessors: list[PreprocessorConfig] | None = None,
     scanners: list[ScannerConfig] | None = None,
     on_scanner_error: ScannerErrorPolicy = ScannerErrorPolicy.BLOCK,
-) -> CerbIAConfig:
-    return CerbIAConfig(
+) -> SimpleGateConfig:
+    return SimpleGateConfig(
         name="test-gate",
         loaders=loaders if loaders is not None else [LoaderConfig(loader="test.Loader")],
         preprocessors=preprocessors if preprocessors is not None else [],

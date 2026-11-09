@@ -1,9 +1,10 @@
 = cerbia-core
-:description: Use the core Python API for entries, pipeline components, configuration models, Runner, and SecurityGate.
+:description: Use the core Python API for entries, pipeline components, configuration models, Runner, and SecurityGate implementations.
 
 `cerbia-core` provides `cerbia.core`, the configurable pipeline used by CerbIA
 integrations. It includes entries, loaders, preprocessors, scanners, score
-aggregators, configuration models, `Runner`, and `SecurityGate`.
+aggregators, configuration models, `Runner`, and the `SecurityGate` protocol with
+its `SimpleGate` and `CascadeGate` implementations.
 
 == Install
 
@@ -24,14 +25,14 @@ aggregator, then scans the configured entry:
 [source,python]
 ----
 from cerbia.core.config import (
-    CerbIAConfig,
     LoaderConfig,
     ScannerConfig,
     ScoreAggregatorConfig,
+    SimpleGateConfig,
 )
 from cerbia.core.runner import Runner
 
-config = CerbIAConfig(
+config = SimpleGateConfig(
     name="inline",
     loaders=[LoaderConfig(loader="cerbia.core.loaders.TextLoader", init_args={"texts": "hello"})],
     scanners=[ScannerConfig(scanner="cerbia.core.scanners.KeywordScanner")],

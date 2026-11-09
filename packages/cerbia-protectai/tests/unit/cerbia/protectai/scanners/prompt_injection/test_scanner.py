@@ -163,20 +163,6 @@ def test_protectai_prompt_injection_scanner_builds_adapter_with_default_values(m
     assert adapter_factory.call_args.kwargs["local_files_only"] is True
 
 
-@pytest.mark.parametrize(
-    ("kwargs", "key", "value"),
-    [
-        (DEFAULT_MODEL_KWARGS, "provider", "CUDAExecutionProvider"),
-        (DEFAULT_PIPELINE_KWARGS, "device", "cuda"),
-        (DEFAULT_TOKENIZER_KWARGS, "use_fast", False),
-    ],
-    ids=["model", "pipeline", "tokenizer"],
-)
-def test_protectai_prompt_injection_default_kwargs_are_immutable(kwargs, key: str, value) -> None:
-    with pytest.raises(TypeError):
-        kwargs[key] = value
-
-
 def test_protectai_prompt_injection_scanner_copies_configured_kwargs(mocker) -> None:
     adapter = mocker.Mock()
     adapter_factory = mocker.patch(

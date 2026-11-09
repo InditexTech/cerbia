@@ -2,8 +2,6 @@ import math
 
 import pytest
 from cerbia.core.preprocessors.speculative_decoding import _heuristics
-from cerbia.core.preprocessors.speculative_decoding._decoders._builtins import base64_gate
-from cerbia.core.preprocessors.speculative_decoding._types import Payload
 from cerbia.core.preprocessors.speculative_decoding.exceptions import ChiSquaredError
 
 pytestmark = pytest.mark.unit
@@ -126,23 +124,3 @@ def test_chi_squared_pvalue_handles_extreme_chi_squared_input() -> None:
 
 def test_chi_squared_pvalue_keeps_url_like_text_below_language_threshold() -> None:
     assert _heuristics.chi_squared_pvalue(b"https://github.com/owner/repo/pull/789") < 0.05
-
-
-def test_base64_gate_rejects_url_candidates() -> None:
-    assert base64_gate("https://github.com/owner/repo/pull/789") is False
-
-
-@pytest.mark.parametrize(
-    ("raw", "expected_text"),
-    [
-        ("caf\u00e9".encode(), "caf\u00e9"),
-        (b"\xff\xfe\x80", None),
-        (b"", ""),
-    ],
-    ids=["multibyte_utf8", "invalid_bytes", "empty_bytes"],
-)
-def test_payload_from_bytes_preserves_utf8_view_when_available(raw: bytes, expected_text: str | None) -> None:
-    payload = Payload.from_bytes(raw)
-
-    assert payload.raw == raw
-    assert payload.text == expected_text

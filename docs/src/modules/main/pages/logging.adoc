@@ -2,7 +2,7 @@
 :description: Configure host application logging for CerbIA's standard-library logger namespace and levels.
 :page-tags: reference, logging, observability
 :repo-url: https://github.com/InditexTech/cerbia
-:example-config-url: {repo-url}/blob/main/examples/cli-usage/config.cerbia.yaml
+:example-config-url: {repo-url}/blob/main/examples/cli-usage/simple.cerbia.yaml
 
 // Source: docs/content/docs/logging.mdx (local MDX; source SHA-256 recorded in legacy-routes.json).
 
@@ -16,7 +16,7 @@ CerbIA emits only the standard levels needed by the library:
 |===
 |Level |Meaning
 
-|`DEBUG` |Closed component-event metadata: fixed categories and safe numeric counters only.
+|`DEBUG` |Component events and numeric counters; messages can also include configured import paths, scanner names/IDs, and model references.
 |`INFO` |A milestone or fixed progress message that is safe to log.
 |`WARNING` |A non-fatal condition caused an item or optional operation to be skipped.
 |`ERROR` |A safe summary of a failed or blocked operation when the caller needs an observable failure record.

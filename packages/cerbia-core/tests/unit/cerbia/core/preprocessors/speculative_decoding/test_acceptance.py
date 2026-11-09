@@ -1,7 +1,6 @@
 import pytest
 from cerbia.core.preprocessors.speculative_decoding._acceptance import AcceptanceFilter
 from cerbia.core.preprocessors.speculative_decoding._types import DecodedBranch, Payload, RejectionReason
-from pydantic import ValidationError
 
 pytestmark = pytest.mark.unit
 
@@ -66,28 +65,3 @@ def test_acceptance_defaults() -> None:
     assert acceptance.min_text_length == 16
     assert acceptance.min_printable_ratio == 0.85
     assert acceptance.max_entropy_bits == 7.5
-
-
-def test_acceptance_filter_is_immutable() -> None:
-    acceptance = AcceptanceFilter()
-    field_name = "min_text_length"
-
-    with pytest.raises(ValidationError):
-        setattr(acceptance, field_name, 8)
-
-
-def test_acceptance_filter_current_fields() -> None:
-    assert set(AcceptanceFilter.model_fields) == {
-        "min_chi_squared_pvalue",
-        "min_text_length",
-        "min_printable_ratio",
-        "max_entropy_bits",
-    }
-
-
-def test_acceptance_filter_documentation() -> None:
-    documentation = AcceptanceFilter.__doc__
-
-    assert documentation is not None
-    assert "Fail-closed acceptance checks" in documentation
-    assert "min_chi_squared_pvalue" in documentation

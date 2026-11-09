@@ -12,7 +12,7 @@
 * xref:i18n.adoc[Internationalization]
 * xref:logging.adoc[Logging]
 * xref:cli.adoc[CLI]
-* xref:gate.adoc[Gate behavior]
+* xref:gate.adoc[Gates]
 * xref:packages.adoc[Packages]
 * xref:components/custom-components.adoc[Custom components]
 * xref:components/loaders.adoc[Loaders]

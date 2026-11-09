@@ -45,14 +45,15 @@ score_aggregator:
   init_args: {}
 ----
 
-`Runner` constructs components in this order: loaders, preprocessors, scanners,
-then the score aggregator. It then creates one `SecurityGate` to evaluate each
-post-preprocessing entry. See xref:configuration.adoc[Configuration] and
+`Runner` constructs loaders, preprocessors, and the configured gate
+(`SimpleGate` for simple configuration or `CascadeGate` for a cascade).
+It evaluates each post-preprocessing entry with that gate. See xref:configuration.adoc[Configuration] and
 xref:architecture.adoc[Architecture] for the full lifecycle.
 
 `cerbia validate CONFIG.yaml` checks the YAML schema, imports and constructs the
 classes, and verifies that their instances satisfy the expected contracts. It
-does not call loaders or scanners. CerbIA uses dotted imports. It does not
+does not call loaders or scanners, but constructors can initialize resources or
+execute arbitrary code; validate only trusted configurations. CerbIA uses dotted imports. It does not
 discover plugins through entry points, directory scanning, or registration.
 
 == Contract reference
@@ -72,7 +73,7 @@ values. Constructor errors occur when CerbIA builds the component.
 
 == Custom scanner example
 
-A scanner returns a `ScanOutcome`. When `SecurityGate` creates a `Finding`, it
+A scanner returns a `ScanOutcome`. When `SimpleGate` creates a `Finding`, it
 adds the scanner identity, severity, and action. Routing skips are recorded
 separately as `SkippedScanner` values.
 
@@ -113,7 +114,8 @@ scanners:
 ----
 
 Set `content_types` to `None` to accept every content type. A known incompatible
-entry type is skipped and recorded; entries with `unknown` content type are
+entry type is skipped and recorded in a simple gate; a cascade treats it as an
+operational fault under `on_scanner_error`. Entries with `unknown` content type are
 accepted by every scanner. Put scanner configuration in the constructor, not in
 `scan()`.
 
@@ -159,7 +161,7 @@ class PolicyPreprocessor:
 === Score aggregator
 
 Score aggregators receive severity-weighted scores from positive `BLOCK`
-findings. Return a composite score, normally in the range from `0.0` to `1.0`.
+findings. Return a finite composite score in the range from `0.0` to `1.0`.
 
 [source,python]
 ----
@@ -170,11 +172,12 @@ class HighestScore:
 
 == Integration constraints
 
-* `Runner` still requires at least one configured loader and scanner.
+* `Runner` requires a configured loader and scanners. Every cascade stage also
+  requires at least one own `BLOCK` scanner and unique runtime scanner IDs.
 * Results correspond to post-preprocessing entries. A custom preprocessor can
   change the number and order of result entries.
 * Scanner exceptions follow the configured `on_scanner_error` policy. See
-  xref:gate.adoc[Gate behavior].
+  xref:gate.adoc[Gates].
 * `url_registry` is a scanner-specific integration point. `Runner` passes it
   only to scanner constructors that declare that parameter. It is not a general
   dependency-injection mechanism.

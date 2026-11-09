@@ -2,14 +2,12 @@ import logging
 
 from .config import CerbIAConfig
 from .exceptions import CerbIAConfigError
-from .factories import LoaderFactory, PreprocessorFactory, ScannerFactory, ScoreAggregatorFactory
+from .factories import GateFactory, LoaderFactory, PreprocessorFactory
 from .loaders.base import Loader
 from .models.entries import Entry
 from .models.results import EntryResult, ScanResult
 from .preprocessors.base import Preprocessor
-from .registries.url import UrlRegistry
-from .scanners.base import Scanner
-from .security_gate import SecurityGate
+from .security_gate._gate import SimpleGate
 
 __all__ = ["Runner"]
 
@@ -17,37 +15,34 @@ logger = logging.getLogger(__name__)
 
 
 class Runner:
-    """Orchestrates the security scanning pipeline for a single gate.
+    """Orchestrate the scanning pipeline for a simple or cascade gate.
 
     Builds loaders, preprocessors, and one security gate from configuration. During a scan, entries are loaded
     from all loaders, preprocessed (producing derived entries), then all entries are run through the gate.
 
     Args:
-        config (CerbIAConfig): Flat configuration defining loaders, preprocessors, scanners, score aggregator, and
-            fail-fast behavior.
+        config (CerbIAConfig): Configuration defining loaders, preprocessors, and a simple gate or cascade stages.
 
     Attributes:
         loaders (list[Loader]): List of configured loaders.
         preprocessors (list[Preprocessor]): List of configured preprocessors.
-        scanners (list[Scanner]): List of configured scanners.
-        score_aggregator (ScoreAggregator): The configured score aggregator for the gate.
-        gate (SecurityGate): The security gate that runs all configured scanners.
+        scanners (list[Scanner]): Configured scanners; present only for a simple gate.
+        score_aggregator (ScoreAggregator): Configured aggregator; present only for a simple gate.
+        gate (SimpleGate | CascadeGate): Constructed SecurityGate implementation used to scan each entry.
+
+    Raises:
+        CerbIAConfigError: If no loaders are configured or the gate's scanners violate construction requirements.
+        FactoryError: If a configured component cannot be imported or does not satisfy its required protocol.
     """
 
     def __init__(self, config: CerbIAConfig) -> None:
         self._build_loaders(config)
         self._build_preprocessors(config)
-        self._build_scanners(config)
-        self._build_score_aggregator(config)
+        self.gate = GateFactory.build(config)
 
-        self.gate: SecurityGate = SecurityGate(
-            name=config.name,
-            scanners=self.scanners,
-            fail_fast=config.fail_fast,
-            score_aggregator=self.score_aggregator,
-            threshold=config.threshold,
-            on_scanner_error=config.on_scanner_error,
-        )
+        if isinstance(self.gate, SimpleGate):
+            self.scanners = self.gate.scanners
+            self.score_aggregator = self.gate.score_aggregator
 
     def _build_loaders(self, config: CerbIAConfig) -> None:
         if not config.loaders:
@@ -57,21 +52,6 @@ class Runner:
 
     def _build_preprocessors(self, config: CerbIAConfig) -> None:
         self.preprocessors: list[Preprocessor] = [PreprocessorFactory.build(pc) for pc in config.preprocessors]
-
-    def _build_scanners(self, config: CerbIAConfig) -> None:
-        if not config.scanners:
-            raise CerbIAConfigError("No scanners configured: set at least one scanner")
-
-        scanners: list[Scanner] = []
-        url_registry = UrlRegistry()
-        for sc in config.scanners:
-            scanner = ScannerFactory.build(sc, url_registry=url_registry)
-            scanners.append(scanner)
-
-        self.scanners = scanners
-
-    def _build_score_aggregator(self, config: CerbIAConfig) -> None:
-        self.score_aggregator = ScoreAggregatorFactory.build(config.score_aggregator)
 
     def _preprocess(self, entries: list[Entry]) -> list[Entry]:
         for preprocessor in self.preprocessors:
@@ -84,6 +64,9 @@ class Runner:
 
         Returns:
             ScanResult: Aggregated results for all entries from all loaders.
+
+        Raises:
+            Exception: If an unhandled loader, preprocessor, or gate execution failure occurs.
         """
         logger.debug(
             "Runner scan started",
@@ -111,6 +94,7 @@ class Runner:
                     rationale=gate_result.rationale,
                     findings=gate_result.findings,
                     skipped_scanners=gate_result.skipped_scanners,
+                    stages=gate_result.stages,
                 )
             )
 

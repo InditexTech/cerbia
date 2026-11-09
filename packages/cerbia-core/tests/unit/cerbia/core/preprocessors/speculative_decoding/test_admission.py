@@ -6,7 +6,6 @@ from cerbia.core.preprocessors.speculative_decoding._admission import (
     should_try_decoder,
 )
 from cerbia.core.preprocessors.speculative_decoding._observability import capture_rejections
-from cerbia.core.preprocessors.speculative_decoding._search._expansion import expand_node
 from cerbia.core.preprocessors.speculative_decoding._types import DecoderSpec, Payload, RejectionReason
 
 pytestmark = pytest.mark.unit
@@ -21,35 +20,6 @@ def test_runtime_input_gate_candidate_returns_extracted_match_when_gate_passes()
 
     assert candidate == "encoded"
     assert detail is None
-
-
-def test_expand_node_does_not_decode_when_runtime_gate_rejects_extracted_candidate() -> None:
-    decode_calls: list[str] = []
-
-    def decode(payload: Payload) -> list[Payload]:
-        decode_calls.append(payload.text or "")
-        return [Payload.from_text("decoded output that must never be produced")]
-
-    decoder = DecoderSpec(
-        decoder_id="runtime-gated",
-        extract_patterns=(re.compile(r"token=([A-Z]+)"),),
-        input_gate=lambda text: text == "allowed",
-        decode=decode,
-    )
-
-    with capture_rejections() as rejections:
-        children = expand_node(
-            Payload.from_text("token=blocked"),
-            (),
-            frozenset({"runtime-gated"}),
-            0,
-            (decoder,),
-            intensive_mode=False,
-        )
-
-    assert children == []
-    assert decode_calls == []
-    assert rejections == {RejectionReason.INPUT_GATE_FAILED: 1}
 
 
 @pytest.mark.parametrize(

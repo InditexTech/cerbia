@@ -2,7 +2,7 @@
 :description: Register and select language-specific pattern packs for CerbIA's built-in scanners.
 :page-tags: reference, internationalization, patterns
 :repo-url: https://github.com/InditexTech/cerbia
-:example-config-url: {repo-url}/blob/main/examples/cli-usage/config.cerbia.yaml
+:example-config-url: {repo-url}/blob/main/examples/cli-usage/simple.cerbia.yaml
 
 // Source: docs/content/docs/i18n.mdx (local MDX; source SHA-256 recorded in legacy-routes.json).
 

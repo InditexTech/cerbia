@@ -39,7 +39,7 @@ if not source.is_available(artifact):
     local_path = source.fetch(artifact)
 ----
 
-Replace `_ORG/MODEL_` with the repository and `_40_CHARACTER_COMMIT_` with its
+Replace `ORG/MODEL` with the repository and `_40_CHARACTER_COMMIT_` with its
 immutable commit. The revision must contain exactly 40 lowercase hexadecimal
 characters.
 

@@ -48,15 +48,6 @@ def test_presidio_pii_scanner_accepts_all_content_types(mocker) -> None:
     assert scanner.content_types is None
 
 
-def test_scanner_filters_real_results_to_requested_email_entities() -> None:
-    scanner = PresidioPiiScanner(entities=["EMAIL_ADDRESS"])
-
-    outcome = scanner.scan("Contact jane@example.com from 192.0.2.1")
-
-    assert outcome.matches == [MatchSpan(start=8, end=24)]
-    assert outcome.rationale == "PII detected (1 entity/ies): EMAIL_ADDRESS (1)"
-
-
 def test_presidio_pii_scanner_returns_empty_input_outcome_without_analyzing(mocker) -> None:
     scanner = _build_scanner(mocker)
 

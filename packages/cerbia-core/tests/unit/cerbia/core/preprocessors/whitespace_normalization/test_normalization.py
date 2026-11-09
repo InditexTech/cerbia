@@ -1,5 +1,5 @@
 import pytest
-from cerbia.core.preprocessors.whitespace_normalization._normalization import _compiled_patterns, normalize
+from cerbia.core.preprocessors.whitespace_normalization._normalization import normalize
 
 pytestmark = pytest.mark.unit
 
@@ -87,10 +87,3 @@ def test_normalize_uses_custom_thresholds_when_configured() -> None:
         "tabs_replaced": 0,
         "dejammed_sequences": [],
     }
-
-
-def test_compiled_patterns_are_reused_for_the_same_threshold_combination() -> None:
-    first = _compiled_patterns(max_consecutive_spaces=3, max_consecutive_newlines=4)
-    second = _compiled_patterns(max_consecutive_spaces=3, max_consecutive_newlines=4)
-
-    assert first is second

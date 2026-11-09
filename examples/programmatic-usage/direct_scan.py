@@ -2,13 +2,13 @@
 
 from cerbia.core.scanners import KeywordScanner
 from cerbia.core.score_aggregators import MaxScoreAggregator
-from cerbia.core.security_gate import SecurityGate
+from cerbia.core.security_gate import SimpleGate
 from cerbia.core.types import ContentType
 
 
 def main() -> None:
     """Programmatically scan two entries with a security gate and print the verdicts."""
-    gate = SecurityGate(
+    gate = SimpleGate(
         name="direct-demo",
         scanners=[KeywordScanner()],
         score_aggregator=MaxScoreAggregator(),

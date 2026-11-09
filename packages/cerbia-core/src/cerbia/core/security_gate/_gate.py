@@ -6,34 +6,36 @@ from ..models.scans import Finding, SkippedScanner
 from ..scanners import Scanner
 from ..score_aggregators import ScoreAggregator
 from ..types import Action, ContentType, ScannerErrorPolicy
+from ._execution import CompletedScan, FailedScan, UnsupportedScan, execute_scanner
 from ._models import GateVerdict
 from ._results import build_rationale
-from ._validation import check_content_type_skip
 
 logger = logging.getLogger(__name__)
 
 
-class SecurityGate:
+class SimpleGate:
     """Composes multiple scanners and aggregates their results into a single verdict.
 
     A gate runs each scanner sequentially against the input text, collects findings, and computes a severity-weighted
-    aggregated score from blocked findings. The gate passes when no BLOCK findings exist or when the aggregated score
-    falls below the configured threshold.
+    aggregated score from positive-risk BLOCK findings. With no blocking scanner failures, the gate passes when no
+    positive-risk BLOCK findings exist or when the aggregated score falls below the configured threshold.
 
     Args:
         name (str): Human-readable gate name (e.g. ``"config-scan"``).
         scanners (list[Scanner]): Ordered list of scanners to execute.
         score_aggregator (ScoreAggregator): Strategy that aggregates risk scores from blocked scanners.
-        fail_fast (bool): If ``True``, stop after the first failing scanner. Defaults to ``True``.
-        threshold (float): Minimum aggregated score to trigger a block verdict. ``0.0`` means any BLOCK finding fails
-            the gate. Defaults to ``0.0``.
+        fail_fast (bool): Stop on a blocking scanner error or a non-negligible BLOCK finding whose weighted score
+            meets the threshold. Defaults to True.
+        threshold (float): Minimum aggregated score to trigger a block verdict. At ``0.0``, any positive-risk BLOCK
+            finding blocks; zero-risk findings do not. Blocking scanner failures block independently of this threshold.
+            Defaults to ``0.0``.
         on_scanner_error (ScannerErrorPolicy): How scanner execution errors are handled. Defaults to ``"block"``.
 
     Attributes:
         name (str): Human-readable gate name.
         scanners (list[Scanner]): Ordered list of scanners to execute.
         score_aggregator (ScoreAggregator): Strategy that aggregates risk scores from blocked scanners.
-        fail_fast (bool): If ``True``, stop after the first failing scanner.
+        fail_fast (bool): Whether blocking scanner errors or qualifying individual BLOCK findings stop execution.
         threshold (float): Minimum aggregated score to trigger a block verdict.
         on_scanner_error (ScannerErrorPolicy): Scanner execution error policy.
     """
@@ -55,12 +57,12 @@ class SecurityGate:
         self.on_scanner_error = on_scanner_error
 
     def scan(self, text: str, *, content_type: ContentType = ContentType.UNKNOWN) -> GateVerdict:
-        """Run all registered scanners against the input text.
+        """Run eligible scanners in order against the input text.
 
-        Handled scanner errors emit one sanitized record. If on_scanner_error is ``FAIL`` the original exception is
-        re-raised immediately, if ``BLOCK`` continues scanning but forces an unsafe verdict, and if ``SKIP`` records
-        a sanitized skipped scanner. When ``fail_fast`` is enabled, execution stops after a BLOCK scanner whose
-        severity-weighted risk score meets or exceeds the threshold.
+        FAIL re-raises the original scanner exception. BLOCK forces an unsafe verdict and stops only when fail_fast
+        is enabled. SKIP records the failed scanner and continues. Fail-fast also stops on a BLOCK finding whose
+        risk score is not close to zero (absolute tolerance 1e-9) and whose weighted score meets the threshold.
+        Aggregation still includes every positive BLOCK score collected, including near-zero scores.
 
         Args:
             text (str): The text to scan.
@@ -68,6 +70,10 @@ class SecurityGate:
 
         Returns:
             GateVerdict: Aggregated verdict with individual findings.
+
+        Raises:
+            Exception: If a scanner raises under the FAIL policy or the score aggregator raises during aggregation;
+                the original exception is propagated.
         """
         findings: list[Finding] = []
         skipped: list[SkippedScanner] = []
@@ -92,74 +98,65 @@ class SecurityGate:
                     "component_kind": "security_gate",
                 },
             )
-            skipped_entry = check_content_type_skip(scanner, content_type)
-            if skipped_entry:
-                logger.debug(
-                    "Scanner skipped due to content type mismatch: %s (%s)",
-                    scanner.scanner_name,
-                    scanner.scanner_id,
-                    extra={
-                        "operation": "scan",
-                        "stage": "scanner",
-                        "component_kind": "security_gate",
-                        "outcome": "skipped",
-                    },
-                )
-                skipped.append(skipped_entry)
-                continue
-
             finding: Finding | None = None
             scanner_failed = False
-            try:
-                outcome = scanner.scan(text)
-                finding = Finding(
-                    scanner_id=scanner.scanner_id,
-                    scanner_name=scanner.scanner_name,
-                    risk_score=outcome.risk_score,
-                    severity=scanner.severity,
-                    action=scanner.action,
-                    rationale=outcome.rationale,
-                    matches=outcome.matches,
-                )
-                findings.append(finding)
 
-            except Exception:
-                match self.on_scanner_error:
-                    case ScannerErrorPolicy.FAIL:
-                        raise
-                    case ScannerErrorPolicy.BLOCK:
-                        logger.error(
-                            "Scanner execution failed: %s (%s). Blocking gate due to error policy.",
-                            scanner.scanner_name,
-                            scanner.scanner_id,
-                            extra={
-                                "operation": "scan",
-                                "stage": "scanner",
-                                "outcome": "failure",
-                            },
-                        )
-                        scanner_failures.append(scanner.scanner_name)
-                        scanner_failed = True
-                    case ScannerErrorPolicy.SKIP:
-                        logger.error(
-                            "Scanner execution failed: %s (%s). Skipping scanner due to error policy.",
-                            scanner.scanner_name,
-                            scanner.scanner_id,
-                            extra={
-                                "operation": "scan",
-                                "stage": "scanner",
-                                "outcome": "failure",
-                            },
-                        )
-                        skipped.append(
-                            SkippedScanner(
-                                scanner_id=scanner.scanner_id,
-                                scanner_name=scanner.scanner_name,
-                                reason="scanner execution failed",
+            match execute_scanner(scanner, text, content_type):
+                case UnsupportedScan(skipped=skipped_entry):
+                    logger.debug(
+                        "Scanner skipped due to content type mismatch: %s (%s)",
+                        scanner.scanner_name,
+                        scanner.scanner_id,
+                        extra={
+                            "operation": "scan",
+                            "stage": "scanner",
+                            "component_kind": "security_gate",
+                            "outcome": "skipped",
+                        },
+                    )
+                    skipped.append(skipped_entry)
+                    continue
+                case CompletedScan(finding=finding):
+                    findings.append(finding)
+                case FailedScan(error=error):
+                    match self.on_scanner_error:
+                        case ScannerErrorPolicy.FAIL:
+                            raise error
+                        case ScannerErrorPolicy.BLOCK:
+                            logger.error(
+                                "Scanner execution failed: %s (%s). Blocking gate due to error policy.",
+                                scanner.scanner_name,
+                                scanner.scanner_id,
+                                extra={
+                                    "operation": "scan",
+                                    "stage": "scanner",
+                                    "outcome": "failure",
+                                },
                             )
-                        )
-                    case unreachable:
-                        assert_never(unreachable)
+                            scanner_failures.append(scanner.scanner_name)
+                            scanner_failed = True
+                        case ScannerErrorPolicy.SKIP:
+                            logger.error(
+                                "Scanner execution failed: %s (%s). Skipping scanner due to error policy.",
+                                scanner.scanner_name,
+                                scanner.scanner_id,
+                                extra={
+                                    "operation": "scan",
+                                    "stage": "scanner",
+                                    "outcome": "failure",
+                                },
+                            )
+                            skipped.append(
+                                SkippedScanner(
+                                    scanner_id=scanner.scanner_id,
+                                    scanner_name=scanner.scanner_name,
+                                    reason="scanner execution failed",
+                                )
+                            )
+                        case unreachable:
+                            assert_never(unreachable)
+                case unreachable:
+                    assert_never(unreachable)
 
             if self._should_fail_fast(finding, scanner_failed=scanner_failed):
                 break
@@ -199,16 +196,6 @@ class SecurityGate:
     def _build_verdict(
         self, findings: list[Finding], skipped: list[SkippedScanner], scanner_failures: list[str]
     ) -> GateVerdict:
-        """Aggregate findings into a final gate verdict.
-
-        Args:
-            findings (list[Finding]): All findings collected during the scan.
-            skipped (list[SkippedScanner]): Scanners skipped due to content-type routing or the ``"skip"`` policy.
-            scanner_failures (list[str]): Private names of failed scanners that require blocking.
-
-        Returns:
-            GateVerdict: The aggregated verdict.
-        """
         failed = [f for f in findings if f.risk_score > 0.0]
         blocked = [f for f in failed if f.action == Action.BLOCK]
         weighted_scores = [f.risk_score * f.severity.weight for f in blocked]
