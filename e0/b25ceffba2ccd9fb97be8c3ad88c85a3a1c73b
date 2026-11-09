@@ -1,0 +1,18 @@
+docs/src/modules/cerbia-ml/pages/index.adoc
+  h_d6d31939214ddd 2,4-6,8-67
+docs/src/modules/cerbia-presidio/pages/index.adoc
+  h_d6d31939214ddd 2,4-7,9-46
+docs/src/modules/cerbia-protectai/pages/index.adoc
+  h_d6d31939214ddd 2,4-7,9-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e0b25ceffba2ccd9fb97be8c3ad88c85a3a1c73b",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

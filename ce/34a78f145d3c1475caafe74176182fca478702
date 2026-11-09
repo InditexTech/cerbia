@@ -1,0 +1,735 @@
+.github/CODEOWNERS
+  s_4a7ecc5a552eae::t_544f52e6912652 8
+.github/ISSUE_TEMPLATE/1-bug.yml
+  s_4a7ecc5a552eae::t_80c263f21f7858 1
+.github/ISSUE_TEMPLATE/2-feature.yml
+  s_4a7ecc5a552eae::t_b628b8fd0d1c32 1
+.github/ISSUE_TEMPLATE/3-other.yml
+  s_4a7ecc5a552eae::t_0b279db60c3d86 1
+.github/ISSUE_TEMPLATE/config.yml
+  s_4a7ecc5a552eae::t_c602ee9362bad1 1
+.github/PULL_REQUEST_TEMPLATE.md
+  s_4a7ecc5a552eae::t_bf0e94b480b7b0 2
+.github/actions/configure-release-git/action.yml
+  s_4a7ecc5a552eae::t_fd8e20dd9496b6 1-48
+.github/actions/setup-python-project/action.yml
+  s_4a7ecc5a552eae::t_1a3daec66a0e85 1-30
+.github/workflows/code-uv_python-PR_verify.yml
+  s_9fee41dc38cff8::t_dec5d65657c824 1,4-9,20,23,33,36,46,49,55-104
+.github/workflows/docs-npm_node-publish.yml
+  s_9fee41dc38cff8::t_b696c2ac21a70c 1-52
+.github/workflows/docs-npm_node-verify.yml
+  s_9fee41dc38cff8::t_bc654aa390776d 1-37
+.github/workflows/push-verify.yml
+  s_9fee41dc38cff8::t_92adfc761f3749 1,17,23,51,54,61,64
+.gitignore
+  s_35ed0ff9bce47a::t_c75ce5dfc1ba7d 1-175
+.pre-commit-config.yaml
+  s_35ed0ff9bce47a::t_4b3f6a5cde4dcf 1-34
+.python-version
+  s_35ed0ff9bce47a::t_c42d36097ccd7f 1
+CODE_OF_CONDUCT.md
+  s_35ed0ff9bce47a::t_b7c18c3a70bf8f 2
+CONTRIBUTING.md
+  s_35ed0ff9bce47a::t_e400b0ce986909 2,34,49-108
+Makefile
+  s_35ed0ff9bce47a::t_eaa69585d2b14a 1-111
+README.md
+  s_4a7ecc5a552eae::t_40e5bae99c3cd6 7,9,11-12,14,16,18,20,22,24,26-28,30-32,34,36-71,75,77-81,83-106,108,110,114,117-118
+REUSE.toml
+  s_35ed0ff9bce47a::t_683d7aced411a6 2-4,12-21,23
+SECURITY.md
+  s_4a7ecc5a552eae::t_537767358bdb81 2
+docs/.npmrc
+  s_9fee41dc38cff8::t_e250e473c9a945 1
+docs/app/api/search/route.ts
+  s_4a7ecc5a552eae::t_ea8c658b87b7bf 1-5
+docs/app/docs/[[...slug]]/page.tsx
+  s_4a7ecc5a552eae::t_ef1559b2863b7a 1-71
+docs/app/docs/layout.tsx
+  s_4a7ecc5a552eae::t_a979629960ec4f 1-12
+docs/app/global.css
+  s_4a7ecc5a552eae::t_03d8e3a513ce3c 1-102
+docs/app/layout.config.tsx
+  s_4a7ecc5a552eae::t_a4b2413a3940bb 1-42
+docs/app/layout.tsx
+  s_4a7ecc5a552eae::t_7065a39f36ec34 1-30
+docs/app/page.tsx
+  s_9fee41dc38cff8::t_37b5f7ff1a8ec1 1-320
+docs/components/layout/search-toggle.tsx
+  s_4a7ecc5a552eae::t_360bbf6bd02fab 1-93
+docs/components/layout/theme-toggle.tsx
+  s_9fee41dc38cff8::t_8bec212dbac945 1-106
+docs/components/mdx/mermaid.tsx
+  s_9fee41dc38cff8::t_6b829ca70db790 1-98
+docs/components/search-dialog.tsx
+  s_4a7ecc5a552eae::t_651a00b6372453 1-40
+docs/content/docs/architecture.mdx
+  s_4a7ecc5a552eae::t_fe42c1bddc7ed6 1-167
+docs/content/docs/cli.mdx
+  s_4a7ecc5a552eae::t_62091165793e15 1-92
+docs/content/docs/components/custom-components/index.mdx
+  s_4a7ecc5a552eae::t_2f1d5a61824045 1-173
+docs/content/docs/components/custom-components/meta.json
+  s_4a7ecc5a552eae::t_65b7398bb29c01 1
+docs/content/docs/components/loaders/file-loader.mdx
+  s_4a7ecc5a552eae::t_98787dd7cffd25 1-40
+docs/content/docs/components/loaders/index.mdx
+  s_4a7ecc5a552eae::t_ece486c7ff0660 1-14
+docs/content/docs/components/loaders/meta.json
+  s_4a7ecc5a552eae::t_6bfdf9e7422b25 1
+docs/content/docs/components/loaders/text-loader.mdx
+  s_4a7ecc5a552eae::t_2645f34ad95a4f 1-35
+docs/content/docs/components/meta.json
+  s_4a7ecc5a552eae::t_74ed1b1b4e77bc 1
+docs/content/docs/components/preprocessors/index.mdx
+  s_4a7ecc5a552eae::t_2b2d0e51997143 1-18
+docs/content/docs/components/preprocessors/meta.json
+  s_4a7ecc5a552eae::t_b0f8d3188a1250 1
+docs/content/docs/components/preprocessors/speculative-decoding.mdx
+  s_4a7ecc5a552eae::t_dda6832b7235da 1-214
+docs/content/docs/components/preprocessors/whitespace-normalization.mdx
+  s_4a7ecc5a552eae::t_5a583db00c3f15 1-34
+docs/content/docs/components/scanners/canary-leak.mdx
+  s_4a7ecc5a552eae::t_277445430bd407 1-29
+docs/content/docs/components/scanners/index.mdx
+  s_4a7ecc5a552eae::t_cba4d7cffb0e43 1-31
+docs/content/docs/components/scanners/invisible-text.mdx
+  s_4a7ecc5a552eae::t_62394633147c5c 1-30
+docs/content/docs/components/scanners/keyword.mdx
+  s_4a7ecc5a552eae::t_319a658d221ac1 1-33
+docs/content/docs/components/scanners/meta.json
+  s_4a7ecc5a552eae::t_0758ea00b8a351 1
+docs/content/docs/components/scanners/pii-presidio.mdx
+  s_4a7ecc5a552eae::t_f5ae65f0de2219 1-26
+docs/content/docs/components/scanners/pii.mdx
+  s_4a7ecc5a552eae::t_38b0932475fc5d 1-32
+docs/content/docs/components/scanners/prompt-injection-protectai.mdx
+  s_4a7ecc5a552eae::t_53b9967d81a848 1-43
+docs/content/docs/components/scanners/prompt-injection.mdx
+  s_4a7ecc5a552eae::t_506ccb870d7cf9 1-34
+docs/content/docs/components/scanners/secrets.mdx
+  s_4a7ecc5a552eae::t_cab136b98500af 1-34
+docs/content/docs/components/scanners/url-allowlist.mdx
+  s_4a7ecc5a552eae::t_bcc8e2dc1c65e2 1-38
+docs/content/docs/components/scanners/url-malicious.mdx
+  s_4a7ecc5a552eae::t_383b47ee465ea4 1-37
+docs/content/docs/components/scanners/xss.mdx
+  s_4a7ecc5a552eae::t_3d268c03409c40 1-32
+docs/content/docs/components/score-aggregators/index.mdx
+  s_4a7ecc5a552eae::t_562997c5b1e73e 1-24
+docs/content/docs/components/score-aggregators/max-with-bonus.mdx
+  s_4a7ecc5a552eae::t_67e36ca6852509 1-26
+docs/content/docs/components/score-aggregators/max.mdx
+  s_4a7ecc5a552eae::t_781c9d4c437603 1-20
+docs/content/docs/components/score-aggregators/mean.mdx
+  s_4a7ecc5a552eae::t_e223973d82792b 1-20
+docs/content/docs/components/score-aggregators/meta.json
+  s_4a7ecc5a552eae::t_a2d888d266b36c 1
+docs/content/docs/configuration.mdx
+  s_4a7ecc5a552eae::t_240b5a4bdc1118 1-288
+docs/content/docs/gate.mdx
+  s_4a7ecc5a552eae::t_9b35c7fab65d3d 1-53
+docs/content/docs/getting-started.mdx
+  s_4a7ecc5a552eae::t_1edf90846360eb 1-35
+docs/content/docs/i18n.mdx
+  s_4a7ecc5a552eae::t_68250c12620ee2 1-141
+docs/content/docs/index.mdx
+  s_4a7ecc5a552eae::t_e29ea8bad7c2ff 1-14
+docs/content/docs/logging.mdx
+  s_4a7ecc5a552eae::t_3bc4c983b0e2a4 1-43
+docs/content/docs/meta.json
+  s_4a7ecc5a552eae::t_a592b3d1ece486 1-19
+docs/content/docs/packages/cerbia-cli.mdx
+  s_4a7ecc5a552eae::t_e71414c7a73421 1-29
+docs/content/docs/packages/cerbia-core.mdx
+  s_4a7ecc5a552eae::t_087526a25c949a 1-42
+docs/content/docs/packages/cerbia-ml.mdx
+  s_4a7ecc5a552eae::t_768515f1d734b3 1-33
+docs/content/docs/packages/cerbia-presidio.mdx
+  s_4a7ecc5a552eae::t_e108f962da21c3 1-32
+docs/content/docs/packages/cerbia-protectai.mdx
+  s_4a7ecc5a552eae::t_89bb86e82818d1 1-37
+docs/content/docs/packages/cerbia.mdx
+  s_4a7ecc5a552eae::t_212eaae26c72e0 1-26
+docs/content/docs/packages/index.mdx
+  s_4a7ecc5a552eae::t_35a77fedc63c09 1-25
+docs/content/docs/packages/meta.json
+  s_4a7ecc5a552eae::t_6d40ba1e2b922d 1
+docs/layouts/docs.tsx
+  s_9fee41dc38cff8::t_ed163bfb7f2dba 1-244
+docs/layouts/home.tsx
+  s_9fee41dc38cff8::t_4621a7e59b5463 1-220
+docs/layouts/shared.tsx
+  s_4a7ecc5a552eae::t_96975dabc41d27 1-71
+docs/lib/source.ts
+  s_4a7ecc5a552eae::t_877df9ba20186a 1-11
+docs/mdx-components.tsx
+  s_4a7ecc5a552eae::t_ba6f7efbfc4604 1-13
+docs/next-env.d.ts
+  s_4a7ecc5a552eae::t_cf63478faf29c2 1-6
+docs/next.config.mjs
+  s_4a7ecc5a552eae::t_439dd5426d0916 1-17
+examples/README.md
+  s_4a7ecc5a552eae::t_037c32ca13fabc 1-10
+examples/cli-usage/README.md
+  s_4a7ecc5a552eae::t_8bde94c1e7bedf 1-18
+examples/cli-usage/config.cerbia.yaml
+  s_4a7ecc5a552eae::t_354d022e505db2 1-28
+examples/custom-loader/README.md
+  s_4a7ecc5a552eae::t_985bf320b6ed76 1-49
+examples/custom-loader/opencode-project/.opencode/agents/nested/planning-reviewer.md
+  s_4a7ecc5a552eae::t_7a4a68c77eabca 1-12
+examples/custom-loader/opencode-project/.opencode/agents/reviewer.md
+  s_4a7ecc5a552eae::t_0dd0ad94e3cdd9 1-14
+examples/custom-loader/opencode-project/.opencode/commands/meeting-summary.md
+  s_4a7ecc5a552eae::t_3a2a0326aac037 1-15
+examples/custom-loader/opencode-project/.opencode/commands/scan.md
+  s_4a7ecc5a552eae::t_a4469f0bad84b8 1-27
+examples/custom-loader/opencode-project/.opencode/skills/project-summary/SKILL.md
+  s_4a7ecc5a552eae::t_a3c69af031e1e5 1-15
+examples/custom-loader/opencode-project/.opencode/skills/volunteer-brief/SKILL.md
+  s_4a7ecc5a552eae::t_7b1584a6a47c2a 1-17
+examples/custom-loader/opencode-project/INSTRUCTIONS.md
+  s_4a7ecc5a552eae::t_5f6f911a2a255a 1-8
+examples/custom-loader/opencode-project/opencode.json
+  s_4a7ecc5a552eae::t_0a85382910df8a 1-22
+examples/custom-loader/opencode.cerbia.yaml
+  s_4a7ecc5a552eae::t_0fced8ad44a5c1 1-42
+examples/custom-loader/opencode_loader.py
+  s_4a7ecc5a552eae::t_0f3ed30d984079 1-64
+examples/programmatic-usage/README.md
+  s_4a7ecc5a552eae::t_ddd0c402817275 1-17
+examples/programmatic-usage/direct_scan.py
+  s_4a7ecc5a552eae::t_312b19dc90bc5f 1-31
+packages/cerbia-cli/README.md
+  s_35ed0ff9bce47a::t_922633f9812a9e 1-10
+packages/cerbia-cli/pyproject.toml
+  s_f87357be724fc4::t_498aadafc806ef 1-48
+packages/cerbia-cli/src/cerbia/cli/__init__.py
+  s_35ed0ff9bce47a::t_ca6db6a8e8719e 1-27
+packages/cerbia-cli/src/cerbia/cli/__main__.py
+  s_35ed0ff9bce47a::t_9cabbb0b625841 1-4
+packages/cerbia-cli/src/cerbia/cli/config.py
+  s_35ed0ff9bce47a::t_2ad7f965c1949b 1-54
+packages/cerbia-cli/src/cerbia/cli/logging.py
+  s_35ed0ff9bce47a::t_d5ff8509d01653 1-54
+packages/cerbia-cli/src/cerbia/cli/scan/__init__.py
+  s_35ed0ff9bce47a::t_5e351c042ad543 1-3
+packages/cerbia-cli/src/cerbia/cli/scan/_command.py
+  s_35ed0ff9bce47a::t_dd4cc2491eba75 1-124
+packages/cerbia-cli/src/cerbia/cli/scan/_data.py
+  s_35ed0ff9bce47a::t_35314201059fb8 1-23
+packages/cerbia-cli/src/cerbia/cli/scan/_ui.py
+  s_35ed0ff9bce47a::t_9625b5666f3a23 1-85
+packages/cerbia-cli/src/cerbia/cli/validate/__init__.py
+  s_35ed0ff9bce47a::t_981699ceb26693 1-3
+packages/cerbia-cli/src/cerbia/cli/validate/_command.py
+  s_35ed0ff9bce47a::t_44657620f9ad4b 1-50
+packages/cerbia-cli/src/cerbia/cli/validate/_ui.py
+  s_35ed0ff9bce47a::t_ff42081efbf82e 1-38
+packages/cerbia-cli/tests/unit/cerbia/cli/scan/test_command.py
+  s_35ed0ff9bce47a::t_28199c72d97354 1-501
+packages/cerbia-cli/tests/unit/cerbia/cli/scan/test_data.py
+  s_35ed0ff9bce47a::t_bcd8ba9639bac3 1-67
+packages/cerbia-cli/tests/unit/cerbia/cli/scan/test_ui.py
+  s_35ed0ff9bce47a::t_a78ab2eef90d59 1-84
+packages/cerbia-cli/tests/unit/cerbia/cli/test_config.py
+  s_35ed0ff9bce47a::t_20b4dd64154044 1-108
+packages/cerbia-cli/tests/unit/cerbia/cli/test_init.py
+  s_35ed0ff9bce47a::t_40c81c39b16c7d 1-44
+packages/cerbia-cli/tests/unit/cerbia/cli/test_logging.py
+  s_35ed0ff9bce47a::t_130d3127df7322 1-127
+packages/cerbia-cli/tests/unit/cerbia/cli/validate/test_command.py
+  s_35ed0ff9bce47a::t_8ed8a6e2756c36 1-231
+packages/cerbia-cli/tests/unit/cerbia/cli/validate/test_ui.py
+  s_35ed0ff9bce47a::t_7fc783f80113bc 1-67
+packages/cerbia-core/README.md
+  s_35ed0ff9bce47a::t_16f44e4f1fb3c4 1-9
+packages/cerbia-core/src/cerbia/core/__init__.py
+  s_35ed0ff9bce47a::t_c997d89f21d4ad 1
+packages/cerbia-core/src/cerbia/core/_constants.py
+  s_35ed0ff9bce47a::t_37dc834bcf3373 1-12
+packages/cerbia-core/src/cerbia/core/_utils/math.py
+  s_35ed0ff9bce47a::t_403c55f7143037 1-18
+packages/cerbia-core/src/cerbia/core/_utils/text.py
+  s_35ed0ff9bce47a::t_22413606cf7c50 1-25
+packages/cerbia-core/src/cerbia/core/_utils/url.py
+  s_35ed0ff9bce47a::t_5b53582ac7298b 1-202
+packages/cerbia-core/src/cerbia/core/config.py
+  s_35ed0ff9bce47a::t_ac26867f3b7030 1-147
+packages/cerbia-core/src/cerbia/core/exceptions.py
+  s_35ed0ff9bce47a::t_5d0ae3d4f79082 1-6
+packages/cerbia-core/src/cerbia/core/factories/__init__.py
+  s_35ed0ff9bce47a::t_21a944b3f8d00f 1-13
+packages/cerbia-core/src/cerbia/core/factories/base.py
+  s_35ed0ff9bce47a::t_b6e448ceb2942e 1-116
+packages/cerbia-core/src/cerbia/core/factories/exceptions.py
+  s_35ed0ff9bce47a::t_613e239174872d 1-7
+packages/cerbia-core/src/cerbia/core/factories/loader.py
+  s_35ed0ff9bce47a::t_8ae1a29b9f56e1 1-20
+packages/cerbia-core/src/cerbia/core/factories/preprocessor.py
+  s_35ed0ff9bce47a::t_55a78d5561f4fa 1-20
+packages/cerbia-core/src/cerbia/core/factories/scanner.py
+  s_35ed0ff9bce47a::t_d45402594c3f85 1-20
+packages/cerbia-core/src/cerbia/core/factories/score_aggregator.py
+  s_35ed0ff9bce47a::t_b9ff85ae817b13 1-20
+packages/cerbia-core/src/cerbia/core/i18n/__init__.py
+  s_35ed0ff9bce47a::t_87a5d1f45499d3 1-32
+packages/cerbia-core/src/cerbia/core/i18n/en.py
+  s_35ed0ff9bce47a::t_8f214720ae423f 1-148
+packages/cerbia-core/src/cerbia/core/i18n/es.py
+  s_35ed0ff9bce47a::t_ba4140c1a235b7 1-147
+packages/cerbia-core/src/cerbia/core/i18n/gl.py
+  s_35ed0ff9bce47a::t_7686b19677c7f6 1-147
+packages/cerbia-core/src/cerbia/core/i18n/language_profiles.py
+  s_35ed0ff9bce47a::t_4d1763a5c135b2 1-810
+packages/cerbia-core/src/cerbia/core/loaders/__init__.py
+  s_35ed0ff9bce47a::t_8790a359a149c3 1-9
+packages/cerbia-core/src/cerbia/core/loaders/base.py
+  s_35ed0ff9bce47a::t_6b8f698b141a6e 1-20
+packages/cerbia-core/src/cerbia/core/loaders/file.py
+  s_35ed0ff9bce47a::t_0585266e1c0618 1-89
+packages/cerbia-core/src/cerbia/core/loaders/text.py
+  s_35ed0ff9bce47a::t_fcbe0ba1d19894 1-47
+packages/cerbia-core/src/cerbia/core/models/entries.py
+  s_35ed0ff9bce47a::t_0e4112b02351da 1-62
+packages/cerbia-core/src/cerbia/core/models/results.py
+  s_35ed0ff9bce47a::t_7eb05bf50b0168 1-70
+packages/cerbia-core/src/cerbia/core/models/scans.py
+  s_35ed0ff9bce47a::t_72ec85fa09b1b6 1-67
+packages/cerbia-core/src/cerbia/core/preprocessors/__init__.py
+  s_35ed0ff9bce47a::t_ed67d9e4cf7728 1-9
+packages/cerbia-core/src/cerbia/core/preprocessors/base.py
+  s_35ed0ff9bce47a::t_ec847d15713ace 1-31
+packages/cerbia-core/src/cerbia/core/preprocessors/exceptions.py
+  s_35ed0ff9bce47a::t_a49acae60c6187 1-5
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/__init__.py
+  s_35ed0ff9bce47a::t_27d4772de40200 1-15
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_acceptance.py
+  s_35ed0ff9bce47a::t_47647ed22232a4 1-57
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_admission.py
+  s_35ed0ff9bce47a::t_c594dc3c40ad3d 1-114
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_decoders/__init__.py
+  s_35ed0ff9bce47a::t_3c94e59377d383 1-3
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_decoders/_builtins.py
+  s_35ed0ff9bce47a::t_593f44869453c3 1-464
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_decoders/_constants.py
+  s_35ed0ff9bce47a::t_4f322af315e4b0 1-28
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_decoders/_registry.py
+  s_35ed0ff9bce47a::t_964adabd3e1dda 1-121
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_defaults.py
+  s_35ed0ff9bce47a::t_04f3ab06952e7c 1-26
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_engine.py
+  s_35ed0ff9bce47a::t_e8fdadfdd001bb 1-338
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_heuristics.py
+  s_35ed0ff9bce47a::t_215be54a952407 1-283
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_observability.py
+  s_35ed0ff9bce47a::t_7a574750c86952 1-50
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_preprocessor.py
+  s_35ed0ff9bce47a::t_1bda8588c95c57 1-240
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_scoring.py
+  s_35ed0ff9bce47a::t_087786c2bae7c0 1-313
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_search/__init__.py
+  s_35ed0ff9bce47a::t_f4410eb1d26980 1-4
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_search/_beam.py
+  s_35ed0ff9bce47a::t_8a4fefa56a4b9d 1-471
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_search/_expansion.py
+  s_35ed0ff9bce47a::t_5a1bf62267b143 1-178
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_segment_extractor.py
+  s_35ed0ff9bce47a::t_66a8fcdddc476e 1-135
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/_types.py
+  s_35ed0ff9bce47a::t_09ab4169ed4bd6 1-153
+packages/cerbia-core/src/cerbia/core/preprocessors/speculative_decoding/exceptions.py
+  s_35ed0ff9bce47a::t_56dc15fefd0ffe 1-12
+packages/cerbia-core/src/cerbia/core/preprocessors/whitespace_normalization/__init__.py
+  s_35ed0ff9bce47a::t_304146146057dd 1-3
+packages/cerbia-core/src/cerbia/core/preprocessors/whitespace_normalization/_constants.py
+  s_35ed0ff9bce47a::t_a7a54764aaea29 1-4
+packages/cerbia-core/src/cerbia/core/preprocessors/whitespace_normalization/_normalization.py
+  s_35ed0ff9bce47a::t_528c420844c874 1-63
+packages/cerbia-core/src/cerbia/core/preprocessors/whitespace_normalization/_preprocessor.py
+  s_35ed0ff9bce47a::t_4db900a7ac72d7 1-74
+packages/cerbia-core/src/cerbia/core/registries/__init__.py
+  s_35ed0ff9bce47a::t_80b61fc5db94e6 1-9
+packages/cerbia-core/src/cerbia/core/registries/i18n.py
+  s_35ed0ff9bce47a::t_01c101a73187a5 1-124
+packages/cerbia-core/src/cerbia/core/registries/url/__init__.py
+  s_35ed0ff9bce47a::t_cc36dfa491dcb9 1-3
+packages/cerbia-core/src/cerbia/core/registries/url/_normalization.py
+  s_35ed0ff9bce47a::t_0416f438222698 1-110
+packages/cerbia-core/src/cerbia/core/registries/url/_registry.py
+  s_35ed0ff9bce47a::t_cf35d488788338 1-57
+packages/cerbia-core/src/cerbia/core/registries/url/_validation.py
+  s_35ed0ff9bce47a::t_02ef5e8b3e1c8d 1-26
+packages/cerbia-core/src/cerbia/core/runner.py
+  s_35ed0ff9bce47a::t_b3b8e19faa69a2 1-129
+packages/cerbia-core/src/cerbia/core/scanners/__init__.py
+  s_35ed0ff9bce47a::t_042f31895d142c 1-23
+packages/cerbia-core/src/cerbia/core/scanners/base.py
+  s_35ed0ff9bce47a::t_af4fd74f86bf85 1-37
+packages/cerbia-core/src/cerbia/core/scanners/canary/__init__.py
+  s_35ed0ff9bce47a::t_a16311af6da317 1-4
+packages/cerbia-core/src/cerbia/core/scanners/canary/_constants.py
+  s_35ed0ff9bce47a::t_15cc5311fca31e 1-3
+packages/cerbia-core/src/cerbia/core/scanners/canary/_generator.py
+  s_35ed0ff9bce47a::t_4ed55adc458740 1-55
+packages/cerbia-core/src/cerbia/core/scanners/canary/_normalization.py
+  s_35ed0ff9bce47a::t_c2e98f5870b596 1-19
+packages/cerbia-core/src/cerbia/core/scanners/canary/_scanner.py
+  s_35ed0ff9bce47a::t_70f43dd1a270f9 1-152
+packages/cerbia-core/src/cerbia/core/scanners/invisible_text/__init__.py
+  s_35ed0ff9bce47a::t_0ba00246240b65 1-3
+packages/cerbia-core/src/cerbia/core/scanners/invisible_text/_constants.py
+  s_35ed0ff9bce47a::t_1a461464ddb8b7 1-31
+packages/cerbia-core/src/cerbia/core/scanners/invisible_text/_scanner.py
+  s_35ed0ff9bce47a::t_7ecce66a0d3f7c 1-135
+packages/cerbia-core/src/cerbia/core/scanners/invisible_text/_validation.py
+  s_35ed0ff9bce47a::t_463517b131f993 1-56
+packages/cerbia-core/src/cerbia/core/scanners/keyword/__init__.py
+  s_35ed0ff9bce47a::t_24ff30c9214990 1-4
+packages/cerbia-core/src/cerbia/core/scanners/keyword/_constants.py
+  s_35ed0ff9bce47a::t_4cf71694a88e09 1-6
+packages/cerbia-core/src/cerbia/core/scanners/keyword/_normalization.py
+  s_35ed0ff9bce47a::t_c55335d7139a8d 1-17
+packages/cerbia-core/src/cerbia/core/scanners/keyword/_scanner.py
+  s_35ed0ff9bce47a::t_f7a160fc2067b2 1-152
+packages/cerbia-core/src/cerbia/core/scanners/keyword/_types.py
+  s_35ed0ff9bce47a::t_1db9942781921d 1-15
+packages/cerbia-core/src/cerbia/core/scanners/malicious_url/__init__.py
+  s_35ed0ff9bce47a::t_61233481b402b2 1-3
+packages/cerbia-core/src/cerbia/core/scanners/malicious_url/_constants.py
+  s_35ed0ff9bce47a::t_52ed8d3f26a3e6 1-22
+packages/cerbia-core/src/cerbia/core/scanners/malicious_url/_defaults.py
+  s_35ed0ff9bce47a::t_2354dae4914593 1-73
+packages/cerbia-core/src/cerbia/core/scanners/malicious_url/_math.py
+  s_35ed0ff9bce47a::t_7de7a5ffd997ec 1-28
+packages/cerbia-core/src/cerbia/core/scanners/malicious_url/_scanner.py
+  s_35ed0ff9bce47a::t_2e4aaf5aac2a3b 1-197
+packages/cerbia-core/src/cerbia/core/scanners/malicious_url/_validations.py
+  s_35ed0ff9bce47a::t_e49a4671a25999 1-66
+packages/cerbia-core/src/cerbia/core/scanners/pii/__init__.py
+  s_35ed0ff9bce47a::t_0fd46208723498 1-3
+packages/cerbia-core/src/cerbia/core/scanners/pii/_constants.py
+  s_35ed0ff9bce47a::t_e96ac064483d14 1-85
+packages/cerbia-core/src/cerbia/core/scanners/pii/_scanner.py
+  s_35ed0ff9bce47a::t_5df167cd189a74 1-99
+packages/cerbia-core/src/cerbia/core/scanners/prompt_injection/__init__.py
+  s_35ed0ff9bce47a::t_650d067473226b 1-3
+packages/cerbia-core/src/cerbia/core/scanners/prompt_injection/_constants.py
+  s_35ed0ff9bce47a::t_f462afd11d4e97 1-4
+packages/cerbia-core/src/cerbia/core/scanners/prompt_injection/_scanner.py
+  s_35ed0ff9bce47a::t_52296a141ef3fa 1-115
+packages/cerbia-core/src/cerbia/core/scanners/secret/__init__.py
+  s_35ed0ff9bce47a::t_7b829153c7ca30 1-3
+packages/cerbia-core/src/cerbia/core/scanners/secret/_constants.py
+  s_35ed0ff9bce47a::t_4579dce8f9b0c6 1-10
+packages/cerbia-core/src/cerbia/core/scanners/secret/_defaults.py
+  s_35ed0ff9bce47a::t_94fda704572c0b 1-36
+packages/cerbia-core/src/cerbia/core/scanners/secret/_math.py
+  s_35ed0ff9bce47a::t_139ca13485c4c4 1-23
+packages/cerbia-core/src/cerbia/core/scanners/secret/_scanner.py
+  s_35ed0ff9bce47a::t_ab849651bc8889 1-155
+packages/cerbia-core/src/cerbia/core/scanners/url_allowlist/__init__.py
+  s_35ed0ff9bce47a::t_d9fcac0f62befb 1-3
+packages/cerbia-core/src/cerbia/core/scanners/url_allowlist/_format.py
+  s_35ed0ff9bce47a::t_acbf5888a0d46a 1-20
+packages/cerbia-core/src/cerbia/core/scanners/url_allowlist/_scanner.py
+  s_35ed0ff9bce47a::t_e66992652abe59 1-113
+packages/cerbia-core/src/cerbia/core/scanners/xss/__init__.py
+  s_35ed0ff9bce47a::t_0ff1b8df933586 1-3
+packages/cerbia-core/src/cerbia/core/scanners/xss/_constants.py
+  s_35ed0ff9bce47a::t_7f513102d3ea65 1-53
+packages/cerbia-core/src/cerbia/core/scanners/xss/_parser.py
+  s_35ed0ff9bce47a::t_785444addca23d 1-91
+packages/cerbia-core/src/cerbia/core/scanners/xss/_scanner.py
+  s_35ed0ff9bce47a::t_fe2b510714ab85 1-108
+packages/cerbia-core/src/cerbia/core/scanners/xss/_validations.py
+  s_35ed0ff9bce47a::t_48b46900050800 1-11
+packages/cerbia-core/src/cerbia/core/score_aggregators/__init__.py
+  s_35ed0ff9bce47a::t_f5dca465cccb06 1-11
+packages/cerbia-core/src/cerbia/core/score_aggregators/base.py
+  s_35ed0ff9bce47a::t_d23b8e7c005133 1-21
+packages/cerbia-core/src/cerbia/core/score_aggregators/max.py
+  s_35ed0ff9bce47a::t_8ae0b3dd9aca6b 1-34
+packages/cerbia-core/src/cerbia/core/score_aggregators/max_with_bonus.py
+  s_35ed0ff9bce47a::t_321fcfa4e61e12 1-42
+packages/cerbia-core/src/cerbia/core/score_aggregators/mean.py
+  s_35ed0ff9bce47a::t_53b12e5cccd9c0 1-33
+packages/cerbia-core/src/cerbia/core/security_gate/__init__.py
+  s_35ed0ff9bce47a::t_1921698e19fe4c 1-4
+packages/cerbia-core/src/cerbia/core/security_gate/_gate.py
+  s_35ed0ff9bce47a::t_173b911dbb4e44 1-228
+packages/cerbia-core/src/cerbia/core/security_gate/_models.py
+  s_35ed0ff9bce47a::t_03637efb990fe8 1-22
+packages/cerbia-core/src/cerbia/core/security_gate/_results.py
+  s_35ed0ff9bce47a::t_6fa13f2287d051 1-28
+packages/cerbia-core/src/cerbia/core/security_gate/_validation.py
+  s_35ed0ff9bce47a::t_5d45ceb46337fc 1-37
+packages/cerbia-core/src/cerbia/core/types.py
+  s_35ed0ff9bce47a::t_816b11e30e7402 1-79
+packages/cerbia-core/tests/unit/cerbia/core/_utils/test_math.py
+  s_35ed0ff9bce47a::t_8216c95f491d54 1-27
+packages/cerbia-core/tests/unit/cerbia/core/_utils/test_text.py
+  s_35ed0ff9bce47a::t_4062ba72e5d346 1-33
+packages/cerbia-core/tests/unit/cerbia/core/_utils/test_url.py
+  s_35ed0ff9bce47a::t_76a7cc8243d57a 1-175
+packages/cerbia-core/tests/unit/cerbia/core/factories/test_factory_base.py
+  s_35ed0ff9bce47a::t_f8b07776119dfd 1-115
+packages/cerbia-core/tests/unit/cerbia/core/factories/test_factory_exceptions.py
+  s_35ed0ff9bce47a::t_1f5f022b76fc79 1-12
+packages/cerbia-core/tests/unit/cerbia/core/factories/test_loader.py
+  s_35ed0ff9bce47a::t_608225697c0dee 1-47
+packages/cerbia-core/tests/unit/cerbia/core/factories/test_preprocessor.py
+  s_35ed0ff9bce47a::t_07aefe7294f062 1-89
+packages/cerbia-core/tests/unit/cerbia/core/factories/test_scanner.py
+  s_35ed0ff9bce47a::t_14a46cb1258225 1-82
+packages/cerbia-core/tests/unit/cerbia/core/factories/test_score_aggregator.py
+  s_35ed0ff9bce47a::t_e0dbac5529da40 1-57
+packages/cerbia-core/tests/unit/cerbia/core/loaders/test_file.py
+  s_35ed0ff9bce47a::t_5b9173782e7c49 1-120
+packages/cerbia-core/tests/unit/cerbia/core/loaders/test_loaders_base.py
+  s_35ed0ff9bce47a::t_e09b23697f9403 1-26
+packages/cerbia-core/tests/unit/cerbia/core/loaders/test_text.py
+  s_35ed0ff9bce47a::t_b4680270b42a9e 1-23
+packages/cerbia-core/tests/unit/cerbia/core/models/test_entries.py
+  s_35ed0ff9bce47a::t_95d49e0c0655f8 1-36
+packages/cerbia-core/tests/unit/cerbia/core/models/test_results.py
+  s_35ed0ff9bce47a::t_663621640fd162 1-65
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/_corpus.py
+  s_35ed0ff9bce47a::t_295799f6c69070 1-268
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/_decoders/test_builtins.py
+  s_35ed0ff9bce47a::t_e4a1f7c213ae4b 1-215
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/_decoders/test_gates.py
+  s_35ed0ff9bce47a::t_c9d590a6462f32 1-54
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/_decoders/test_registry.py
+  s_35ed0ff9bce47a::t_0dfc3f7255c360 1-74
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/_search/test_beam.py
+  s_35ed0ff9bce47a::t_55d2d2f9db6f7d 1-126
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/_search/test_expansion.py
+  s_35ed0ff9bce47a::t_630b3f312ac1b6 1-42
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/test_acceptance.py
+  s_35ed0ff9bce47a::t_252bc81b5c839d 1-93
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/test_admission.py
+  s_35ed0ff9bce47a::t_1335576b3f00fa 1-129
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/test_corpus_regression.py
+  s_35ed0ff9bce47a::t_e0fd17f2f020fe 1-57
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/test_engine.py
+  s_35ed0ff9bce47a::t_4cf7b46c375c80 1-225
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/test_heuristics.py
+  s_35ed0ff9bce47a::t_2b3e5d2e541306 1-148
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/test_observability.py
+  s_35ed0ff9bce47a::t_d93c1ead604f5e 1-65
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/test_preprocessor.py
+  s_35ed0ff9bce47a::t_97d0cf2fd644a1 1-261
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/test_public_api.py
+  s_35ed0ff9bce47a::t_2b0c8cc3fdd71b 1-25
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/test_scoring.py
+  s_35ed0ff9bce47a::t_d2f731b42bb67e 1-160
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/test_segment_extractor.py
+  s_35ed0ff9bce47a::t_b9a0d7924bea62 1-102
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/speculative_decoding/test_types.py
+  s_35ed0ff9bce47a::t_314d544e913187 1-105
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/test_preprocessors_base.py
+  s_35ed0ff9bce47a::t_b0dc87cf2a6d42 1-30
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/whitespace_normalization/test_normalization.py
+  s_35ed0ff9bce47a::t_a07385c05a7a9f 1-96
+packages/cerbia-core/tests/unit/cerbia/core/preprocessors/whitespace_normalization/test_preprocessor.py
+  s_35ed0ff9bce47a::t_5335eb590b0a66 1-75
+packages/cerbia-core/tests/unit/cerbia/core/registries/test_i18n.py
+  s_35ed0ff9bce47a::t_bdab1570c8fc35 1-105
+packages/cerbia-core/tests/unit/cerbia/core/registries/url/test_normalization.py
+  s_35ed0ff9bce47a::t_030e9ef956ed70 1-48
+packages/cerbia-core/tests/unit/cerbia/core/registries/url/test_registry.py
+  s_35ed0ff9bce47a::t_7f7cacff24d77e 1-72
+packages/cerbia-core/tests/unit/cerbia/core/registries/url/test_validation.py
+  s_35ed0ff9bce47a::t_fd90cc6ec1bb9c 1-35
+packages/cerbia-core/tests/unit/cerbia/core/scanners/canary/test_generator.py
+  s_35ed0ff9bce47a::t_55cd2339c1447e 1-41
+packages/cerbia-core/tests/unit/cerbia/core/scanners/canary/test_normalization.py
+  s_35ed0ff9bce47a::t_dfccfa0e0e6d66 1-30
+packages/cerbia-core/tests/unit/cerbia/core/scanners/canary/test_scanner.py
+  s_35ed0ff9bce47a::t_132c94a6cd281e 1-125
+packages/cerbia-core/tests/unit/cerbia/core/scanners/invisible_text/test_scanner.py
+  s_35ed0ff9bce47a::t_ddb4f3d733fdf4 1-88
+packages/cerbia-core/tests/unit/cerbia/core/scanners/invisible_text/test_validation.py
+  s_35ed0ff9bce47a::t_70f97b8366a805 1-66
+packages/cerbia-core/tests/unit/cerbia/core/scanners/keyword/test_normalization.py
+  s_35ed0ff9bce47a::t_4e369a16bfaa2a 1-21
+packages/cerbia-core/tests/unit/cerbia/core/scanners/keyword/test_scanner.py
+  s_35ed0ff9bce47a::t_e0f11e7bf27d05 1-140
+packages/cerbia-core/tests/unit/cerbia/core/scanners/malicious_url/test_math.py
+  s_35ed0ff9bce47a::t_ea9ae006433d59 1-33
+packages/cerbia-core/tests/unit/cerbia/core/scanners/malicious_url/test_scanner.py
+  s_35ed0ff9bce47a::t_6b221a128356c1 1-134
+packages/cerbia-core/tests/unit/cerbia/core/scanners/malicious_url/test_validations.py
+  s_35ed0ff9bce47a::t_592e045cc00465 1-41
+packages/cerbia-core/tests/unit/cerbia/core/scanners/pii/test_scanner.py
+  s_35ed0ff9bce47a::t_91f69abc90e809 1-165
+packages/cerbia-core/tests/unit/cerbia/core/scanners/prompt_injection/test_scanner.py
+  s_35ed0ff9bce47a::t_c3df82b9c3093b 1-140
+packages/cerbia-core/tests/unit/cerbia/core/scanners/secret/test_math.py
+  s_35ed0ff9bce47a::t_afb61c43160322 1-27
+packages/cerbia-core/tests/unit/cerbia/core/scanners/secret/test_scanner.py
+  s_35ed0ff9bce47a::t_beb43989d60a5b 1-144
+packages/cerbia-core/tests/unit/cerbia/core/scanners/test_scanners_base.py
+  s_35ed0ff9bce47a::t_b5852dff2b4ab2 1-37
+packages/cerbia-core/tests/unit/cerbia/core/scanners/url_allowlist/test_format.py
+  s_35ed0ff9bce47a::t_7105c2ba3bdf85 1-35
+packages/cerbia-core/tests/unit/cerbia/core/scanners/url_allowlist/test_scanner.py
+  s_35ed0ff9bce47a::t_1a501532980a32 1-103
+packages/cerbia-core/tests/unit/cerbia/core/scanners/xss/test_parser.py
+  s_35ed0ff9bce47a::t_097be01f842194 1-51
+packages/cerbia-core/tests/unit/cerbia/core/scanners/xss/test_scanner.py
+  s_35ed0ff9bce47a::t_5f12d9a6d7929c 1-206
+packages/cerbia-core/tests/unit/cerbia/core/scanners/xss/test_validations.py
+  s_35ed0ff9bce47a::t_b1f5fde994a257 1-25
+packages/cerbia-core/tests/unit/cerbia/core/score_aggregators/test_max.py
+  s_35ed0ff9bce47a::t_61804a8e6f42c2 1-30
+packages/cerbia-core/tests/unit/cerbia/core/score_aggregators/test_max_with_bonus.py
+  s_35ed0ff9bce47a::t_c392276ba82269 1-46
+packages/cerbia-core/tests/unit/cerbia/core/score_aggregators/test_mean.py
+  s_35ed0ff9bce47a::t_d9b9efe93e6e5c 1-30
+packages/cerbia-core/tests/unit/cerbia/core/score_aggregators/test_score_aggregators_base.py
+  s_35ed0ff9bce47a::t_714718a3d13667 1-26
+packages/cerbia-core/tests/unit/cerbia/core/security_gate/test_gate.py
+  s_35ed0ff9bce47a::t_8db374209a09c6 1-263
+packages/cerbia-core/tests/unit/cerbia/core/security_gate/test_gate_logging.py
+  s_35ed0ff9bce47a::t_8ec3b981fcf6f3 1-32
+packages/cerbia-core/tests/unit/cerbia/core/security_gate/test_results.py
+  s_35ed0ff9bce47a::t_0ceca17cfc7e6e 1-56
+packages/cerbia-core/tests/unit/cerbia/core/security_gate/test_validation.py
+  s_35ed0ff9bce47a::t_cd0b797ae6cad6 1-47
+packages/cerbia-core/tests/unit/cerbia/core/test_config.py
+  s_35ed0ff9bce47a::t_3c1e78fd4af87f 1-23
+packages/cerbia-core/tests/unit/cerbia/core/test_exceptions.py
+  s_35ed0ff9bce47a::t_8ca7f431313f6d 1-11
+packages/cerbia-core/tests/unit/cerbia/core/test_init.py
+  s_35ed0ff9bce47a::t_cbd4bf998edb93 1-13
+packages/cerbia-core/tests/unit/cerbia/core/test_runner.py
+  s_35ed0ff9bce47a::t_5258a53ed19a12 1-240
+packages/cerbia-core/tests/unit/cerbia/core/test_types.py
+  s_35ed0ff9bce47a::t_e86607de0d7dc0 1-47
+packages/cerbia-ml/README.md
+  s_35ed0ff9bce47a::t_a8a146087e6815 1-9
+packages/cerbia-ml/src/cerbia/ml/__init__.py
+  s_35ed0ff9bce47a::t_e6e3c2f2a96d5e 1
+packages/cerbia-ml/src/cerbia/ml/adapters/classifiers/__init__.py
+  s_35ed0ff9bce47a::t_75174e6e39b4c9 1-4
+packages/cerbia-ml/src/cerbia/ml/adapters/classifiers/base.py
+  s_35ed0ff9bce47a::t_95f9f15d55cd9e 1-20
+packages/cerbia-ml/src/cerbia/ml/adapters/classifiers/huggingface_classifier/__init__.py
+  s_35ed0ff9bce47a::t_008ef68812ec74 1-3
+packages/cerbia-ml/src/cerbia/ml/adapters/classifiers/huggingface_classifier/_classifier.py
+  s_35ed0ff9bce47a::t_5979ab91d3c53f 1-142
+packages/cerbia-ml/src/cerbia/ml/adapters/classifiers/huggingface_classifier/_models.py
+  s_35ed0ff9bce47a::t_bf24a7e5cf3a63 1-22
+packages/cerbia-ml/src/cerbia/ml/adapters/classifiers/models.py
+  s_35ed0ff9bce47a::t_2d7e844e191a4b 1-12
+packages/cerbia-ml/src/cerbia/ml/artifacts/__init__.py
+  s_35ed0ff9bce47a::t_477889ec69f27f 1-5
+packages/cerbia-ml/src/cerbia/ml/artifacts/exceptions.py
+  s_35ed0ff9bce47a::t_f0979d3580f346 1-26
+packages/cerbia-ml/src/cerbia/ml/artifacts/huggingface_hub.py
+  s_35ed0ff9bce47a::t_b609e30fae7c4d 1-137
+packages/cerbia-ml/src/cerbia/ml/artifacts/protocol.py
+  s_35ed0ff9bce47a::t_7aa889dce0d199 1-38
+packages/cerbia-ml/src/cerbia/ml/models.py
+  s_35ed0ff9bce47a::t_a0350b2f66bede 1-29
+packages/cerbia-ml/tests/unit/cerbia/ml/adapters/classifiers/huggingface_classifier/test_classifier.py
+  s_35ed0ff9bce47a::t_1eae5fbfe86b97 1-148
+packages/cerbia-ml/tests/unit/cerbia/ml/artifacts/test_exceptions.py
+  s_35ed0ff9bce47a::t_43cb348f17e7b7 1-28
+packages/cerbia-ml/tests/unit/cerbia/ml/artifacts/test_huggingface_hub.py
+  s_35ed0ff9bce47a::t_acf984c05a16c9 1-106
+packages/cerbia-presidio/README.md
+  s_35ed0ff9bce47a::t_5b9d99aff89d91 1-9
+packages/cerbia-presidio/src/cerbia/presidio/__init__.py
+  s_35ed0ff9bce47a::t_c60b1da33448ea 1
+packages/cerbia-presidio/src/cerbia/presidio/scanners/__init__.py
+  s_35ed0ff9bce47a::t_b4ff4857b56ba2 1-3
+packages/cerbia-presidio/src/cerbia/presidio/scanners/pii.py
+  s_35ed0ff9bce47a::t_1fa23a4520d30f 1-125
+packages/cerbia-presidio/tests/integration/test_scanner_model_integration.py
+  s_35ed0ff9bce47a::t_f0630aac049ed4 1-19
+packages/cerbia-presidio/tests/unit/cerbia/presidio/scanners/test_pii.py
+  s_35ed0ff9bce47a::t_dc46966545c950 1-147
+packages/cerbia-protectai/README.md
+  s_35ed0ff9bce47a::t_d009a47d5b4d0a 1-9
+packages/cerbia-protectai/src/cerbia/protectai/__init__.py
+  s_35ed0ff9bce47a::t_b7aa38d07e8fb9 1
+packages/cerbia-protectai/src/cerbia/protectai/scanners/__init__.py
+  s_35ed0ff9bce47a::t_279b13e4572c56 1-3
+packages/cerbia-protectai/src/cerbia/protectai/scanners/prompt_injection/__init__.py
+  s_35ed0ff9bce47a::t_782f65d13a9f46 1-30
+packages/cerbia-protectai/src/cerbia/protectai/scanners/prompt_injection/_defaults.py
+  s_35ed0ff9bce47a::t_e7773d2fc9f739 1-23
+packages/cerbia-protectai/src/cerbia/protectai/scanners/prompt_injection/_scanner.py
+  s_35ed0ff9bce47a::t_b518ba113f85bd 1-238
+packages/cerbia-protectai/src/cerbia/protectai/scanners/prompt_injection/_text.py
+  s_35ed0ff9bce47a::t_36ee756336263a 1-24
+packages/cerbia-protectai/src/cerbia/protectai/types.py
+  s_35ed0ff9bce47a::t_87ecef991b8ab4 1-13
+packages/cerbia-protectai/tests/unit/cerbia/protectai/scanners/prompt_injection/test_scanner.py
+  s_35ed0ff9bce47a::t_034df7cb14c3f0 1-236
+packages/cerbia-protectai/tests/unit/cerbia/protectai/scanners/prompt_injection/test_text.py
+  s_35ed0ff9bce47a::t_3da37b1db33a36 1-39
+packages/cerbia-protectai/tests/unit/cerbia/protectai/test_init.py
+  s_35ed0ff9bce47a::t_abef3f8fca8c4c 1-13
+packages/cerbia/README.md
+  s_35ed0ff9bce47a::t_67b0dbd9875880 1-9
+packages/cerbia/pyproject.toml
+  s_f87357be724fc4::t_0ca37fad7e631c 1-58
+packages/cerbia/tests/integration/test_distribution.py
+  s_35ed0ff9bce47a::t_59d8f3d67a01d1 1-46
+scripts/bump_version.py
+  s_35ed0ff9bce47a::t_84006834d872b6 1-47
+scripts/compute_version.py
+  s_35ed0ff9bce47a::t_22991b29d39b58 1-60
+scripts/generate_language_profiles.py
+  s_35ed0ff9bce47a::t_b38225bef82303 1-102
+scripts/list_packages.py
+  s_35ed0ff9bce47a::t_52d9bb9d0ad739 1-46
+uv.lock
+  s_4a7ecc5a552eae::t_928c960f59361e 1-2293
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "ce34a78f145d3c1475caafe74176182fca478702",
+  "prompts": {},
+  "sessions": {
+    "s_35ed0ff9bce47a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fb87f1391ffeC9KhWT1ies4JwT",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    },
+    "s_4a7ecc5a552eae": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fb87b7a0bffeYQGGtqM8N04vDu",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    },
+    "s_9fee41dc38cff8": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "551503e3-f2ad-4c63-89a1-6d294881630a",
+        "model": "copilot/gpt-5.6-terra"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    },
+    "s_f87357be724fc4": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fb82df677ffeVAo2rSQyYyEBWm",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

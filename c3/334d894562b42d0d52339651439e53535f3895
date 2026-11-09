@@ -1,0 +1,23 @@
+LICENSES/MPL-2.0.txt
+  s_985cfb4c0ae7c4::t_811d3e7effa75c 1-373
+docs/package.json
+  s_985cfb4c0ae7c4::t_4031471a3339d7 32-33
+docs/src/modules/main/pages/components/scanners/url-allowlist.adoc
+  s_985cfb4c0ae7c4::t_9781168a97fb45 30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c3334d894562b42d0d52339651439e53535f3895",
+  "prompts": {},
+  "sessions": {
+    "s_985cfb4c0ae7c4": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f0e8669c2ffe6sfG0m7Gfj39DT",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+packages/cerbia-core/src/cerbia/core/scanners/pii/_constants.py
+  h_d6d31939214ddd 174-175
+packages/cerbia-core/tests/unit/cerbia/core/scanners/pii/test_scanner.py
+  h_d6d31939214ddd 169-172,186,190,201-236
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "60d7392b2f51a4a0d726f7ab7d3f695651e9bba8",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

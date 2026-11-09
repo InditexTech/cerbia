@@ -1,0 +1,29 @@
+packages/cerbia-core/tests/unit/cerbia/core/factories/test_base.py
+  s_73d3c8c5157cd9::t_720466f64fc8f0 92,94,98,100
+packages/cerbia-core/tests/unit/cerbia/core/factories/test_gate.py
+  s_73d3c8c5157cd9::t_548baf6f4c4ba7 130,133,145,148,166,169,180-182
+packages/cerbia-core/tests/unit/cerbia/core/models/test_results.py
+  s_73d3c8c5157cd9::t_c32b260d30a68d 132-133
+packages/cerbia-core/tests/unit/cerbia/core/registries/url/test_registry.py
+  s_73d3c8c5157cd9::t_b8793c1dd06ab9 83-84,89-90
+packages/cerbia-core/tests/unit/cerbia/core/test_config.py
+  s_73d3c8c5157cd9::t_1048ec2ba920f2 57-58,86-87,119-120,125,127,134-139,142,161,163,168-173,175,183,185,189-193,195
+packages/cerbia-core/tests/unit/cerbia/core/test_runner.py
+  s_73d3c8c5157cd9::t_fa73b79ce21ecd 233-234,260-263
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "2fe1ce2b4d25b4f0f44b440479da5425a6d9ee33",
+  "prompts": {},
+  "sessions": {
+    "s_73d3c8c5157cd9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e4082b04effeQDkwPFkNwffWY6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

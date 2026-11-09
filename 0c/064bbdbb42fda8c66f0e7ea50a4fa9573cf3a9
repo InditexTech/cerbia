@@ -1,0 +1,14 @@
+README.md
+  h_d6d31939214ddd 20,93-104,106
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0c064bbdbb42fda8c66f0e7ea50a4fa9573cf3a9",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

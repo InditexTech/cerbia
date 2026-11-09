@@ -1,0 +1,31 @@
+docs/antora-playbook.local.yml
+  s_b954ae4e4adb41::t_540433fcf506c7 5-8,18,31-32
+docs/antora-playbook.yml
+  s_b954ae4e4adb41::t_2c6bcf410f0f6c 5-8,19,32-33
+docs/src/modules/ROOT/pages/index.adoc
+  s_54a72eedeb9fb3::t_0d11443876e432 4-8,10-18,22-23,32-104,106-108,110-112,114,116-119
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bb8d710294cf4845ff14d0b7a7c1546a27f62d93",
+  "prompts": {},
+  "sessions": {
+    "s_54a72eedeb9fb3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f17a43a0affeoeAhOCSe1Gyj1u",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    },
+    "s_b954ae4e4adb41": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f1767bd87ffe3M8cnqIyI08BPK",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

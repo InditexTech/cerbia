@@ -1,0 +1,19 @@
+packages/cerbia-core/src/cerbia/core/apis/systemone/_questions.py
+  s_ab79297d88bc78::t_57ec3c9ef1e899 1-64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "f9c2c7ea23ef896314c03ecc92483abe37a46eb0",
+  "prompts": {},
+  "sessions": {
+    "s_ab79297d88bc78": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e5f715837ffeuQyvajuKCugHRY",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

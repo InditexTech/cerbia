@@ -1,0 +1,14 @@
+packages/cerbia-core/tests/unit/cerbia/core/apis/test_tls.py
+  h_d6d31939214ddd 66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "f4193e4bed4a4bf43e4be11bfd6eb9b7713f4abb",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

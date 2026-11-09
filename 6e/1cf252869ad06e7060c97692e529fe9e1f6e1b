@@ -1,0 +1,22 @@
+CONTRIBUTING.md
+  h_d6d31939214ddd 94-95,107,111-116
+Makefile
+  h_d6d31939214ddd 72-73
+docs/.gitignore
+  h_d6d31939214ddd 1-3
+docs/package.json
+  h_d6d31939214ddd 10-14,16
+docs/scripts/build/build-site.mjs
+  h_d6d31939214ddd 13,20,27,45,50,56,66,71,73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6e1cf252869ad06e7060c97692e529fe9e1f6e1b",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

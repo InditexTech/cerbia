@@ -1,0 +1,16 @@
+packages/cerbia-core/src/cerbia/core/scanners/secret/_scanner.py
+  h_d6d31939214ddd 138-140,147-151,155-157
+packages/cerbia-core/tests/unit/cerbia/core/scanners/secret/test_scanner.py
+  h_d6d31939214ddd 2,270-333
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "58a333ee31d8b75047e0bcc241355a554d89cc07",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

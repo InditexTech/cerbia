@@ -1,0 +1,16 @@
+docs/scripts/migration/check-url-contract.mjs
+  h_d6d31939214ddd 1-147
+docs/scripts/migration/url-contract.json
+  h_d6d31939214ddd 1-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "aa4f933fa9b3c2491aa8a64c99d722173f5d6687",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

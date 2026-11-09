@@ -1,0 +1,22 @@
+packages/cerbia-core/src/cerbia/core/apis/decisions/__init__.py
+  h_d6d31939214ddd 1-43
+packages/cerbia-core/src/cerbia/core/apis/decisions/_client.py
+  h_d6d31939214ddd 1-92
+packages/cerbia-core/src/cerbia/core/apis/decisions/_validation.py
+  h_d6d31939214ddd 1-118
+packages/cerbia-core/tests/unit/cerbia/core/apis/conftest.py
+  h_d6d31939214ddd 1-12
+packages/cerbia-core/tests/unit/cerbia/core/apis/decisions/test_client.py
+  h_d6d31939214ddd 1-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "46d3cc7a764ca439b7913bd151d4a89c15bbc9cc",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

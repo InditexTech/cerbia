@@ -1,0 +1,16 @@
+CONTRIBUTING.md
+  h_d6d31939214ddd 91-95,107-108,110-115
+Makefile
+  h_d6d31939214ddd 69,72-73,75-76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "234a2d68dece4bab875cffbf373bd50dab6b5e89",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

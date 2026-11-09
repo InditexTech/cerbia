@@ -1,0 +1,18 @@
+packages/cerbia-core/src/cerbia/core/apis/decisions/_validation.py
+  h_d6d31939214ddd 90
+packages/cerbia-core/src/cerbia/core/apis/systemone/_validation.py
+  h_d6d31939214ddd 85
+packages/cerbia-core/tests/unit/cerbia/core/apis/test_errors.py
+  h_d6d31939214ddd 8-15,83-95,112-192
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "6dc99b538f0d93aae72f93cb104d8bb8d5b5a9a7",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

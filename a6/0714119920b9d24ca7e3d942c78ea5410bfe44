@@ -1,0 +1,73 @@
+THIRD-PARTY-LICENSES/BSD-3-Clause.txt
+  s_789e75b15f310a::t_f5fc9ae5f11ef4 1-11
+THIRD-PARTY-LICENSES/CC0-1.0.txt
+  s_789e75b15f310a::t_5c11b7d718fcd2 1-121
+THIRD-PARTY-LICENSES/MIT.txt
+  s_789e75b15f310a::t_1550d10c9e2ffa 1-18
+THIRD-PARTY-LICENSES/ISC.txt
+  s_789e75b15f310a::t_c73514f83fb79e 1-7
+THIRD-PARTY-LICENSES/PSF-2.0.txt
+  s_789e75b15f310a::t_97b509172a1ae1 1-47
+THIRD-PARTY-LICENSES/BSD-2-Clause.txt
+  s_789e75b15f310a::t_f860dd5b67db7e 1-9
+README.md
+  s_1c75c67c4de164::t_6d974d92251f14 118-141
+THIRD-PARTY-LICENSES/GPL-3.0-or-later.txt
+  s_789e75b15f310a::t_81a90d61713009 1-232
+THIRD-PARTY-LICENSES/CC-BY-SA-4.0.txt
+  s_789e75b15f310a::t_594f86e7637c56 1-170
+THIRD-PARTY-LICENSES/Apache-2.0.txt
+  s_789e75b15f310a::t_8375130294ab0e 1-73
+THIRD-PARTY-LICENSES/MPL-2.0.txt
+  s_789e75b15f310a::t_b5ac01d00126ce 1-373
+LICENSES/PSF-2.0.txt
+  s_c001ad3711cf33::t_f8e7d49b8ce187 1-47
+LICENSES/BSD-2-Clause.txt
+  s_c001ad3711cf33::t_ff8613b117681c 1-9
+LICENSES/BSD-3-Clause.txt
+  s_c001ad3711cf33::t_c3a1dce9139a51 1-11
+LICENSES/CC-BY-SA-4.0.txt
+  s_c001ad3711cf33::t_d31c3d5431f076 1-170
+LICENSES/CC0-1.0.txt
+  s_c001ad3711cf33::t_0e73aa4a3afa5b 1-121
+LICENSES/GPL-3.0-or-later.txt
+  s_c001ad3711cf33::t_1380afea22c190 1-232
+LICENSES/ISC.txt
+  s_c001ad3711cf33::t_40a16df5bcdee9 1-7
+LICENSES/MIT.txt
+  s_c001ad3711cf33::t_df3db82025c391 1-18
+REUSE.toml
+  s_c001ad3711cf33::t_42c1c41c512690 29-88
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a60714119920b9d24ca7e3d942c78ea5410bfe44",
+  "prompts": {},
+  "sessions": {
+    "s_1c75c67c4de164": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "8a3a0d73-26b1-47c4-b831-834dffae5cb4",
+        "model": "zai-org/GLM-5.3-Flash"
+      },
+      "human_author": "amagan <andreamr@ext.zara.com>"
+    },
+    "s_789e75b15f310a": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "670820ee-e33b-472f-8e41-d178fcdb44bf",
+        "model": "zai-org/GLM-5.3-Flash"
+      },
+      "human_author": "amagan <andreamr@ext.zara.com>"
+    },
+    "s_c001ad3711cf33": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "9a618af7-4ae2-4000-80eb-26302d219d9d",
+        "model": "sonnet"
+      },
+      "human_author": "amagan <andreamr@ext.zara.com>"
+    }
+  }
+}

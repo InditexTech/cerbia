@@ -1,0 +1,16 @@
+docs/src/modules/cerbia/pages/index.adoc
+  h_d6d31939214ddd 24-25,33-36
+docs/src/modules/main/pages/packages.adoc
+  h_d6d31939214ddd 16-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "7e95801832a80cd7541f45b4716ef2441a4555f4",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

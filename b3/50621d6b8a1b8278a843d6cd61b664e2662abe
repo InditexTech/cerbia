@@ -1,0 +1,40 @@
+docs/src/modules/main/pages/components/scanners.adoc
+  h_d6d31939214ddd 9-56
+docs/src/modules/main/pages/components/scanners/canary-leak.adoc
+  h_d6d31939214ddd 7-34
+docs/src/modules/main/pages/components/scanners/invisible-text.adoc
+  h_d6d31939214ddd 7-30
+docs/src/modules/main/pages/components/scanners/keyword.adoc
+  h_d6d31939214ddd 7-40
+docs/src/modules/main/pages/components/scanners/pii-presidio.adoc
+  h_d6d31939214ddd 7-26
+docs/src/modules/main/pages/components/scanners/pii.adoc
+  h_d6d31939214ddd 7-26
+docs/src/modules/main/pages/components/scanners/prompt-injection-protectai.adoc
+  h_d6d31939214ddd 9-48
+docs/src/modules/main/pages/components/scanners/prompt-injection.adoc
+  h_d6d31939214ddd 7-26
+docs/src/modules/main/pages/components/scanners/secrets.adoc
+  h_d6d31939214ddd 7-34
+docs/src/modules/main/pages/components/scanners/url-allowlist.adoc
+  h_d6d31939214ddd 9-28
+docs/src/modules/main/pages/components/scanners/url-malicious.adoc
+  h_d6d31939214ddd 7-34
+docs/src/modules/main/pages/components/scanners/xss.adoc
+  h_d6d31939214ddd 7-26
+docs/src/modules/main/pages/components/score-aggregators.adoc
+  h_d6d31939214ddd 5,15-30
+docs/src/modules/main/pages/components/score-aggregators/max-with-bonus.adoc
+  h_d6d31939214ddd 12-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b350621d6b8a1b8278a843d6cd61b664e2662abe",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

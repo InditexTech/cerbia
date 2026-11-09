@@ -1,0 +1,72 @@
+packages/cerbia-core/src/cerbia/core/config.py
+  h_d6d31939214ddd 2-4,6-7,12,17-18,20-23,26-39,42,45-46,49-50,56,59,67-69,76,79,88-90,97,100,109-111,118,121,127,130-132,139,142,147-156,158-159,162-163,165-171,174,179-330
+packages/cerbia-core/src/cerbia/core/factories/__init__.py
+  h_d6d31939214ddd 2,10
+packages/cerbia-core/src/cerbia/core/factories/gate.py
+  h_d6d31939214ddd 1-126
+packages/cerbia-core/src/cerbia/core/models/results.py
+  h_d6d31939214ddd 1-3,7,9,18-19,23-24,27-28,35-48
+packages/cerbia-core/src/cerbia/core/models/scans.py
+  h_d6d31939214ddd 45,55
+packages/cerbia-core/src/cerbia/core/models/stages.py
+  h_d6d31939214ddd 1-126
+packages/cerbia-core/src/cerbia/core/runner.py
+  h_d6d31939214ddd 5,10,18,24,29-35,41-45,67-69,97
+packages/cerbia-core/src/cerbia/core/security_gate/__init__.py
+  h_d6d31939214ddd 1-3,5-6,8
+packages/cerbia-core/src/cerbia/core/security_gate/_cascade.py
+  h_d6d31939214ddd 1-171
+packages/cerbia-core/src/cerbia/core/security_gate/_errors.py
+  h_d6d31939214ddd 1-28
+packages/cerbia-core/src/cerbia/core/security_gate/_execution.py
+  h_d6d31939214ddd 1-47
+packages/cerbia-core/src/cerbia/core/security_gate/_gate.py
+  h_d6d31939214ddd 9,16,20-21,27-31,38,60,62-65,73-76,103-154,156-159
+packages/cerbia-core/src/cerbia/core/security_gate/_models.py
+  h_d6d31939214ddd 1-3,6,10,14-15,17,19-20,23-24,30-43
+packages/cerbia-core/src/cerbia/core/security_gate/_policy.py
+  h_d6d31939214ddd 1-87
+packages/cerbia-core/src/cerbia/core/security_gate/_stages.py
+  h_d6d31939214ddd 1-27
+packages/cerbia-core/src/cerbia/core/security_gate/_trace.py
+  h_d6d31939214ddd 1-27
+packages/cerbia-core/src/cerbia/core/security_gate/base.py
+  h_d6d31939214ddd 1-23
+packages/cerbia-core/tests/integration/cascade_contract_support.py
+  h_d6d31939214ddd 1-108
+packages/cerbia-core/tests/integration/test_api_cascade.py
+  h_d6d31939214ddd 1-125
+packages/cerbia-core/tests/unit/cerbia/core/factories/test_gate.py
+  h_d6d31939214ddd 1-255
+packages/cerbia-core/tests/unit/cerbia/core/models/test_results.py
+  h_d6d31939214ddd 6,67-133
+packages/cerbia-core/tests/unit/cerbia/core/models/test_stages.py
+  h_d6d31939214ddd 1-114
+packages/cerbia-core/tests/unit/cerbia/core/security_gate/cascade_support.py
+  h_d6d31939214ddd 1-99
+packages/cerbia-core/tests/unit/cerbia/core/security_gate/test_cascade.py
+  h_d6d31939214ddd 1-238
+packages/cerbia-core/tests/unit/cerbia/core/security_gate/test_execution.py
+  h_d6d31939214ddd 1-143
+packages/cerbia-core/tests/unit/cerbia/core/security_gate/test_gate.py
+  h_d6d31939214ddd 1-2,5-6,28-29,32-34,38-41,44-47,49,51-53,56-59,61,63-64,66-74,79,81-84,86-87,90-96,98-99,101-108,110,112-115,119-123,125-126,128-131,134-138,140,142-145,148,151,153,157-159,162,164-167,170-173,176-181
+packages/cerbia-core/tests/unit/cerbia/core/security_gate/test_models.py
+  h_d6d31939214ddd 2-4,9-10,12-15,18-39,42-46
+packages/cerbia-core/tests/unit/cerbia/core/security_gate/test_policy.py
+  h_d6d31939214ddd 1-92
+packages/cerbia-core/tests/unit/cerbia/core/test_config.py
+  h_d6d31939214ddd 1-3,5-17,21-31,34,36-39,42-204,206-208
+packages/cerbia-core/tests/unit/cerbia/core/test_runner.py
+  h_d6d31939214ddd 2,7,11-12,27,30,32-35,108-110,134-136,180-182,213-215,228-262,269-270
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "c709b78bf004d3c8f29744569b444a05be730a47",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

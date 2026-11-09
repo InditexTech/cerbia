@@ -1,0 +1,14 @@
+packages/cerbia-core/src/cerbia/core/apis/systemone/_responses.py
+  h_d6d31939214ddd 1-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "cb646d8a9d170205b3d0d21005d549995b40f9ad",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

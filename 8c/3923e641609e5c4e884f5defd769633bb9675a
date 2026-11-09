@@ -1,0 +1,28 @@
+docs/scripts/migration/check-content-loaders.mjs
+  h_d6d31939214ddd 1-234
+docs/src/modules/main/pages/components/custom-components.adoc
+  h_d6d31939214ddd 1-185
+docs/src/modules/main/pages/components/loaders.adoc
+  h_d6d31939214ddd 1-19
+docs/src/modules/main/pages/components/loaders/file-loader.adoc
+  h_d6d31939214ddd 1-47
+docs/src/modules/main/pages/components/loaders/text-loader.adoc
+  h_d6d31939214ddd 1-42
+docs/src/modules/main/pages/components/preprocessors.adoc
+  h_d6d31939214ddd 1-22
+docs/src/modules/main/pages/components/preprocessors/speculative-decoding.adoc
+  h_d6d31939214ddd 1-231
+docs/src/modules/main/pages/components/preprocessors/whitespace-normalization.adoc
+  h_d6d31939214ddd 1-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8c3923e641609e5c4e884f5defd769633bb9675a",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

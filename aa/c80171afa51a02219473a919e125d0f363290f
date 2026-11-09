@@ -1,0 +1,14 @@
+docs/src/modules/main/pages/components/scanners/pii.adoc
+  h_d6d31939214ddd 34-37,40-47,55,60-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "aac80171afa51a02219473a919e125d0f363290f",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+uv.lock
+  h_d6d31939214ddd 436,439,442-453,458,461,474-475,478,481-482,485,488,491,494-497,500-501,504,507,510,1213,1252,1264,1294-1296,1308,1335,1338-1339
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "61b4987d6f73327deb7525e6d744fae63b8fa2d5",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+docs/src/modules/main/pages/components/scanners.adoc
+  h_d6d31939214ddd 21-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "5b32df18cfcc63b1e3776c9d20bdf23d58b121f5",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

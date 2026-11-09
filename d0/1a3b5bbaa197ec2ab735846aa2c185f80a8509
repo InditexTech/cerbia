@@ -1,0 +1,14 @@
+docs/src/antora.yml
+  h_d6d31939214ddd 3-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d01a3b5bbaa197ec2ab735846aa2c185f80a8509",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

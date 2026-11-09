@@ -1,0 +1,20 @@
+docs/src/modules/main/pages/components/custom-components.adoc
+  h_d6d31939214ddd 180
+docs/src/modules/main/pages/components/scanners.adoc
+  h_d6d31939214ddd 66
+docs/src/modules/main/pages/configuration.adoc
+  h_d6d31939214ddd 362,389
+docs/src/modules/main/pages/reference-overview.adoc
+  h_d6d31939214ddd 19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "b7c9779aa06d3b3587e1fa26ca408086a463043c",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

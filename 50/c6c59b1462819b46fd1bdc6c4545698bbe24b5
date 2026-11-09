@@ -1,0 +1,16 @@
+packages/cerbia-core/src/cerbia/core/registries/url/_registry.py
+  h_d6d31939214ddd 37,48
+packages/cerbia-core/tests/unit/cerbia/core/registries/url/test_registry_policies.py
+  h_d6d31939214ddd 4,11-58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "50c6c59b1462819b46fd1bdc6c4545698bbe24b5",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

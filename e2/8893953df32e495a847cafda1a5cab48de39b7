@@ -1,0 +1,19 @@
+docs/src/modules/main/pages/components/scanners/decisions.adoc
+  s_8136cb0f684c63::t_4ee3fff15c3d05 1-171
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "e28893953df32e495a847cafda1a5cab48de39b7",
+  "prompts": {},
+  "sessions": {
+    "s_8136cb0f684c63": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e5f560e25ffepO6SKO43t04Yki",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

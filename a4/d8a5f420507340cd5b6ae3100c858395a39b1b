@@ -1,0 +1,14 @@
+packages/cerbia-core/src/cerbia/core/apis/_base.py
+  h_d6d31939214ddd 1-60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "a4d8a5f420507340cd5b6ae3100c858395a39b1b",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

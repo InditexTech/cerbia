@@ -1,0 +1,20 @@
+docs/src/modules/main/pages/architecture.adoc
+  h_d6d31939214ddd 17-18,48,73-74,85,130-131,146
+docs/src/modules/main/pages/components/preprocessors/speculative-decoding.adoc
+  h_d6d31939214ddd 39-40,48
+docs/src/modules/main/pages/configuration.adoc
+  h_d6d31939214ddd 49-50,95
+docs/src/modules/main/pages/i18n.adoc
+  h_d6d31939214ddd 22-23,38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6e852e95af591e5053d4f544f5cf00b3995bdaf2",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

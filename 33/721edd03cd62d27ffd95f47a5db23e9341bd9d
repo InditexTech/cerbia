@@ -1,0 +1,19 @@
+CHANGELOG.md
+  s_471ad7dd30d786::t_9e2baedd5dd7ad 21-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "33721edd03cd62d27ffd95f47a5db23e9341bd9d",
+  "prompts": {},
+  "sessions": {
+    "s_471ad7dd30d786": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "s_471ad7dd30d786",
+        "model": "unknown"
+      },
+      "human_author": "Ivan Alvarez Sabin <ivanasabi@ext.inditex.com>"
+    }
+  }
+}

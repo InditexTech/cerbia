@@ -1,0 +1,14 @@
+packages/cerbia-core/tests/unit/cerbia/core/test_runner_url_policy.py
+  h_d6d31939214ddd 1-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "449f6e1772b85c733f6e82dbe3886dd52e3af818",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

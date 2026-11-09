@@ -1,0 +1,53 @@
+.sync-exclude
+  s_72bccf0dead4be::t_cbcbbf4e67bece 3
+CHANGELOG.md
+  s_72bccf0dead4be::t_2d7a8dc038bd19 1-23
+REUSE.toml
+  s_72bccf0dead4be::t_6e1679ae4bfa2e 12-13,16-17
+packages/cerbia-cli/LICENSE
+  s_72bccf0dead4be::t_0903b8fcfcf7c1 1-73
+packages/cerbia-cli/NOTICE
+  s_72bccf0dead4be::t_fa209161be6cca 1-13
+packages/cerbia-core/LICENSE
+  s_72bccf0dead4be::t_27ffc54dcdf33b 1-73
+packages/cerbia-core/NOTICE
+  s_72bccf0dead4be::t_eedf1389e6d174 1-13
+packages/cerbia-ml/LICENSE
+  s_72bccf0dead4be::t_793e42bad2a2e6 1-73
+packages/cerbia-ml/NOTICE
+  s_72bccf0dead4be::t_0f0a6e506c3294 1-13
+packages/cerbia-presidio/LICENSE
+  s_72bccf0dead4be::t_417255512c81a6 1-73
+packages/cerbia-presidio/NOTICE
+  s_72bccf0dead4be::t_ae98b5579ca771 1-13
+packages/cerbia-protectai/LICENSE
+  s_72bccf0dead4be::t_65f95e76169fd1 1-73
+packages/cerbia-protectai/NOTICE
+  s_72bccf0dead4be::t_017524bfc1665d 1-13
+packages/cerbia/LICENSE
+  s_72bccf0dead4be::t_7c2b8e1674f69c 1-73
+packages/cerbia/NOTICE
+  s_72bccf0dead4be::t_0cebc81f144ad4 1-13
+packages/cerbia/tests/integration/test_distribution.py
+  s_72bccf0dead4be::t_284d769140edf3 22,34
+pyproject.toml
+  s_72bccf0dead4be::t_9221fff4ef26c2 25
+scripts/generate_language_profiles.py
+  s_72bccf0dead4be::t_169936fac7bcf0 10-19,98-100
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "d22a5f305e17fb50c543fa1e9ffc99a39b67da3b",
+  "prompts": {},
+  "sessions": {
+    "s_72bccf0dead4be": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "s_72bccf0dead4be",
+        "model": "unknown"
+      },
+      "human_author": "Ivan Alvarez Sabin <ivanasabi@ext.inditex.com>"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+REUSE.toml
+  s_c001ad3711cf33::t_42c1c41c512690 29-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f6e668c710d28f1b980227ab99e161f0fd2eb4cc",
+  "prompts": {},
+  "sessions": {
+    "s_c001ad3711cf33": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "9a618af7-4ae2-4000-80eb-26302d219d9d",
+        "model": "sonnet"
+      },
+      "human_author": "amagan <andreamr@ext.zara.com>"
+    }
+  }
+}

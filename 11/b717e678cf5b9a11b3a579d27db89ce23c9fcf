@@ -1,0 +1,19 @@
+.tool-versions
+  s_016e927533b999::t_7e1fe8827bb464 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "11b717e678cf5b9a11b3a579d27db89ce23c9fcf",
+  "prompts": {},
+  "sessions": {
+    "s_016e927533b999": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "s_016e927533b999",
+        "model": "unknown"
+      },
+      "human_author": "Ivan Alvarez Sabin <ivanasabi@ext.inditex.com>"
+    }
+  }
+}

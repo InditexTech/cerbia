@@ -1,0 +1,22 @@
+README.md
+  h_d6d31939214ddd 44,48,60,77-79,82-83,109
+examples/README.md
+  h_d6d31939214ddd 6,9
+examples/cli-usage/README.md
+  h_d6d31939214ddd 3-14,19-29,32-57
+examples/cli-usage/cascade.cerbia.yaml
+  h_d6d31939214ddd 1-35
+packages/cerbia-core/tests/integration/test_cli_usage_examples.py
+  h_d6d31939214ddd 1-58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "7cb460677ff8fc9025e8cf5322d470191e79a0d9",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

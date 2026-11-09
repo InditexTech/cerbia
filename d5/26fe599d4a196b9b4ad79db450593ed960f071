@@ -1,0 +1,16 @@
+docs/package.json
+  h_d6d31939214ddd 11-12
+docs/scripts/migration/build-and-check-diagrams.mjs
+  h_d6d31939214ddd 14,75-80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d526fe599d4a196b9b4ad79db450593ed960f071",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

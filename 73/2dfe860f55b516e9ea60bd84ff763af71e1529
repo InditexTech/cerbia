@@ -1,0 +1,20 @@
+examples/README.md
+  h_d6d31939214ddd 9-10
+examples/cli-usage/README.md
+  h_d6d31939214ddd 17-18
+examples/custom-loader/README.md
+  h_d6d31939214ddd 44
+examples/programmatic-usage/README.md
+  h_d6d31939214ddd 16-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "732dfe860f55b516e9ea60bd84ff763af71e1529",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

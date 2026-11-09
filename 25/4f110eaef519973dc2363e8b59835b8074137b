@@ -1,0 +1,14 @@
+docs/src/modules/main/pages/components/scanners/decisions.adoc
+  h_d6d31939214ddd 156-158
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "254f110eaef519973dc2363e8b59835b8074137b",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

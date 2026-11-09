@@ -1,0 +1,19 @@
+packages/cerbia-core/src/cerbia/core/scanners/decisions/_scanner.py
+  s_a4fb1fd980947e::t_62986949eeb65d 1-123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "e5fee3d7e02ea163ecbabfa12bd8786ad410dd8c",
+  "prompts": {},
+  "sessions": {
+    "s_a4fb1fd980947e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e6218095dffeLrXlpNtqaYSQXL",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

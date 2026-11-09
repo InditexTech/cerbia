@@ -1,0 +1,26 @@
+examples/fastapi-bim-guardrail/README.md
+  h_d6d31939214ddd 10,30,41,52-55,61,69
+examples/fastapi-bim-guardrail/app.py
+  h_d6d31939214ddd 30,45,170
+examples/langchain-agent-guardrail/README.md
+  h_d6d31939214ddd 11,13,74,78,89,97,100-102,131,138-140,151,153,158,175,182,189
+examples/langchain-agent-guardrail/agent.py
+  h_d6d31939214ddd 34,45,48,65,75,91
+examples/langchain-agent-guardrail/test_agent.py
+  h_d6d31939214ddd 17,46
+examples/programmatic-usage/README.md
+  h_d6d31939214ddd 3
+examples/programmatic-usage/direct_scan.py
+  h_d6d31939214ddd 5,11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "703ba81ac155c9917cc404bf705ccca4e3b594a6",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}

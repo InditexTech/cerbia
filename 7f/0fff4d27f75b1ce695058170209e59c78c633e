@@ -1,0 +1,18 @@
+packages/cerbia-core/src/cerbia/core/scanners/pii/_constants.py
+  h_d6d31939214ddd 7-8
+packages/cerbia-core/src/cerbia/core/scanners/pii/_scanner.py
+  h_d6d31939214ddd 9,67-70,107
+packages/cerbia-core/tests/unit/cerbia/core/scanners/pii/test_email_domains.py
+  h_d6d31939214ddd 205,207-210,213,215-219
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "7f0fff4d27f75b1ce695058170209e59c78c633e",
+  "prompts": {},
+  "humans": {
+    "h_d6d31939214ddd": {
+      "author": "Sergio Bugallo Enjamio <sergiobe@inditex.com>"
+    }
+  }
+}
