@@ -136,15 +136,15 @@
 - [Maximum score aggregator](https://inditextech.github.io/cerbia/0.6.0/main/components/score-aggregators/max/): Use the highest severity-weighted blocking score as the aggregate gate score.
 - [Mean score aggregator](https://inditextech.github.io/cerbia/0.6.0/main/components/score-aggregators/mean/): Average all severity-weighted blocking scores to produce the aggregate gate score.
 - [Canary leak scanner](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/canary-leak/): Find configured canary tokens and partial leaks, including encoded or zero-width representations.
-- [Keyword scanner](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/keyword/): Match multilingual and code-oriented suspicious patterns after Unicode and leetspeak normalization.
 - [Invisible text scanner](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/invisible-text/): Detect zero-width, bidirectional, format-control, and other hard-to-see Unicode characters.
+- [Keyword scanner](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/keyword/): Match multilingual and code-oriented suspicious patterns after Unicode and leetspeak normalization.
 - [Presidio PII scanner](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/pii-presidio/): Detect English PII entities with the optional Presidio analyzer and spaCy model integration.
 - [PII scanners](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/pii/): Detect common personally identifiable information with built-in or custom regular expressions.
 - [ProtectAI prompt injection scanner](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/prompt-injection-protectai/): Classify text for prompt injection with the optional ProtectAI DeBERTa-v3 integration.
 - [Prompt injection scanner](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/prompt-injection/): Detect multilingual prompt-injection patterns such as instruction override, exfiltration, and role hijacking.
 - [URL allowlist scanner](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/url-allow-list/): Allow only URLs that match configured full-URL wildcard patterns.
-- [XSS scanner](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/xss/): Detect encoded HTML and script injection vectors with optional markup-context awareness.
 - [URL denylist scanner](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/url-deny-list/): Flag extracted URLs that match configured deny rules.
+- [XSS scanner](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/xss/): Detect encoded HTML and script injection vectors with optional markup-context awareness.
 - [Secret scanner](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/secrets/): Detect configured credential patterns and optionally flag unmatched high-entropy values.
 - [Malicious URL scanner](https://inditextech.github.io/cerbia/0.6.0/main/components/scanners/url-malicious/): Apply local heuristics to extracted URLs, including risky domains, shorteners, and lookalike patterns.
 - [FileLoader](https://inditextech.github.io/cerbia/0.6.0/main/components/loaders/file-loader/): Load UTF-8 text from files or recursively discovered directory trees, with optional suffix filters.
@@ -209,8 +209,8 @@
 - [TextLoader](https://inditextech.github.io/cerbia/0.4.0/main/components/loaders/text-loader/): Load one string or an ordered list of inline strings as CerbIA entries.
 - [Whitespace normalization](https://inditextech.github.io/cerbia/0.4.0/main/components/preprocessors/whitespace-normalization/): Normalize spaced, tabbed, and repeated whitespace patterns while preserving entry lineage.
 - [Canary leak scanner](https://inditextech.github.io/cerbia/0.4.0/main/components/scanners/canary-leak/): Find configured canary tokens and partial leaks, including encoded or zero-width representations.
-- [Invisible text scanner](https://inditextech.github.io/cerbia/0.4.0/main/components/scanners/invisible-text/): Detect zero-width, bidirectional, format-control, and other hard-to-see Unicode characters.
 - [Keyword scanner](https://inditextech.github.io/cerbia/0.4.0/main/components/scanners/keyword/): Match multilingual and code-oriented suspicious patterns after Unicode and leetspeak normalization.
+- [Invisible text scanner](https://inditextech.github.io/cerbia/0.4.0/main/components/scanners/invisible-text/): Detect zero-width, bidirectional, format-control, and other hard-to-see Unicode characters.
 - [Presidio PII scanner](https://inditextech.github.io/cerbia/0.4.0/main/components/scanners/pii-presidio/): Detect English PII entities with the optional Presidio analyzer and spaCy model integration.
 - [PII scanners](https://inditextech.github.io/cerbia/0.4.0/main/components/scanners/pii/): Detect common personally identifiable information with built-in or custom regular expressions.
 - [ProtectAI prompt injection scanner](https://inditextech.github.io/cerbia/0.4.0/main/components/scanners/prompt-injection-protectai/): Classify text for prompt injection with the optional ProtectAI DeBERTa-v3 integration.
@@ -229,9 +229,9 @@
 - [About CerbIA](https://inditextech.github.io/cerbia/0.3.2/main/about/): Security gates for AI agents' inputs and outputs.
 - [Additional information](https://inditextech.github.io/cerbia/0.3.2/main/additional-information/): CerbIA change history, support, and security reporting information.
 - [CLI reference](https://inditextech.github.io/cerbia/0.3.2/main/cli/): Use the CerbIA CLI to validate YAML pipelines and scan text or files from the command line.
-- [Configuration](https://inditextech.github.io/cerbia/0.3.2/main/configuration/): Configure a CerbIA security gate in YAML, including component classes, initialization arguments, and validation rules.
 - [Contributing](https://inditextech.github.io/cerbia/0.3.2/main/contributing/): Ways to contribute to CerbIA and links to its contribution rules.
 - [Gate behavior](https://inditextech.github.io/cerbia/0.3.2/main/gate/): Understand how SecurityGate combines scanner findings, actions, scores, and thresholds into a verdict.
+- [Configuration](https://inditextech.github.io/cerbia/0.3.2/main/configuration/): Configure a CerbIA security gate in YAML, including component classes, initialization arguments, and validation rules.
 - [Guides](https://inditextech.github.io/cerbia/0.3.2/main/guides-overview/): Guided paths for trying and extending CerbIA security gates.
 - [Logging](https://inditextech.github.io/cerbia/0.3.2/main/logging/): Configure host application logging for CerbIA's standard-library logger namespace and levels.
 - [Prerequisites](https://inditextech.github.io/cerbia/0.3.2/main/prerequisites/): Requirements and installation steps before using CerbIA.
@@ -250,19 +250,19 @@
 - [Mean score aggregator](https://inditextech.github.io/cerbia/0.3.2/main/components/score-aggregators/mean/): Average all severity-weighted blocking scores to produce the aggregate gate score.
 - [Canary leak scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/canary-leak/): Find configured canary tokens and partial leaks, including encoded or zero-width representations.
 - [Invisible text scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/invisible-text/): Detect zero-width, bidirectional, format-control, and other hard-to-see Unicode characters.
-- [Keyword scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/keyword/): Match multilingual and code-oriented suspicious patterns after Unicode and leetspeak normalization.
 - [Presidio PII scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/pii-presidio/): Detect English PII entities with the optional Presidio analyzer and spaCy model integration.
+- [Keyword scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/keyword/): Match multilingual and code-oriented suspicious patterns after Unicode and leetspeak normalization.
 - [PII scanners](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/pii/): Detect common personally identifiable information with built-in or custom regular expressions.
-- [ProtectAI prompt injection scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/prompt-injection-protectai/): Classify text for prompt injection with the optional ProtectAI DeBERTa-v3 integration.
 - [Prompt injection scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/prompt-injection/): Detect multilingual prompt-injection patterns such as instruction override, exfiltration, and role hijacking.
+- [ProtectAI prompt injection scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/prompt-injection-protectai/): Classify text for prompt injection with the optional ProtectAI DeBERTa-v3 integration.
 - [URL allowlist scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/url-allow-list/): Allow only URLs that match configured full-URL wildcard patterns.
 - [URL denylist scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/url-deny-list/): Flag extracted URLs that match configured deny rules.
 - [XSS scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/xss/): Detect encoded HTML and script injection vectors with optional markup-context awareness.
 - [Decisions scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/decisions/): Ask fixed questions about text and evaluate typed answers with an application function.
 - [Secret scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/secrets/): Detect configured credential patterns and optionally flag unmatched high-entropy values.
 - [Malicious URL scanner](https://inditextech.github.io/cerbia/0.3.2/main/components/scanners/url-malicious/): Apply local heuristics to extracted URLs, including risky domains, shorteners, and lookalike patterns.
-- [Architecture](https://inditextech.github.io/cerbia/0.3.2/main/architecture/): Trace an entry through loading, preprocessing, scanning, aggregation, and result construction.
 - [FileLoader](https://inditextech.github.io/cerbia/0.3.2/main/components/loaders/file-loader/): Load UTF-8 text from files or recursively discovered directory trees, with optional suffix filters.
+- [Architecture](https://inditextech.github.io/cerbia/0.3.2/main/architecture/): Trace an entry through loading, preprocessing, scanning, aggregation, and result construction.
 - [Speculative decoding](https://inditextech.github.io/cerbia/0.3.2/main/components/preprocessors/speculative-decoding/): Recover plausible encoded or obfuscated text before scanners inspect an entry.
 - [Internationalization](https://inditextech.github.io/cerbia/0.3.2/main/i18n/): Register and select language-specific pattern packs for CerbIA's built-in scanners.
 - [About CerbIA](https://inditextech.github.io/cerbia/0.3.1/main/about/): Security gates for AI agents' inputs and outputs.
@@ -298,8 +298,8 @@
 - [Maximum score with bonus](https://inditextech.github.io/cerbia/0.3.1/main/components/score-aggregators/max-with-bonus/): Combine the highest blocking score with a configurable bonus for each additional blocking finding.
 - [Maximum score aggregator](https://inditextech.github.io/cerbia/0.3.1/main/components/score-aggregators/max/): Use the highest severity-weighted blocking score as the aggregate gate score.
 - [Mean score aggregator](https://inditextech.github.io/cerbia/0.3.1/main/components/score-aggregators/mean/): Average all severity-weighted blocking scores to produce the aggregate gate score.
-- [FileLoader](https://inditextech.github.io/cerbia/0.3.1/main/components/loaders/file-loader/): Load UTF-8 text from files or recursively discovered directory trees, with optional suffix filters.
 - [Architecture](https://inditextech.github.io/cerbia/0.3.1/main/architecture/): Trace an entry through loading, preprocessing, scanning, aggregation, and result construction.
+- [FileLoader](https://inditextech.github.io/cerbia/0.3.1/main/components/loaders/file-loader/): Load UTF-8 text from files or recursively discovered directory trees, with optional suffix filters.
 - [Speculative decoding](https://inditextech.github.io/cerbia/0.3.1/main/components/preprocessors/speculative-decoding/): Recover plausible encoded or obfuscated text before scanners inspect an entry.
 - [Internationalization](https://inditextech.github.io/cerbia/0.3.1/main/i18n/): Register and select language-specific pattern packs for CerbIA's built-in scanners.
 - [About CerbIA](https://inditextech.github.io/cerbia/0.3.0/main/about/): Security gates for AI agents' inputs and outputs.
@@ -337,5 +337,5 @@
 - [XSS scanner](https://inditextech.github.io/cerbia/0.3.0/main/components/scanners/xss/): Detect encoded HTML and script injection vectors with optional markup-context awareness.
 - [Architecture](https://inditextech.github.io/cerbia/0.3.0/main/architecture/): Trace an entry through loading, preprocessing, scanning, aggregation, and result construction.
 - [FileLoader](https://inditextech.github.io/cerbia/0.3.0/main/components/loaders/file-loader/): Load UTF-8 text from files or recursively discovered directory trees, with optional suffix filters.
-- [Speculative decoding](https://inditextech.github.io/cerbia/0.3.0/main/components/preprocessors/speculative-decoding/): Recover plausible encoded or obfuscated text before scanners inspect an entry.
 - [Internationalization](https://inditextech.github.io/cerbia/0.3.0/main/i18n/): Register and select language-specific pattern packs for CerbIA's built-in scanners.
+- [Speculative decoding](https://inditextech.github.io/cerbia/0.3.0/main/components/preprocessors/speculative-decoding/): Recover plausible encoded or obfuscated text before scanners inspect an entry.
