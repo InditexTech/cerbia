@@ -1,6 +1,6 @@
 name: ROOT
 title: CerbIA
-version: 0.3.1
+version: 0.4.0
 start_page: ROOT:index.adoc
 nav:
   - modules/main/nav.adoc
