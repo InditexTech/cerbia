@@ -16,8 +16,8 @@ name: docouture-publish-prerelease
 # than by reintroducing the same trigger in the same place:
 #
 #   1. An unrelated commit shouldn't kick off a rebuild with nothing new to
-#      publish. `check-changes-in-paths` (below) gates on real content paths
-#      only. In particular this deliberately excludes docs/.release-version:
+#      publish. `check-changes-in-paths` (below) gates on content and build
+#      inputs. In particular this deliberately excludes docs/.release-version:
 #      that file is the ONLY thing docouture-release.yml's own "Bump release
 #      descriptor" step pushes straight to the release branch directly (see
 #      that workflow's own comment on that step) — a bot commit that is not
@@ -89,7 +89,10 @@ jobs:
             exit 0
           fi
           changed="$(git diff --name-only "$BEFORE" "$AFTER" -- \
-            'docs/src/' 'docs/antora-playbook*.yml' 'docs/supplemental-ui/')"
+            'docs/src/' 'docs/antora-playbook*.yml' 'docs/supplemental-ui/' \
+            'docs/package.json' 'docs/package-lock.json' 'docs/scripts/' \
+            '.github/workflows/docouture-publish.yml' \
+            '.github/workflows/docouture-publish-prerelease.yml')"
           if [ -n "$changed" ]; then
             echo "paths=true" >> "$GITHUB_OUTPUT"
           else

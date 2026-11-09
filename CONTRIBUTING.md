@@ -105,15 +105,12 @@ The equivalent commands from `docs/` are:
 ```bash
 npm ci
 npm run build
-npm run check-links
 npm run dev
 ```
 
 `make docs-build` uses the production playbook (`main` and `docs/v*`) and leaves
-`docs/build/site` for the generated Linkinator checker and gh-pages publisher.
+`docs/build/site` for the gh-pages publisher.
 Stop `npm run dev` before building: the live server owns that output while running.
-The checker fails on broken external links and warns on local or configured
-non-representative links. No deployment command is needed for local QA.
 
 For HEAD-only QA without touching the live output, run from `docs/`:
 
@@ -121,18 +118,19 @@ For HEAD-only QA without touching the live output, run from `docs/`:
 output=$(mktemp -d)
 trap 'rm -rf "$output"' EXIT
 npx antora --fetch --log-failure-level warn --to-dir "$output" antora-playbook.local.yml
-node scripts/fix-search-index.mjs --site-dir "$output"
-node --test scripts/fix-search-index.test.mjs
+SITE_DIR="$output" node --test scripts/search-index.test.mjs
 ```
 
-Run the generated checker in a temporary repository copy with its own
-`build/site` to avoid crawling or modifying the live server's output.
+The read-only search regression checks native URL prefixes, local page/anchor
+targets, and the latest copy when present. For production QA, use a disposable
+full-history repository copy, check out `main` there, then overlay the candidate
+working tree before building with `npm run build -- --to-dir "$output"`. Otherwise
+the production playbook can silently read the old `main` commit instead of your
+candidate. Keep the original repository's refs and live output untouched.
 
 Docouture uses full-history versioning: `main` stays `version: prerelease` with
 `prerelease: true` in `docs/src/antora.yml`, while `docs/vX.Y.Z` tags supply numbered
 documentation versions. With no release tags, the site contains only prerelease.
-The production build runs the search-index fixer over every generated index
-because Docouture 1.1.1 omits `/cerbia/` from search record URLs.
 
 To release documentation, merge a PR into `main` with the `docs/release` label;
 the workflow reads the target SemVer from `docs/.release-version` (initially
@@ -160,5 +158,5 @@ without this duplication option.
 
 The build does not check diagram count or SVG accessibility. Kroki failures may
 fall back to raw Mermaid without failing Antora; a successful build is not proof
-that diagrams rendered. `docouture dev` uses the upstream live-build path and does
-not run the production search post-step.
+that diagrams rendered. Check a representative page's embedded Mermaid SVG for
+rendered shapes as well as running the read-only search regression.
