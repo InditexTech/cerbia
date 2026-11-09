@@ -14,6 +14,33 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added configurable cascade gates, where ordered scanner stages can allow,
+  block, or defer to the next stage, with stage-specific thresholds and results
+  (`type: cascade`) (#50).
+
+### Changed
+
+- **Breaking for Python API users:** `CerbIAConfig` is now a union and
+  `SecurityGate` is a protocol. Replace direct construction with
+  `SimpleGateConfig` or `CascadeGateConfig`, and use `Runner` to build the gate.
+  Existing flat YAML remains compatible and defaults to a simple gate; cascade
+  YAML uses `type: cascade` and `stages` (#50).
+- Upgraded documentation tooling from Docouture 1.1.1 to 1.3.1, using native
+  `/cerbia` search URLs instead of a local index fixer and removing the external
+  link check (#57).
+- Updated documentation workflow path filters to include build inputs and
+  limited release previews to same-repository pull requests (#57).
+- Reorganized the documentation sidebar into Overview, Getting started, Guides,
+  and Reference, with Custom components under Guides (#57).
+
+### Fixed
+
+- Aligned product-triggered docs releases with the product tag version and
+  immutable commit, protected automatic releases from conflicting docs tags,
+  and prepared the docs target for 0.6.0 (#57).
+
 ## [0.5.0] - 2026-11-04
 
 ### Added

@@ -105,15 +105,12 @@ The equivalent commands from `docs/` are:
 ```bash
 npm ci
 npm run build
-npm run check-links
 npm run dev
 ```
 
 `make docs-build` uses the production playbook (`main` and `docs/v*`) and leaves
-`docs/build/site` for the generated Linkinator checker and gh-pages publisher.
+`docs/build/site` for the gh-pages publisher.
 Stop `npm run dev` before building: the live server owns that output while running.
-The checker fails on broken external links and warns on local or configured
-non-representative links. No deployment command is needed for local QA.
 
 For HEAD-only QA without touching the live output, run from `docs/`:
 
@@ -121,33 +118,54 @@ For HEAD-only QA without touching the live output, run from `docs/`:
 output=$(mktemp -d)
 trap 'rm -rf "$output"' EXIT
 npx antora --fetch --log-failure-level warn --to-dir "$output" antora-playbook.local.yml
-node scripts/fix-search-index.mjs --site-dir "$output"
-node --test scripts/fix-search-index.test.mjs
+SITE_DIR="$output" node --test scripts/search-index.test.mjs
 ```
 
-Run the generated checker in a temporary repository copy with its own
-`build/site` to avoid crawling or modifying the live server's output.
+The read-only search regression checks native URL prefixes, local page/anchor
+targets, and the latest copy when present. For production QA, use a disposable
+full-history repository copy, check out `main` there, then overlay the candidate
+working tree before building with `npm run build -- --to-dir "$output"`. Otherwise
+the production playbook can silently read the old `main` commit instead of your
+candidate. Keep the original repository's refs and live output untouched.
 
 Docouture uses full-history versioning: `main` stays `version: prerelease` with
 `prerelease: true` in `docs/src/antora.yml`, while `docs/vX.Y.Z` tags supply numbered
 documentation versions. With no release tags, the site contains only prerelease.
-The production build runs the search-index fixer over every generated index
-because Docouture 1.1.1 omits `/cerbia/` from search record URLs.
 
-To release documentation, merge a PR into `main` with the `docs/release` label;
-the workflow reads the target SemVer from `docs/.release-version` (initially
-`0.1.0`, matching the product package). Alternatively, run `docouture-release`
-manually against `main` and supply the desired version instead of its standalone
-default `stable`. SemVer prerelease and build-metadata suffixes are supported.
-The workflow builds the exact release descriptor before tagging, then calls the
-original gh-pages publisher. Do not change the descriptor on `main` to release.
+Product GitHub Releases align docs with the product: `v0.6.0` selects
+`docs/v0.6.0` from the release event's immutable product commit, not current
+`main` or `docs/.release-version`. The product tag must have a leading `v`
+followed by strict SemVer. The product snapshot must contain the current docs
+tooling (including Docouture 1.3.1); historical backfills are a separate operation.
+For the planned 0.6.0 release, use the explicit `release-type/minor` PR label.
+When a PR also has `docs/release`, that label defers docs tagging until the
+product GitHub Release is published unless `skip-release` is present. The product
+release preview, not the docs descriptor, determines the coupled version.
 
-After a new version, the workflow commits the next patch target to
-`docs/.release-version` on `main`. Set that file explicitly in a reviewed PR when
-planning a different next target, such as a new minor. To republish an existing
+For a docs-only release, merge a PR into `main` with `docs/release` and the target
+SemVer in `docs/.release-version`, without a pending product release (or with
+`skip-release`). Alternatively, run `docouture-release` manually against `main`
+and supply the desired version instead of its standalone default `stable`.
+SemVer prerelease and build-metadata suffixes are supported. The workflow builds
+the exact release descriptor before tagging, then calls the gh-pages publisher
+using current `main` tooling and all docs tags. Do not change
+`docs/src/antora.yml` on `main` to release.
+
+After a new version, the workflow refreshes `main` and commits the next patch
+target only if `docs/.release-version` still equals the version just released.
+A different planned target is preserved. Set that file explicitly in a reviewed
+PR when planning a different next target, such as a new minor (currently 0.6.0).
+Automatic releases accept an existing docs tag only if its full tree matches;
+conflicting content fails without overwriting it. To republish an existing
 version, manually supply its version: the workflow **force-recreates and pushes
 the existing `docs/v…` tag**, and skips the next-target bump. These tags are not
 guaranteed immutable; a republish changes the documentation at that numbered URL.
+
+Run the local workflow regression checks (no remote writes) from `docs/`:
+
+```bash
+node --test scripts/release-workflows.test.mjs
+```
 
 Production enables `duplicate_latest_version` on the Antora extension. Once a
 non-prerelease release exists, `/cerbia/latest/` serves an independent copy of
@@ -160,5 +178,5 @@ without this duplication option.
 
 The build does not check diagram count or SVG accessibility. Kroki failures may
 fall back to raw Mermaid without failing Antora; a successful build is not proof
-that diagrams rendered. `docouture dev` uses the upstream live-build path and does
-not run the production search post-step.
+that diagrams rendered. Check a representative page's embedded Mermaid SVG for
+rendered shapes as well as running the read-only search regression.
