@@ -78,6 +78,8 @@ jobs:
           # build, not just whichever ref triggered this run — a shallow,
           # single-branch checkout would leave the others unreachable.
           fetch-depth: 0
+          # Use current tooling; the playbook still aggregates main + docs/v*.
+          ref: main
           persist-credentials: false
 
       - name: Setup Node

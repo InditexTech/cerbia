@@ -16,18 +16,15 @@ name: docouture-release-preview
 # missing docs/.release-version (versioned mode) or an about-to-be-overwritten
 # tag before merging, not after.
 #
-# Reuses docouture-release.yml's own "Detect mode" (grep antora-playbook.yml's
-# content.sources[] tags) and "Resolve version" (stable, or
-# docs/.release-version's contents) logic verbatim — see that workflow's own
-# comments, and the docs-site-package skill's reference/versioning-modes.md,
-# for the full mechanism.
+# For coupled releases the product workflow owns the version calculation;
+# docs/.release-version is only the intended target, not authoritative.
 #
 # internal-ops hardening: pinned actions, no persisted checkout credentials,
 # no third-party path filter (the pull request's own file list comes from the
 # REST API), and every expression a shell script reads arrives through `env:`.
 on:
   pull_request:
-    types: [labeled, synchronize, ready_for_review, opened]
+    types: [labeled, unlabeled, synchronize, ready_for_review, opened]
     branches: ['main*']
 
 permissions: {}
@@ -136,9 +133,8 @@ jobs:
 
       # Asks the REST API rather than `git ls-remote`: checkout keeps no
       # credentials, and an unauthenticated ls-remote against a private
-      # repository fails, which would read as "no such tag". A hit here
-      # means docouture-release.yml's "Push release tag" step will force-move
-      # an existing tag (a republish) rather than create a new one.
+      # repository fails, which would read as "no such tag". A hit warns
+      # that automatic release requires an identical tree, not a force-move.
       - name: Check for existing tag
         id: check
         env:
@@ -147,7 +143,12 @@ jobs:
           MODE: ${{ steps.detect.outputs.mode }}
           VERSION: ${{ steps.resolve.outputs.version }}
           TAG: ${{ steps.resolve.outputs.tag }}
+          COUPLED: ${{ contains(join(github.event.pull_request.labels.*.name, ', '), 'release-type') && !contains(github.event.pull_request.labels.*.name, 'skip-release') }}
         run: |
+          if [ "$COUPLED" = "true" ]; then
+            echo "existed=unknown" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if [ "$MODE" = "versioned" ] && [ -z "$VERSION" ]; then
             echo "existed=unknown" >> "$GITHUB_OUTPUT"
             exit 0
@@ -168,7 +169,16 @@ jobs:
           VERSION: ${{ steps.resolve.outputs.version }}
           TAG: ${{ steps.resolve.outputs.tag }}
           EXISTED: ${{ steps.check.outputs.existed }}
+          COUPLED: ${{ contains(join(github.event.pull_request.labels.*.name, ', '), 'release-type') && !contains(github.event.pull_request.labels.*.name, 'skip-release') }}
         run: |
+          if [ "$COUPLED" = "true" ]; then
+            gh pr comment "$PR_NUMBER" --repo "$REPOSITORY" --body "
+          ### :rocket: Coupled Product and Docs Release Preview
+          Merging this PR defers docs tagging until the product GitHub Release is published. Its required v-prefixed tag supplies the authoritative docs version (vX.Y.Z becomes docs/vX.Y.Z), and its immutable commit supplies the content. The governed product release preview determines that version; this workflow does not calculate it.
+
+          docs/.release-version currently intends '${VERSION:-unset}' only; it does not override the product release version. Use the explicit release-type/minor label when planning product 0.6.0. An existing docs tag with different content fails rather than being overwritten."
+            exit 0
+          fi
           if [ "$MODE" = "versioned" ] && [ -z "$VERSION" ]; then
             gh pr comment "$PR_NUMBER" --repo "$REPOSITORY" --body "
           ### :x: docs/release: no target version
@@ -198,7 +208,7 @@ jobs:
             MESSAGE="${MESSAGE}
 
           ### :warning: Tag already exists
-          \`${TAG}\` already exists and will be **force-overwritten** on merge."
+          \`${TAG}\` already exists. The workflow accepts an identical release tree, but **fails on different content**. Republishing different content requires an explicit manual dispatch."
           fi
 
           gh pr comment "$PR_NUMBER" --repo "$REPOSITORY" --body "$(echo -e "$MESSAGE")"
@@ -217,7 +227,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          COUPLED: ${{ contains(join(github.event.pull_request.labels.*.name, ', '), 'release-type') && !contains(github.event.pull_request.labels.*.name, 'skip-release') }}
         run: |
+          if [ "$COUPLED" = "true" ]; then
+            gh pr comment "$PR_NUMBER" --repo "$REPOSITORY" --body "Docs release waits for the product GitHub Release: its vX.Y.Z tag selects docs/vX.Y.Z and its immutable commit supplies the content. The governed product preview owns the version; docs/.release-version is only an intended target. This PR changes no docs release inputs."
+            exit 0
+          fi
           gh pr comment "$PR_NUMBER" --repo "$REPOSITORY" --body "
           ### :exclamation: This Pull Request will not trigger a meaningful release
           The \`docs/release\` label is set, but this Pull Request has no changes under \`docs/**\` — merging it will still cut a release, just with nothing new in it."
@@ -239,4 +254,4 @@ jobs:
         run: |
           gh pr comment "$PR_NUMBER" --repo "$REPOSITORY" --body "
           ### :exclamation: This Pull Request will not trigger a docs release
-          A Pull Request with no \`docs/release\` label will not trigger a docs site release — label it \`docs/release\` if you want this merge to release the docs site."
+          This PR has no \`docs/release\` label, so its merge will not directly trigger a docs release. A subsequently published product GitHub Release still releases docs from that product commit and version. For a docs-only release, add \`docs/release\` and choose \`docs/.release-version\`."

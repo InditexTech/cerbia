@@ -132,20 +132,40 @@ Docouture uses full-history versioning: `main` stays `version: prerelease` with
 `prerelease: true` in `docs/src/antora.yml`, while `docs/vX.Y.Z` tags supply numbered
 documentation versions. With no release tags, the site contains only prerelease.
 
-To release documentation, merge a PR into `main` with the `docs/release` label;
-the workflow reads the target SemVer from `docs/.release-version` (initially
-`0.1.0`, matching the product package). Alternatively, run `docouture-release`
-manually against `main` and supply the desired version instead of its standalone
-default `stable`. SemVer prerelease and build-metadata suffixes are supported.
-The workflow builds the exact release descriptor before tagging, then calls the
-original gh-pages publisher. Do not change the descriptor on `main` to release.
+Product GitHub Releases align docs with the product: `v0.6.0` selects
+`docs/v0.6.0` from the release event's immutable product commit, not current
+`main` or `docs/.release-version`. The product tag must have a leading `v`
+followed by strict SemVer. The product snapshot must contain the current docs
+tooling (including Docouture 1.3.1); historical backfills are a separate operation.
+For the planned 0.6.0 release, use the explicit `release-type/minor` PR label.
+When a PR also has `docs/release`, that label defers docs tagging until the
+product GitHub Release is published unless `skip-release` is present. The product
+release preview, not the docs descriptor, determines the coupled version.
 
-After a new version, the workflow commits the next patch target to
-`docs/.release-version` on `main`. Set that file explicitly in a reviewed PR when
-planning a different next target, such as a new minor. To republish an existing
+For a docs-only release, merge a PR into `main` with `docs/release` and the target
+SemVer in `docs/.release-version`, without a pending product release (or with
+`skip-release`). Alternatively, run `docouture-release` manually against `main`
+and supply the desired version instead of its standalone default `stable`.
+SemVer prerelease and build-metadata suffixes are supported. The workflow builds
+the exact release descriptor before tagging, then calls the gh-pages publisher
+using current `main` tooling and all docs tags. Do not change
+`docs/src/antora.yml` on `main` to release.
+
+After a new version, the workflow refreshes `main` and commits the next patch
+target only if `docs/.release-version` still equals the version just released.
+A different planned target is preserved. Set that file explicitly in a reviewed
+PR when planning a different next target, such as a new minor (currently 0.6.0).
+Automatic releases accept an existing docs tag only if its full tree matches;
+conflicting content fails without overwriting it. To republish an existing
 version, manually supply its version: the workflow **force-recreates and pushes
 the existing `docs/v…` tag**, and skips the next-target bump. These tags are not
 guaranteed immutable; a republish changes the documentation at that numbered URL.
+
+Run the local workflow regression checks (no remote writes) from `docs/`:
+
+```bash
+node --test scripts/release-workflows.test.mjs
+```
 
 Production enables `duplicate_latest_version` on the Antora extension. Once a
 non-prerelease release exists, `/cerbia/latest/` serves an independent copy of

@@ -35,6 +35,12 @@ and this project adheres to
 - Reorganized the documentation sidebar into Overview, Getting started, Guides,
   and Reference, with Custom components under Guides (#57).
 
+### Fixed
+
+- Aligned product-triggered docs releases with the product tag version and
+  immutable commit, protected automatic releases from conflicting docs tags,
+  and prepared the docs target for 0.6.0 (#57).
+
 ## [0.5.0] - 2026-11-04
 
 ### Added

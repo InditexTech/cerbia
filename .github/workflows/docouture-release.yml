@@ -58,16 +58,11 @@ name: docouture-release
 #      that other workflow actually finishes. Either way this runs exactly
 #      once per merge, just not always at the same moment.
 #
-# Republishing (versioned only): a fix that needs to land on an
-# already-released version overwrites that version's tag — this workflow
-# always force-recreates a tag that already exists, both modes, no separate
-# flag or label needed. `docs/.release-version` itself is never cleared by
-# hand: after every successful versioned release that is NOT a republish,
-# this workflow bumps it forward to the next patch version on the release
-# branch (see "Bump release descriptor" below), so the file always holds a
-# sane next target rather than going stale. A republish (the target tag
-# already existed) skips that bump, since `docs/.release-version` already
-# holds whatever was planned to come after it.
+# Product releases use the required v-prefixed product tag's SemVer and the
+# release event's immutable github.sha, never the current main descriptor.
+# Existing numbered tags must match the candidate tree; only an explicit
+# manual dispatch may republish different content. Bookkeeping refreshes main
+# and advances docs/.release-version only if it still equals the released version.
 #
 # internal-ops hardening, on top of the docouture scaffold:
 #   - GITHUB_TOKEN is read-only. Every push (the release tag, the versioned
@@ -154,6 +149,31 @@ jobs:
           echo "::error::docouture-release must run against main (got ${REF})"
           exit 1
 
+      - name: Resolve source
+        id: source
+        working-directory: .
+        env:
+          EVENT: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          ref=main
+          version=""
+          if [ "$EVENT" = "release" ]; then
+            if [[ "$RELEASE_TAG" != v* ]]; then
+              echo "::error::Product release tag must start with v (got '${RELEASE_TAG}')."
+              exit 1
+            fi
+            version="${RELEASE_TAG#v}"
+            if ! [[ "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "::error::Product release requires an immutable commit SHA."
+              exit 1
+            fi
+            ref="$RELEASE_SHA"
+          fi
+          echo "ref=${ref}" >> "$GITHUB_OUTPUT"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -164,7 +184,7 @@ jobs:
           # branch's tip either way, and full history is harmless for that
           # case.
           fetch-depth: 0
-          ref: main
+          ref: ${{ steps.source.outputs.ref }}
           # Don't persist the ambient GITHUB_TOKEN's credentials — it isn't
           # on this repo's branch-ruleset bypass list, and a local credential
           # from actions/checkout would otherwise win over the app token's
@@ -183,25 +203,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      # Nothing before this point has actually built the docs — unlike
-      # docouture-pr-verify.yml and docouture-publish.yml, this workflow previously
-      # went straight from install to cutting a release tag. That let a
-      # broken site get tagged and released, only to be caught later, when
-      # the tag push triggers docouture-publish.yml downstream. Building here
-      # too, before any git mutation below, catches it before a tag or
-      # GitHub Release ever exists for it.
-      #
-      # `antora-playbook.local.yml` (branches: HEAD), not the real
-      # antora-playbook.yml: the tag this run is about to cut doesn't exist
-      # yet, so the real playbook's tag-based content source can't see it —
-      # it would just rebuild whatever was already released, not what's
-      # about to ship. The local playbook validates exactly the content on
-      # the release branch right now, which is what the new version will
-      # actually be.
-      - name: Build docs
-        run: |
-          npx antora --fetch --log-failure-level warn antora-playbook.local.yml
 
       - name: git identity
         run: |
@@ -264,8 +265,8 @@ jobs:
           echo "Detected ${mode} (antora-playbook.yml: ${line})"
 
       # Where the target version comes from depends on how this run started:
-      # a person typed it (workflow_dispatch) or the merged PR committed it
-      # (docs/.release-version). Standalone ignores whatever this resolves to
+      # a product release tag, a manual input, or the docs-only PR descriptor.
+      # Standalone ignores whatever this resolves to
       # either way — it always targets `stable` — but it's still resolved
       # uniformly here so later steps don't need to know which trigger fired.
       - name: Resolve version
@@ -273,8 +274,12 @@ jobs:
         env:
           EVENT: ${{ github.event_name }}
           DISPATCH_VERSION: ${{ inputs.version }}
+          PRODUCT_VERSION: ${{ steps.source.outputs.version }}
         run: |
-          if [ "$EVENT" = "workflow_dispatch" ]; then
+          if [ "$EVENT" = "release" ]; then
+            version="$PRODUCT_VERSION"
+            source="product release tag"
+          elif [ "$EVENT" = "workflow_dispatch" ]; then
             version="$DISPATCH_VERSION"
             source="workflow_dispatch input"
           elif [ -f .release-version ]; then
@@ -322,8 +327,8 @@ jobs:
           # 1.2.0+build) are valid SemVer and accepted; a leading 'v' or a
           # bare '1.2' are not.
           SEMVER_RE='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$'
-          if [ "$MODE" = "versioned" ] && [ -n "$VERSION" ] && ! [[ "$VERSION" =~ $SEMVER_RE ]]; then
-            echo "::error::docs/.release-version (or the 'version' input) must be a valid SemVer version like 1.2.0 — got '${VERSION}'. See https://semver.org — prerelease/build metadata (1.2.0-beta.1, 1.2.0+build) is fine, a leading 'v' or a two-part '1.2' is not."
+          if { [ "$MODE" = "versioned" ] || [ "$EVENT" = "release" ]; } && ! [[ "$VERSION" =~ $SEMVER_RE ]]; then
+            echo "::error::Resolved docs version must be strict SemVer like 1.2.0 — got '${VERSION}'. Product tags require exactly one leading v, stripped before validation; docs inputs must not include it."
             exit 1
           fi
 
@@ -361,7 +366,7 @@ jobs:
 
           npx docouture version "$value"
           git add src/antora.yml
-          # The earlier build uses prerelease; validate the numbered descriptor before commit/tag.
+          # Build the exact numbered descriptor from this snapshot before commit/tag.
           npx antora --fetch --log-failure-level warn antora-playbook.local.yml
           git commit -m "chore: docs release ${tag}"
           sha=$(git rev-parse HEAD)
@@ -374,11 +379,9 @@ jobs:
           echo "sha=${sha}" >> "$GITHUB_OUTPUT"
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
 
-      # Versioned only: whether this exact version was released before
-      # decides whether "Bump release descriptor" below runs — a republish
-      # (the tag already existed) must NOT bump docs/.release-version
-      # forward, since that file already holds whatever was planned to come
-      # after this republished version. Standalone has no equivalent need —
+      # Versioned only: existing tags skip bookkeeping for manual republishes;
+      # automatic matching-tag reruns may recover an unfinished descriptor bump.
+      # Standalone has no equivalent need —
       # `docs/stable` is a rolling pointer, always overwritten, and there's no
       # release-version file to protect.
       - name: Check for existing release
@@ -386,28 +389,47 @@ jobs:
         id: check
         env:
           TAG: ${{ steps.cut.outputs.tag }}
+          SHA: ${{ steps.cut.outputs.sha }}
+          EVENT: ${{ github.event_name }}
         run: |
-          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null; then
             echo "existed=true" >> "$GITHUB_OUTPUT"
-            echo "${TAG} already exists — republishing (force)."
+            if [ "$EVENT" != "workflow_dispatch" ]; then
+              git fetch --no-tags origin "refs/tags/${TAG}"
+              if [ "$(git rev-parse 'FETCH_HEAD^{tree}')" != "$(git rev-parse "${SHA}^{tree}")" ]; then
+                echo "::error::${TAG} already exists with different content; refusing to overwrite. Use an explicit manual republish if intended."
+                exit 1
+              fi
+              echo "${TAG} already matches the release tree; keeping its commit."
+            else
+              echo "${TAG} already exists — explicit manual republish."
+            fi
           else
+            status=$?
+            if [ "$status" -ne 2 ]; then
+              echo "::error::Cannot check existing release tag (git ls-remote exited ${status})."
+              exit "$status"
+            fi
             echo "existed=false" >> "$GITHUB_OUTPUT"
             echo "${TAG} is new."
           fi
 
-      # Every release tag is force-recreated if it already exists — both
-      # modes, unconditionally. Standalone's `docs/stable` is a rolling pointer by
-      # design; versioned's docs/vX.Y.Z tags are meant to be immutable once
-      # released, but a republish (fixing a released version) is a
-      # deliberate, ordinary act here, not something gated behind a separate
-      # flag or label.
+      # Only manual republishes and the rolling standalone tag may force-move.
       - name: Push release tag
         env:
           TAG: ${{ steps.cut.outputs.tag }}
           SHA: ${{ steps.cut.outputs.sha }}
+          MODE: ${{ steps.detect.outputs.mode }}
+          EVENT: ${{ github.event_name }}
+          EXISTED: ${{ steps.check.outputs.existed }}
         run: |
-          git tag -f "$TAG" "$SHA"
-          git push origin "refs/tags/${TAG}" --force
+          if [ "$EVENT" = "workflow_dispatch" ] || [ "$MODE" = "standalone" ]; then
+            git tag -f "$TAG" "$SHA"
+            git push origin "refs/tags/${TAG}" --force
+          elif [ "$EXISTED" != "true" ]; then
+            git tag "$TAG" "$SHA"
+            git push origin "refs/tags/${TAG}"
+          fi
 
       # Neither mode creates a GitHub Release object — `Push release tag` above
       # is the last step of this dance for both. Versioned mode used to
@@ -427,9 +449,8 @@ jobs:
       # `changelog/index.adoc` (built from CHANGELOG.md at build time). See
       # GH #172.
 
-      # Versioned only, and only on a genuine forward release (not a
-      # republish of an already-released version — see "Check for existing
-      # release" above): docs/.release-version needs a sane value again
+      # Versioned only, except manual republishes of an existing tag:
+      # docs/.release-version needs a sane value again
       # immediately or the next docs/release merge has nothing to read (see
       # "Validate version" above). Rather than clearing it, bump it forward
       # one patch version — the same idiom `just bump` uses for this
@@ -437,16 +458,25 @@ jobs:
       # arithmetic against a throwaway package.json instead of hand-rolling
       # it, then read the result back out. This is a real commit directly on
       # the release branch (unlike "Cut release" above, which deliberately
-      # never advances it) — it's just bookkeeping, not a release. Skipped
-      # on a republish: that run's target version was already superseded by
-      # whatever docs/.release-version currently holds, so bumping forward
-      # from it would clobber that already-planned next target instead of
-      # protecting it.
+      # never advances it) — it's just bookkeeping, not a release. Automatic
+      # matching-tag reruns retry a failed bump; the fresh-main equality guard
+      # below preserves any different planned target or already-completed bump.
       - name: Bump release descriptor
-        if: steps.detect.outputs.mode == 'versioned' && steps.check.outputs.existed != 'true'
+        if: steps.detect.outputs.mode == 'versioned' && (steps.check.outputs.existed != 'true' || github.event_name != 'workflow_dispatch')
         env:
           VERSION: ${{ steps.resolve.outputs.version }}
         run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::Unexpected working tree changes before release bookkeeping."
+            exit 1
+          fi
+          git fetch --no-tags origin main
+          git checkout -B main FETCH_HEAD
+          current=$(tr -d '[:space:]' < .release-version)
+          if [ "$current" != "$VERSION" ]; then
+            echo "Keeping planned docs/.release-version '${current}' (released '${VERSION}')."
+            exit 0
+          fi
           dir=$(mktemp -d)
           echo '{"name":"docs-release-version","version":"'"${VERSION}"'"}' > "${dir}/package.json"
           npm --prefix "${dir}" version patch --no-git-tag-version --loglevel error >/dev/null
@@ -454,8 +484,12 @@ jobs:
 
           echo "${next}" > .release-version
           git add .release-version
+          if [ "$(git diff --cached --name-only)" != "docs/.release-version" ]; then
+            echo "::error::Refusing to include unrelated files in release bookkeeping."
+            exit 1
+          fi
           git commit -m "chore: bump docs/.release-version to ${next}"
-          git push origin main
+          git push origin HEAD:refs/heads/main
 
           echo "docs/.release-version: ${VERSION} → ${next}"
 
