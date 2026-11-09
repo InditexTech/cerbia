@@ -57,13 +57,17 @@ def test_typed_answers_when_client_asks_about_text(
 )
 def test_client_rejects_malformed_or_wrong_protocol_payload(body: bytes, mock_http) -> None:
     mock_http(lambda request: httpx2.Response(200, content=body))
+    client = api.SystemOneClient(model="m", base_url="https://api.test")
+    questions = {"q": api.NoulQuestion()}
     with pytest.raises(APIError, match="^API request failed$"):
-        api.SystemOneClient(model="m", base_url="https://api.test").ask("text", {"q": api.NoulQuestion()})
+        client.ask("text", questions)
 
 
 def test_client_rejects_invalid_model_and_nontext_before_transport(mock_http) -> None:
     with pytest.raises(APIConfigError):
         api.SystemOneClient(model="")
     mock_http(lambda request: pytest.fail("invalid text sent"))
+    client = api.SystemOneClient(model="m", base_url="https://api.test")
+    questions = {"q": api.NoulQuestion()}
     with pytest.raises(APIError):
-        api.SystemOneClient(model="m", base_url="https://api.test").ask(None, {"q": api.NoulQuestion()})
+        client.ask(None, questions)

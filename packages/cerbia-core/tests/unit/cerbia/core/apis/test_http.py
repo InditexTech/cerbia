@@ -205,7 +205,8 @@ def test_http_failure_never_retries_or_redirects(status: int, monkeypatch) -> No
     with pytest.raises(APIError) as caught:
         client.request(body)
 
-    assert len(requests) == 1 and caught.value.__cause__ is None
+    assert len(requests) == 1
+    assert caught.value.__cause__ is None
     assert "secret" not in "".join(traceback.format_exception(caught.value))
 
 

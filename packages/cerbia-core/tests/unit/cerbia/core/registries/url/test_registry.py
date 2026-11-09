@@ -80,12 +80,14 @@ def test_url_registry_rejects_url_when_no_registered_pattern_matches() -> None:
 def test_invalid_rule_does_not_replace_existing_covered_policy(denied: bool) -> None:
     registry = UrlRegistry()
     registry.register("*", denied=denied)
-    previous = (registry._patterns.copy(), registry._denied_patterns.copy())
+    expected_patterns = registry._patterns.copy()
+    expected_denied_patterns = registry._denied_patterns.copy()
 
     with pytest.raises(ValueError):
         registry.register("https://[invalid]/", denied=denied)
 
-    assert (registry._patterns, registry._denied_patterns) == previous
+    assert registry._patterns == expected_patterns
+    assert registry._denied_patterns == expected_denied_patterns
 
 
 @pytest.mark.parametrize("deny_first", [False, True])

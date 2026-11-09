@@ -10,7 +10,6 @@ from cerbia.core.exceptions import CerbIAError
 from cerbia.core.models.results import ScanResult
 from cerbia.core.models.scans import ScanOutcome
 from cerbia.core.scanners import CanaryLeakScanner, KeywordScanner
-from pytest import MonkeyPatch
 from typer.testing import CliRunner
 
 from .cascade_support import write_cascade
@@ -19,7 +18,7 @@ pytestmark = pytest.mark.integration
 
 
 @pytest.fixture
-def calls(monkeypatch: MonkeyPatch) -> list[str]:
+def calls(monkeypatch: pytest.MonkeyPatch) -> list[str]:
     invocations: list[str] = []
     canary_scan = CanaryLeakScanner.scan
     keyword_scan = KeywordScanner.scan
@@ -58,7 +57,8 @@ def test_cascade_exit_and_invocations_when_scanning_local_inputs(tmp_path: Path,
     assert entry.findings[-1].stage == "guard"
     assert len(entry.findings) == len(calls)
     assert text not in json.dumps(json.loads(output.read_text())["entry_results"][0]["stages"])
-    assert "guard" in result.stderr and "final" in result.stderr
+    assert "guard" in result.stderr
+    assert "final" in result.stderr
     if expected_exit == 1:
         assert "⊘ NOT REACHED" in result.stderr
     else:
@@ -126,7 +126,9 @@ def test_error_policy_when_scanner_fails(tmp_path: Path, calls: list[str], polic
     assert calls == ["canary"]
     if policy == "block":
         entry = ScanResult.model_validate_json(output.read_text()).entry_results[0]
-        assert entry.stages is not None and entry.stages[0].score is None and entry.stages[0].result == "block"
+        assert entry.stages is not None
+        assert entry.stages[0].score is None
+        assert entry.stages[0].result == "block"
         assert entry.findings == []
         assert "scanner_error" in result.stderr
         assert "score=" not in result.stderr
@@ -235,7 +237,9 @@ def test_literal_terminal_stage_preserves_cli_exit_and_json(tmp_path: Path) -> N
 
     result = CliRunner().invoke(app, ["scan", "-c", str(config), "-t", "CASCADE_TOKEN", "-o", str(output)])
 
-    assert result.exit_code == 1 and "[/bold]guard" in result.stderr
+    assert result.exit_code == 1
+    assert "[/bold]guard" in result.stderr
     entry = ScanResult.model_validate_json(output.read_text()).entry_results[0]
     assert entry.findings[0].stage == "[/bold]guard"
-    assert entry.stages is not None and entry.stages[1].result == "not_reached"
+    assert entry.stages is not None
+    assert entry.stages[1].result == "not_reached"

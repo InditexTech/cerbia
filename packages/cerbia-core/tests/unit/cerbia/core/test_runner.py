@@ -230,7 +230,8 @@ def test_runner_when_cascade_configured_executes_and_maps_trace() -> None:
 
     entry = Runner(settings).scan().entry_results[0]
 
-    assert not entry.is_safe and entry.aggregated_score == 0.05
+    assert not entry.is_safe
+    assert entry.aggregated_score == 0.05
     assert Leaf.calls == ["guard"]
     assert entry.findings[0].stage == "guard"
     assert entry.model_dump(mode="json")["stages"] == [
@@ -256,8 +257,10 @@ def test_runner_results_and_components_are_isolated_across_reuse() -> None:
 
     assert first.gate.scanners is first.scanners
     assert first.gate.score_aggregator is first.score_aggregator
-    assert first.scanners[0] is not second.scanners[0] and first.loaders[0] is not second.loaders[0]
-    assert repeated == independent and repeated.entry_results[0].entry.text == "synthetic"
+    assert first.scanners[0] is not second.scanners[0]
+    assert first.loaders[0] is not second.loaders[0]
+    assert repeated == independent
+    assert repeated.entry_results[0].entry.text == "synthetic"
 
 
 def _build_config(

@@ -28,7 +28,8 @@ def test_evaluator_resolved_once_receives_typed_response_and_returns_own_outcome
     assert scanner.scan("first") is application_outcome
     assert scanner.scan("second") is application_outcome
 
-    assert evaluations == [response, response] and ask.call_count == 2
+    assert evaluations == [response, response]
+    assert ask.call_count == 2
     assert scanner._questions == (PredicateQuestion(name="q", instructions="Assess"),)
 
 
@@ -43,8 +44,9 @@ def test_evaluator_resolved_once_receives_typed_response_and_returns_own_outcome
     ],
 )
 def test_invalid_evaluator_configuration_is_owned_and_chained(path, cause) -> None:
+    questions = [PredicateQuestion(name="q", instructions="Assess")]
     with pytest.raises(CerbIAConfigError) as caught:
-        DecisionsScanner([PredicateQuestion(name="q", instructions="Assess")], path, "m")
+        DecisionsScanner(questions, path, "m")
     if cause is not None:
         assert isinstance(caught.value.__cause__, cause)
     assert "missing_policy" not in str(caught.value)

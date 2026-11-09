@@ -19,7 +19,8 @@ def test_payload_from_text_preserves_utf8_text_and_raw_bytes() -> None:
 def test_payload_from_bytes_preserves_binary_data_and_utf8_view(raw: bytes, text: str | None) -> None:
     payload = Payload.from_bytes(raw)
 
-    assert payload.raw == raw and payload.text == text
+    assert payload.raw == raw
+    assert payload.text == text
 
 
 def test_decoder_spec_uses_default_behaviors_when_optional_fields_are_omitted() -> None:

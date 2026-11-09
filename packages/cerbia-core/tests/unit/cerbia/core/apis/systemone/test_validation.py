@@ -26,7 +26,8 @@ def test_systemone_validator_correlates_ids_domains_distribution_and_legend(case
     }
     choice = answers["c"]
     score = answers["s"]
-    assert isinstance(choice, dict) and isinstance(score, dict)
+    assert isinstance(choice, dict)
+    assert isinstance(score, dict)
     if case == "ids":
         answers.pop("p")
     elif case == "domain":

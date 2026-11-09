@@ -61,7 +61,8 @@ def test_near_zero_is_aggregate_evidence_but_tolerated_by_fail_fast(score: float
     verdict = gate.scan("synthetic")
 
     assert second.calls == (["synthetic"] if score <= 1e-9 else [])
-    assert verdict.score == score and verdict.is_safe is (score == 0.0)
+    assert verdict.score == score
+    assert verdict.is_safe is (score == 0.0)
 
 
 @pytest.mark.parametrize("fail_fast", [True, False])
@@ -78,7 +79,8 @@ def test_block_error_keeps_existing_evidence_and_execution_order(fail_fast: bool
 
     verdict = gate.scan("synthetic")
 
-    assert not verdict.is_safe and verdict.score == 1e-12
+    assert not verdict.is_safe
+    assert verdict.score == 1e-12
     assert verdict.rationale == "Scanner execution failed: Failure"
     assert [finding.scanner_id for finding in verdict.findings] == (
         ["near-zero"] if fail_fast else ["near-zero", "tail"]
@@ -98,7 +100,8 @@ def test_fail_policy_preserves_exception_and_cause_and_stops_tail() -> None:
     with pytest.raises(RuntimeError) as caught:
         gate.scan("synthetic")
 
-    assert caught.value is error and caught.value.__cause__ is cause
+    assert caught.value is error
+    assert caught.value.__cause__ is cause
     assert tail.calls == []
 
 
@@ -109,7 +112,8 @@ def test_skip_policy_returns_sanitized_record_and_continues() -> None:
 
     verdict = gate.scan("synthetic")
 
-    assert verdict.is_safe and tail.calls == ["synthetic"]
+    assert verdict.is_safe
+    assert tail.calls == ["synthetic"]
     assert [finding.scanner_id for finding in verdict.findings] == ["tail"]
     assert verdict.skipped_scanners == [
         SkippedScanner(scanner_id="failure", scanner_name="Failure", reason="scanner execution failed")
@@ -125,7 +129,8 @@ def test_handled_failure_logs_no_input_exception_or_traceback(policy: ScannerErr
     with caplog.at_level(logging.ERROR, logger="cerbia"):
         verdict = gate.scan("synthetic-private-input")
 
-    assert len(caplog.records) == 1 and caplog.records[0].exc_info is None
+    assert len(caplog.records) == 1
+    assert caplog.records[0].exc_info is None
     assert "synthetic-private" not in caplog.text + verdict.model_dump_json()
     if policy is ScannerErrorPolicy.BLOCK:
         assert "Blocking gate due to error policy." in caplog.text
@@ -141,7 +146,8 @@ def test_content_routing_preserves_unknown_compatibility_and_skips_mismatch(cont
 
     executes = content_type in (ContentType.UNKNOWN, ContentType.TEXT)
     assert subject.calls == (["synthetic"] if executes else [])
-    assert len(verdict.findings) == int(executes) and verdict.is_safe
+    assert len(verdict.findings) == int(executes)
+    assert verdict.is_safe
     assert len(verdict.skipped_scanners) == int(not executes)
 
 
@@ -150,7 +156,9 @@ def test_empty_gate_returns_safe_without_aggregation(mocker) -> None:
 
     verdict = SimpleGate("gate", [], aggregator).scan("synthetic")
 
-    assert verdict.is_safe and verdict.score == 0.0 and verdict.findings == []
+    assert verdict.is_safe
+    assert verdict.score == 0.0
+    assert verdict.findings == []
     aggregator.compute.assert_not_called()
 
 
@@ -161,7 +169,8 @@ def test_completed_findings_keep_spans_and_warn_without_block_aggregation(mocker
 
     verdict = SimpleGate("gate", [subject], aggregator).scan("synthetic")
 
-    assert verdict.is_safe and verdict.score == 0.0
+    assert verdict.is_safe
+    assert verdict.score == 0.0
     assert verdict.rationale == "Passed with warnings: Warning"
     assert verdict.findings[0].matches == [MatchSpan(start=2, end=5)]
     aggregator.compute.assert_not_called()
@@ -177,5 +186,6 @@ def test_weighted_blocking_score_uses_legacy_threshold_equality(threshold: float
 
     verdict = gate.scan("synthetic")
 
-    assert verdict.is_safe is safe and verdict.score == 0.6
+    assert verdict.is_safe is safe
+    assert verdict.score == 0.6
     aggregator.compute.assert_called_once_with([0.8 * 0.75])

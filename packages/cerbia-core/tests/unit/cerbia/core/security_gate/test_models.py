@@ -16,6 +16,7 @@ def test_simple_verdict_preserves_explicit_null_stage_wire_contract() -> None:
 
 
 def test_gate_verdict_invokes_stage_ownership_validator() -> None:
+    stages = (StageResult(id="last", result="block", score=0.6),)
     with pytest.raises(ValidationError, match="stage terminal result must match verdict"):
         GateVerdict(
             is_safe=True,
@@ -23,7 +24,7 @@ def test_gate_verdict_invokes_stage_ownership_validator() -> None:
             rationale="retained",
             findings=[],
             skipped_scanners=[],
-            stages=(StageResult(id="last", result="block", score=0.6),),
+            stages=stages,
         )
 
 

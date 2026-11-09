@@ -27,8 +27,9 @@ def test_evaluator_receives_systemone_response_and_owns_risk(mocker) -> None:
 
 @pytest.mark.parametrize("path", ["literal", "application_policy.missing", "application_policy.__name__"])
 def test_evaluator_configuration_rejects_invalid_import_or_callable(path: str) -> None:
+    questions = {"q": NoulQuestion()}
     with pytest.raises(CerbIAConfigError):
-        SystemOneScanner({"q": NoulQuestion()}, path, "m")
+        SystemOneScanner(questions, path, "m")
 
 
 def test_evaluator_exception_keeps_cause_and_invalid_result_is_owned(mocker) -> None:

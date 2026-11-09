@@ -89,10 +89,12 @@ def test_factory_base_build_ignores_runtime_overrides_when_constructor_does_not_
 
 
 def test_factory_base_build_raises_factory_error_when_class_builds_but_does_not_satisfy_contract() -> None:
+    config = _NonCompliantFactoryStubConfig()
     with pytest.raises(FactoryError, match="does not satisfy _ComponentStub"):
-        _NonCompliantFactoryStub.build(_NonCompliantFactoryStubConfig())
+        _NonCompliantFactoryStub.build(config)
 
 
 def test_factory_base_build_raises_type_error_when_class_build_fails_due_to_invalid_init_args() -> None:
+    config = _FactoryStubConfig(init_args={"invalid_arg": "value"})
     with pytest.raises(TypeError):
-        _FactoryStub.build(_FactoryStubConfig(init_args={"invalid_arg": "value"}))
+        _FactoryStub.build(config)

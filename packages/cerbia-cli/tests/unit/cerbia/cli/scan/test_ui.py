@@ -156,7 +156,8 @@ def test_stage_panel_preserves_disposition_and_score_footer(result: str, color: 
 
     panel = _build_stage_panel(entry, entry.stages[index], False)
 
-    assert panel.border_style == color and str(panel.title) == f"stage · {status}"
+    assert panel.border_style == color
+    assert str(panel.title) == f"stage · {status}"
     subtitle = str(panel.subtitle) if panel.subtitle is not None else None
     expected_subtitle = None if result == "not_reached" else "score=0.64"
     assert subtitle == expected_subtitle
@@ -217,7 +218,8 @@ def test_dynamic_finding_cells_are_literal_and_wrap_without_losing_rationale(
     cells = [line.split("│")[1].strip() for line in rendered.splitlines() if line.startswith("│") and "│" in line[1:]]
 
     assert name in "".join(cells)
-    assert "[/bold]RATIONALE_TOKEN" in rendered and "matches: 0:3" in rendered
+    assert "[/bold]RATIONALE_TOKEN" in rendered
+    assert "matches: 0:3" in rendered
     assert max(map(cell_len, rendered.splitlines())) <= width
 
 
@@ -251,5 +253,7 @@ def test_stage_panels_group_only_owned_findings() -> None:
         Console(file=output, width=100).print(_build_stage_panel(entry, stage, False))
         rendered.append(output.getvalue())
 
-    assert "FIRST_ONLY" in rendered[0] and "LAST_ONLY" not in rendered[0]
-    assert "LAST_ONLY" in rendered[1] and "FIRST_ONLY" not in rendered[1]
+    assert "FIRST_ONLY" in rendered[0]
+    assert "LAST_ONLY" not in rendered[0]
+    assert "LAST_ONLY" in rendered[1]
+    assert "FIRST_ONLY" not in rendered[1]

@@ -58,4 +58,5 @@ def test_expansion_rejects_runtime_gate_without_decoding() -> None:
             Payload.from_text("token=blocked"), (), frozenset({"runtime-gated"}), 0, (decoder,), intensive_mode=False
         )
 
-    assert children == [] and rejections == {RejectionReason.INPUT_GATE_FAILED: 1}
+    assert children == []
+    assert rejections == {RejectionReason.INPUT_GATE_FAILED: 1}

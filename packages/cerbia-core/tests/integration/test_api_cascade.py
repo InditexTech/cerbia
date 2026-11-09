@@ -60,9 +60,11 @@ def test_compatible_allow_boundary_or_defer_with_real_api(
     # When
     entry = runner.scan().entry_results[0]
     # Then
-    assert entry.findings[-1].stage == terminal and entry.is_safe is (risk <= 0.9)
+    assert entry.findings[-1].stage == terminal
+    assert entry.is_safe is (risk <= 0.9)
     fallback = runner.gate.scanners[-1]
-    assert isinstance(fallback, Fallback) and fallback.calls == fallbacks
+    assert isinstance(fallback, Fallback)
+    assert fallback.calls == fallbacks
     assert retained[0] is outcome
     assert len(contract.requests) == len(contract.evaluations) == 1
     assert isinstance(contract.evaluations[0], DecisionsResponse if protocol == "decisions" else SystemOneResponse)
@@ -115,11 +117,15 @@ def test_failure_refusal_or_invalid_evidence_never_allows(
             assert caught.value.__context__ is cause
     else:
         entry = runner.scan().entry_results[0]
-        assert not entry.is_safe and entry.aggregated_score == 1
+        assert not entry.is_safe
+        assert entry.aggregated_score == 1
         assert entry.findings == []
-        assert entry.stages is not None and entry.stages[0].result == "block" and entry.stages[0].score is None
+        assert entry.stages is not None
+        assert entry.stages[0].result == "block"
+        assert entry.stages[0].score is None
         assert entry.stages[1].result == "not_reached"
         assert "private evaluator detail" not in entry.model_dump_json()
     fallback = runner.gate.scanners[-1]
-    assert isinstance(fallback, Fallback) and fallback.calls == 0
+    assert isinstance(fallback, Fallback)
+    assert fallback.calls == 0
     assert len(contract.requests) == 1

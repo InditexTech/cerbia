@@ -54,7 +54,8 @@ def test_simple_tag_preserves_legacy_defaults_without_mutating_input(explicit: b
 
     assert isinstance(result, SimpleGateConfig)
     assert result.type is GateType.SIMPLE
-    assert result.threshold == 0.0 and result.fail_fast
+    assert result.threshold == 0.0
+    assert result.fail_fast
     assert result.on_scanner_error is ScannerErrorPolicy.BLOCK
     assert result.model_dump(mode="json")["type"] == "simple"
     assert raw == before
@@ -82,7 +83,8 @@ def test_simple_preserves_explicit_legacy_policy(policy: str) -> None:
     )
 
     assert isinstance(result, SimpleGateConfig)
-    assert result.on_scanner_error.value == policy and not result.fail_fast
+    assert result.on_scanner_error.value == policy
+    assert not result.fail_fast
 
 
 @pytest.mark.parametrize("value,expected", [(True, 1.0), (False, 0.0), ("0.2", 0.2)])
@@ -114,31 +116,30 @@ def test_explicit_stage_threshold_needs_no_root_default() -> None:
     result = parse_config({"name": "cascade", "type": "cascade", "stages": [stage("last", threshold=0.0)]})
 
     assert isinstance(result, CascadeGateConfig)
-    assert result.threshold is None and result.stages[0].threshold == 0.0
+    assert result.threshold is None
+    assert result.stages[0].threshold == 0.0
 
 
 @pytest.mark.parametrize("value", [None, float("nan"), True])
 def test_explicit_invalid_root_threshold_is_rejected_even_with_overrides(value: JsonValue) -> None:
+    raw = {"name": "cascade", "type": "cascade", "threshold": value, "stages": [stage("last", threshold=0.8)]}
     with pytest.raises(ValidationError, match="threshold"):
-        parse_config(
-            {"name": "cascade", "type": "cascade", "threshold": value, "stages": [stage("last", threshold=0.8)]}
-        )
+        parse_config(raw)
 
 
 @pytest.mark.parametrize("override", [False, True])
 @pytest.mark.parametrize("band", [0.8, 0.9])
 def test_band_must_be_below_resolved_threshold(band: float, override: bool) -> None:
     first = stage("first", defer_above=band, **({"threshold": 0.8} if override else {}))
+    raw = {
+        "name": "cascade",
+        "type": "cascade",
+        "threshold": 0.95 if override else 0.8,
+        "stages": [first, stage("last")],
+    }
 
     with pytest.raises(ValidationError, match="defer_above must be smaller than threshold"):
-        parse_config(
-            {
-                "name": "cascade",
-                "type": "cascade",
-                "threshold": 0.95 if override else 0.8,
-                "stages": [first, stage("last")],
-            }
-        )
+        parse_config(raw)
 
 
 @pytest.mark.parametrize(
@@ -157,21 +158,21 @@ def test_custom_topology_rejects_invalid_stage_layout(stages: list[dict[str, Jso
 
 
 def test_stage_without_threshold_or_root_default_is_rejected() -> None:
+    raw = {"name": "cascade", "type": "cascade", "stages": [stage("last")]}
     with pytest.raises(ValidationError, match="threshold"):
-        parse_config({"name": "cascade", "type": "cascade", "stages": [stage("last")]})
+        parse_config(raw)
 
 
 @pytest.mark.parametrize("field", ["threshold", "defer_above"])
 def test_explicit_null_stage_band_is_not_treated_as_absent(field: str) -> None:
+    raw = {
+        "name": "cascade",
+        "type": "cascade",
+        "threshold": 0.8,
+        "stages": [stage("first", **{"defer_above": 0.2, field: None}), stage("last")],
+    }
     with pytest.raises(ValidationError):
-        parse_config(
-            {
-                "name": "cascade",
-                "type": "cascade",
-                "threshold": 0.8,
-                "stages": [stage("first", **{"defer_above": 0.2, field: None}), stage("last")],
-            }
-        )
+        parse_config(raw)
 
 
 @pytest.mark.parametrize(
@@ -179,15 +180,19 @@ def test_explicit_null_stage_band_is_not_treated_as_absent(field: str) -> None:
     [{"fail_fast": False}, {"on_scanner_error": "skip"}, {"scanners": []}, {"score_aggregator": AGGREGATOR}],
 )
 def test_cascade_rejects_simple_only_settings(extra: dict[str, JsonValue]) -> None:
+    raw = {"name": "cascade", "type": "cascade", "stages": [stage("last", threshold=0.8)], **extra}
     with pytest.raises(ValidationError):
-        parse_config({"name": "cascade", "type": "cascade", "stages": [stage("last", threshold=0.8)], **extra})
+        parse_config(raw)
 
 
 def test_obsolete_evidence_configuration_is_rejected_at_parser_boundary() -> None:
+    raw = {
+        "name": "cascade",
+        "type": "cascade",
+        "stages": [stage("last", threshold=0.8, evidence_from=["last"])],
+    }
     with pytest.raises(ValidationError, match="extra_forbidden") as caught:
-        parse_config(
-            {"name": "cascade", "type": "cascade", "stages": [stage("last", threshold=0.8, evidence_from=["last"])]}
-        )
+        parse_config(raw)
 
     assert caught.value.errors()[0]["loc"] == ("cascade", "stages", 0, "evidence_from")
 

@@ -142,12 +142,10 @@ class CascadeGate:
                     case ScannerErrorPolicy.FAIL:
                         raise error
                     case ScannerErrorPolicy.BLOCK:
-                        pass
+                        summary = StageResult(id=stage.config.id, result="block")
+                        rationale = f"Cascade stage {stage.config.id}: {category.value}"
                     case unreachable:
                         assert_never(unreachable)
-
-                summary = StageResult(id=stage.config.id, result="block")
-                rationale = f"Cascade stage {stage.config.id}: {category.value}"
             case StageEvaluation() as decision:
                 match decision.decision:
                     case StageDecision.ALLOW:

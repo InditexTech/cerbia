@@ -37,7 +37,8 @@ def test_denylist_preserves_spans_for_normalized_repeated_unicode_urls() -> None
     result = scanner.scan(text)
 
     assert [text[span.start : span.end] for span in result.matches] == [url, url]
-    assert result.risk_score == 0.95 and "allowlist" not in result.rationale
+    assert result.risk_score == 0.95
+    assert "allowlist" not in result.rationale
 
 
 def test_denylist_uses_injected_registry_and_configured_positional_arguments() -> None:
@@ -66,4 +67,5 @@ def test_denylist_retains_all_spans_while_limiting_finding_details() -> None:
 def test_empty_deny_policy_is_safe(text: str) -> None:
     result = UrlDenyListScanner([]).scan(text)
 
-    assert result.risk_score == 0.0 and result.matches == []
+    assert result.risk_score == 0.0
+    assert result.matches == []

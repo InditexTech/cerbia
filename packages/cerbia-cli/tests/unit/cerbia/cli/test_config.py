@@ -116,10 +116,11 @@ def test_cascade_threshold_override_when_boolean_rejects_before_import(tmp_path:
         "    threshold: 0.8\n    scanners: [{scanner: not_installed.Scanner}]\n"
         "    score_aggregator: {score_aggregator: not_installed.Maximum}\n"
     )
+    console = Console()
 
     # When / Then
     with pytest.raises(typer.Exit) as caught:
-        load_config_from_yaml(path, Console(), threshold=True)
+        load_config_from_yaml(path, console, threshold=True)
 
     assert caught.value.exit_code == 2
 

@@ -129,5 +129,6 @@ def test_nested_scan_result_roundtrips_owned_findings_and_stage_summaries() -> N
 
     decoded = ScanResult.model_validate_json(result.model_dump_json())
 
-    assert decoded == result and decoded.total_findings == 1
+    assert decoded == result
+    assert decoded.total_findings == 1
     assert decoded.entry_results[0].findings[0].stage == "guard"

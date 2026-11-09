@@ -21,10 +21,12 @@ def test_terminal_block_completes_own_scanners_and_skips_later_stages() -> None:
 
     result = gate.scan("sample")
 
-    assert not result.is_safe and result.score == 0.05
+    assert not result.is_safe
+    assert result.score == 0.05
     assert Leaf.calls == ["a", "b", "c"]
     assert [finding.stage for finding in result.findings] == ["guard"] * 3
-    assert result.stages is not None and result.stages[1].result == "not_reached"
+    assert result.stages is not None
+    assert result.stages[1].result == "not_reached"
 
 
 @pytest.mark.parametrize("risk", [0.0, 0.2, 0.20001, 0.9, 0.90001])
@@ -74,7 +76,8 @@ def test_prior_deferred_score_does_not_prevent_current_stage_allow() -> None:
 
     result = gate.scan("sample")
 
-    assert result.is_safe and result.score == 0.0
+    assert result.is_safe
+    assert result.score == 0.0
     assert Leaf.calls == ["prior", "primary"]
     assert [finding.stage for finding in result.findings] == ["prior", "primary"]
 
@@ -84,7 +87,8 @@ def test_unknown_content_executes_required_typed_scanner() -> None:
 
     result = gate.scan("sample", content_type=ContentType.UNKNOWN)
 
-    assert result.is_safe and Leaf.calls == ["text"]
+    assert result.is_safe
+    assert Leaf.calls == ["text"]
 
 
 @pytest.mark.parametrize("unsupported", [False, True])
@@ -99,10 +103,12 @@ def test_required_scanner_fault_blocks_without_fabricating_findings(unsupported:
 
     result = gate.scan("sample", content_type=ContentType.TEXT)
 
-    assert not result.is_safe and result.score == 1.0
+    assert not result.is_safe
+    assert result.score == 1.0
     assert [finding.scanner_id for finding in result.findings] == ["a"]
     assert result.stages is not None
-    assert result.stages[0].result == "block" and result.stages[0].score is None
+    assert result.stages[0].result == "block"
+    assert result.stages[0].score is None
     assert result.stages[1].result == "not_reached"
     assert result.rationale == f"Cascade stage first: {'unsupported_content' if unsupported else 'scanner_error'}"
     assert Leaf.calls == (["a"] if unsupported else ["a", "b"])
@@ -119,7 +125,8 @@ def test_scanner_fail_preserves_exception_and_cause_identity() -> None:
     with pytest.raises(RuntimeError) as caught:
         gate.scan("sample")
 
-    assert caught.value is error and caught.value.__cause__ is cause
+    assert caught.value is error
+    assert caught.value.__cause__ is cause
     assert Leaf.calls == ["a"]
 
 
@@ -129,14 +136,17 @@ def test_required_content_failure_raises_owned_fault_without_scanning() -> None:
     with pytest.raises(CascadeExecutionError) as caught:
         gate.scan("sample", content_type=ContentType.TEXT)
 
-    assert caught.value.category == "unsupported_content" and Leaf.calls == []
+    assert caught.value.category == "unsupported_content"
+    assert Leaf.calls == []
 
 
 @pytest.mark.parametrize("policy", ["fail", "block"])
-def test_aggregator_failure_preserves_identity_or_sanitizes_operational_block(policy: str) -> None:
+def test_aggregator_failure_preserves_identity_or_sanitizes_operational_block(
+    policy: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
     gate = runner([numerical("last", [leaf("a", 0.5)], aggregator="Local")], policy=policy).gate
     error = RuntimeError("private aggregate")
-    Aggregate.error = error
+    monkeypatch.setattr(Aggregate, "error", error)
 
     if policy == "fail":
         with pytest.raises(RuntimeError) as caught:
@@ -144,7 +154,8 @@ def test_aggregator_failure_preserves_identity_or_sanitizes_operational_block(po
         assert caught.value is error
     else:
         result = gate.scan("sample")
-        assert result.score == 1.0 and not result.is_safe
+        assert result.score == 1.0
+        assert not result.is_safe
         assert result.rationale == "Cascade stage last: aggregator_error"
         assert len(result.findings) == 1
         assert "private aggregate" not in result.model_dump_json()
@@ -161,8 +172,10 @@ def test_invalid_plugin_score_uses_operational_error_policy(policy: str, monkeyp
         assert caught.value.category == "invalid_aggregate"
     else:
         result = gate.scan("sample")
-        assert not result.is_safe and result.score == 1.0
-        assert result.stages is not None and result.stages[0].score is None
+        assert not result.is_safe
+        assert result.score == 1.0
+        assert result.stages is not None
+        assert result.stages[0].score is None
         assert [finding.risk_score for finding in result.findings] == [0.5]
 
 
@@ -173,7 +186,8 @@ def test_next_stage_releases_previous_raw_outcomes(monkeypatch: pytest.MonkeyPat
 
     def scan(scanner: Leaf, text: str) -> ScanOutcome:
         if scanner.scanner_id == "last":
-            assert prior and all(reference() is None for reference in prior)
+            assert prior
+            assert all(reference() is None for reference in prior)
         outcome = original(scanner, text)
         if scanner.scanner_id == "first":
             prior.append(weakref.ref(outcome))
@@ -200,7 +214,7 @@ def test_retained_exception_traceback_releases_raw_outcomes(
     monkeypatch.setattr(Leaf, "scan", scan)
     error = RuntimeError("held traceback")
     if aggregate_error:
-        Aggregate.error = error
+        monkeypatch.setattr(Aggregate, "error", error)
     else:
         Leaf.failures["b"] = error
 
@@ -209,7 +223,8 @@ def test_retained_exception_traceback_releases_raw_outcomes(
     gc.collect()
 
     assert caught.value is error
-    assert references and all(reference() is None for reference in references)
+    assert references
+    assert all(reference() is None for reference in references)
 
 
 @pytest.mark.parametrize("interrupt", [RuntimeError("failure"), KeyboardInterrupt(), SystemExit(4)])
@@ -231,8 +246,10 @@ def test_interrupted_entry_releases_outcomes_and_gate_recovers(
     with pytest.raises(type(interrupt)) as caught:
         gate.scan("sample")
     gc.collect()
-    assert caught.value is interrupt and all(reference() is None for reference in references)
+    assert caught.value is interrupt
+    assert all(reference() is None for reference in references)
 
     result = gate.scan("clean")
-    assert result.is_safe and result.score == 0.0
+    assert result.is_safe
+    assert result.score == 0.0
     assert Leaf.calls == ["a", "tail", "a", "tail"]

@@ -113,14 +113,8 @@ def scan(
                 case unreachable:
                     assert_never(unreachable)
 
-        if threshold is not None:
-            match cfg:
-                case SimpleGateConfig():
-                    cfg.threshold = threshold
-                case CascadeGateConfig():
-                    pass
-                case unreachable:
-                    assert_never(unreachable)
+        if threshold is not None and isinstance(cfg, SimpleGateConfig):
+            cfg.threshold = threshold
 
         if not cfg.loaders:
             err_console.print("[red]Error:[/red] provide --text, --file, or configure loaders in your config.")

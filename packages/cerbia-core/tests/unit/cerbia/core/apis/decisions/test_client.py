@@ -66,16 +66,17 @@ def test_typed_answers_when_client_asks_about_text(
 def test_client_sanitizes_malformed_or_refused_external_payload(body: bytes, mock_http) -> None:
     mock_http(lambda request: httpx2.Response(200, content=body))
     client = api.DecisionsClient(model="m", base_url="https://api.test")
+    questions = [api.PredicateQuestion(name="q", instructions="Assess")]
 
     with pytest.raises(APIError, match="^API request failed$"):
-        client.ask("text", [api.PredicateQuestion(name="q", instructions="Assess")])
+        client.ask("text", questions)
 
 
 def test_client_rejects_invalid_model_and_nontext_before_transport(mock_http) -> None:
     with pytest.raises(APIConfigError):
         api.DecisionsClient(model="")
     mock_http(lambda request: pytest.fail("invalid text sent"))
+    client = api.DecisionsClient(model="m", base_url="https://api.test")
+    questions = [api.PredicateQuestion(name="q", instructions="Assess")]
     with pytest.raises(APIError):
-        api.DecisionsClient(model="m", base_url="https://api.test").ask(
-            None, [api.PredicateQuestion(name="q", instructions="Assess")]
-        )
+        client.ask(None, questions)

@@ -127,9 +127,10 @@ def test_duplicate_when_actual_ids_repeat_rejects_before_scan(same_stage: bool) 
         if same_stage
         else [numerical("first", [local("same")], final=False), numerical("last", [local("same")])]
     )
+    config = cascade(stages)
     # When / Then
     with pytest.raises(CerbIAConfigError, match="same") as error:
-        GateFactory.build_stages(cascade(stages))
+        GateFactory.build_stages(config)
     assert "last" in str(error.value)
     assert LocalScanner.scans == []
 
@@ -141,9 +142,10 @@ def test_invalid_when_numerical_has_no_own_block_scanner_rejects(action: str, fi
     stages = [numerical("first", [local("first", action)], final=final)]
     if not final:
         stages.append(numerical("last", [local("last")]))
+    config = cascade(stages)
     # When / Then
     with pytest.raises(CerbIAConfigError, match="first.*block"):
-        GateFactory.build_stages(cascade(stages))
+        GateFactory.build_stages(config)
 
 
 @pytest.mark.parametrize("scanner_id", ["", "  ", 3, None])
@@ -161,9 +163,10 @@ def test_invalid_when_scanner_id_is_not_nonempty_string_rejects(scanner_id: Json
 def test_invalid_when_runtime_action_is_not_supported_rejects_before_scan(action: JsonValue) -> None:
     # Given
     scanner: dict[str, JsonValue] = {"scanner": f"{__name__}.LocalScanner", "init_args": {"action": action}}
+    config = cascade([numerical("last", [scanner])])
     # When / Then
     with pytest.raises(CerbIAConfigError, match="last.*local.*action"):
-        GateFactory.build_stages(cascade([numerical("last", [scanner])]))
+        GateFactory.build_stages(config)
 
 
 def test_isolation_when_stage_builds_repeat_keeps_shared_registry_per_build() -> None:
@@ -174,7 +177,9 @@ def test_isolation_when_stage_builds_repeat_keeps_shared_registry_per_build() ->
     # Then
     a, b = first[0].scanners[0], first[1].scanners[0]
     c = second[0].scanners[0]
-    assert isinstance(a, LocalScanner) and isinstance(b, LocalScanner) and isinstance(c, LocalScanner)
+    assert isinstance(a, LocalScanner)
+    assert isinstance(b, LocalScanner)
+    assert isinstance(c, LocalScanner)
     assert isinstance(a.registry, UrlRegistry)
     assert a.registry is b.registry
     assert a.registry is not c.registry

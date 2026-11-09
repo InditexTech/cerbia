@@ -91,8 +91,10 @@ def test_protocol_validator_rejects_inconsistent_answers(case: str) -> None:
     answers = raw["answers"]
     choice_probabilities = answers[1]["probabilities"]
     score_probabilities = answers[2]["probabilities"]
-    assert isinstance(choice_probabilities, list) and isinstance(choice_probabilities[1], dict)
-    assert isinstance(score_probabilities, list) and isinstance(score_probabilities[1], dict)
+    assert isinstance(choice_probabilities, list)
+    assert isinstance(choice_probabilities[1], dict)
+    assert isinstance(score_probabilities, list)
+    assert isinstance(score_probabilities[1], dict)
     if case == "missing":
         answers.pop()
     elif case == "duplicate_id":
@@ -114,8 +116,10 @@ def test_protocol_validator_rejects_inconsistent_answers(case: str) -> None:
     else:
         score_probabilities[1]["label"] = "Wrong"
 
+    configured_questions = questions()
+    response = DecisionsResponse.model_validate(raw)
     with pytest.raises(ValueError):
-        validate_decisions(questions(), DecisionsResponse.model_validate(raw))
+        validate_decisions(configured_questions, response)
 
 
 @pytest.mark.parametrize("answer_index", [1, 2], ids=["duplicate_choice_value", "duplicate_score_index"])
@@ -126,7 +130,8 @@ def test_validator_rejects_duplicate_probability_keys_before_dictionary_collapse
     assert isinstance(probabilities, list)
     probabilities.append(deepcopy(probabilities[0]))
     response = DecisionsResponse.model_validate(raw)
+    configured_questions = questions()
 
     # When / Then: our uniqueness guard rejects the successfully parsed response.
     with pytest.raises(ValueError, match="^Duplicate entries$"):
-        validate_decisions(questions(), response)
+        validate_decisions(configured_questions, response)

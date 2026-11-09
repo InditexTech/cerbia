@@ -236,7 +236,8 @@ def test_preprocessor_preserves_false_positive_corpus_cases(case: CorpusEntry) -
 
     result = SpeculativeDecodingPreprocessor(intensive_mode=True).process([entry])
 
-    assert result == [entry] and result[0] is entry
+    assert result == [entry]
+    assert result[0] is entry
 
 
 @pytest.mark.parametrize("case", MUST_DECODE, ids=lambda case: case.id)
