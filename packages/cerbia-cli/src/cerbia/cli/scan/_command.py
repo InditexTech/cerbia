@@ -80,8 +80,6 @@ def scan(
     ) as progress:
         err_console.print("[bold]Running scan...[/bold]")
         task_id = progress.add_task("Parsing configuration...", total=None)
-        text = text or []
-        file = file or []
 
         if output_path is not None and output_path.suffix != ".json":
             err_console.print("[red]Error:[/red] --output path must have a .json extension.")
