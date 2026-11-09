@@ -359,7 +359,7 @@ severity weighting. Near-zero positive scores still contribute to aggregation.
 |`skip` |Records the scanner as skipped and continues.
 |===
 
-See xref:gate.adoc[Gate behavior] for verdict rules.
+See xref:gate.adoc[Gates] for verdict rules.
 
 Cascade stage execution and routing are described in
 <<Cascade variant fields and stage routing>>.
@@ -386,7 +386,7 @@ can initialize models or other resources. Validate only trusted configurations.
 
 == Related references
 
-See xref:architecture.adoc[Architecture], xref:gate.adoc[Gate behavior], and
+See xref:architecture.adoc[Architecture], xref:gate.adoc[Gates], and
 xref:packages.adoc[Packages] for pipeline and package details. See
 xref:components/custom-components.adoc[Custom components] to configure externally provided
 loaders, preprocessors, scanners, and score aggregators.

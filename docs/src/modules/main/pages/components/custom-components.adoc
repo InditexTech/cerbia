@@ -177,7 +177,7 @@ class HighestScore:
 * Results correspond to post-preprocessing entries. A custom preprocessor can
   change the number and order of result entries.
 * Scanner exceptions follow the configured `on_scanner_error` policy. See
-  xref:gate.adoc[Gate behavior].
+  xref:gate.adoc[Gates].
 * `url_registry` is a scanner-specific integration point. `Runner` passes it
   only to scanner constructors that declare that parameter. It is not a general
   dependency-injection mechanism.

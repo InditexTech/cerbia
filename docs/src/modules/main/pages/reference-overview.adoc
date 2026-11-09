@@ -16,7 +16,7 @@ than being copied here.
 
 * xref:configuration.adoc[Configuration] describes the YAML gate definition.
 * xref:cli.adoc[CLI] documents command-line usage.
-* xref:gate.adoc[Gate behavior] explains evaluation and verdicts.
+* xref:gate.adoc[Gates] explains evaluation and verdicts.
 * xref:logging.adoc[Logging] and xref:i18n.adoc[Internationalization] cover
   related runtime settings and language patterns.
 * xref:packages.adoc[Package modules] links to artifact-specific pages and APIs.
