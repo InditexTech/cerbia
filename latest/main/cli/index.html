@@ -72,8 +72,8 @@
 
 <title>CLI reference | CerbIA</title>
 
-    <link rel="canonical" href="https://inditextech.github.io/cerbia/0.5.0/main/cli/">
-    <link rel="prev" href="../logging/">
+    <link rel="canonical" href="https://inditextech.github.io/cerbia/0.6.0/main/cli/">
+    <link rel="prev" href="../configuration/">
     <link rel="next" href="../gate/">
     <meta name="description" content="Use the CerbIA CLI to validate YAML pipelines and scan text or files from the command line.">
     <meta name="generator" content="Antora 3.2.0">
@@ -117,7 +117,7 @@
 
 <div class="page-versions">
   <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--latest version-menu-toggle" title="Show other versions of page" aria-expanded="false">
-    <span class="dt-tag__label">0.5.0</span>
+    <span class="dt-tag__label">0.6.0</span>
     <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
   </button>
   <div class="version-menu">
@@ -126,9 +126,12 @@
       <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
     </a>
     <span class="version is-current" aria-current="page">
-      <span class="version__label">0.5.0</span>
+      <span class="version__label">0.6.0</span>
       <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
           </span>
+    <a class="version" href="../../../0.5.0/main/cli/">
+      <span class="version__label">0.5.0</span>
+    </a>
     <a class="version" href="../../../0.4.0/main/cli/">
       <span class="version__label">0.4.0</span>
     </a>
@@ -160,7 +163,7 @@
   </div>
 </header>
 
-<dialog id="search-dialog" class="search-dialog" aria-label="Search" data-search-index="ROOT-0.5.0.json">
+<dialog id="search-dialog" class="search-dialog" aria-label="Search" data-search-index="ROOT-0.6.0.json">
   <div class="dt-overlay dt-overlay--visible search-dialog__overlay">
     <div class="dt-overlay__content"></div>
     <div class="dt-modal dt-modal--small search-dialog__panel">
@@ -243,7 +246,7 @@
 
 <div class="body">
 
-<div id="side-menu" class="side-menu" data-component="ROOT" data-version="0.5.0" data-module="main">
+<div id="side-menu" class="side-menu" data-component="ROOT" data-version="0.6.0" data-module="main">
   <div class="side-menu__header">
     <div class="side-menu__header-start">
       <img class="side-menu__header-logo side-menu__header-logo--light" src="../../../cerbia-logo.png" width="24" height="24" alt="">
@@ -342,91 +345,90 @@
 
 
 <ul class="dt-list side-menu__list" data-depth="0">
-  <li class="side-menu__item side-menu__item--label">
-    <div class="side-menu__row">
-      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Overview</span></span>
-      </span>
-    </div>
-  </li>
-  <li class="side-menu__item">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
         href="../about/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">About CerbIA</span></span>
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Overview</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Overview">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="1">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../architecture/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Architecture</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item side-menu__item--label">
-    <div class="side-menu__row">
-      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Getting started</span></span>
-      </span>
-    </div>
+</ul>
   </li>
-  <li class="side-menu__item">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
         href="../prerequisites/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Prerequisites</span></span>
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Getting started</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Getting started">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="1">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../quickstart/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Quickstart</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item side-menu__item--label">
-    <div class="side-menu__row">
-      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Guides</span></span>
-      </span>
-    </div>
+</ul>
   </li>
-  <li class="side-menu__item">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
         href="../guides-overview/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Guides overview</span></span>
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Guides</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Guides">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="1">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../components/custom-components/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Custom components</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item side-menu__item--label">
-    <div class="side-menu__row">
-      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Reference</span></span>
-      </span>
-    </div>
+</ul>
   </li>
-  <li class="side-menu__item">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
         href="../reference-overview/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Reference overview</span></span>
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Reference</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Reference">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="1">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../configuration/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Configuration</span></span>
       </a>
@@ -435,25 +437,7 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../i18n/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Internationalization</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../logging/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Logging</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="./" aria-current="page">
         <span class="dt-list-item__text"><span class="dt-list-item__label">CLI</span></span>
       </a>
@@ -462,43 +446,37 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../gate/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Gate behavior</span></span>
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Gates</span></span>
       </a>
     </div>
 
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../packages/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Packages</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/custom-components/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Custom components</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../components/loaders/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Loaders</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Loaders">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="2">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/loaders/text-loader/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Text loader</span></span>
       </a>
@@ -507,25 +485,30 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/loaders/file-loader/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">File loader</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item">
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../components/preprocessors/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Preprocessors</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Preprocessors">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="2">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/preprocessors/speculative-decoding/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Speculative decoding</span></span>
       </a>
@@ -534,115 +517,65 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/preprocessors/whitespace-normalization/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Whitespace normalization</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item">
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../components/scanners/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Scanners</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Scanners">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
-  <li class="side-menu__item">
+<ul class="dt-list side-menu__list" data-depth="2">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/canary-leak/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Canary leak</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/decisions/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Decisions and SystemOne</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/invisible-text/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Invisible text</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/keyword/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Keyword</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/pii/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">PII</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/pii-presidio/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">PII with Presidio</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/scanners/prompt-injection/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection</span></span>
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection (Built-in)</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Prompt injection (Built-in)">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="3">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
         href="../components/scanners/prompt-injection-protectai/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection with ProtectAI</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/secrets/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Secrets</span></span>
-      </a>
-    </div>
-
+</ul>
   </li>
-  <li class="side-menu__item">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/scanners/url-malicious/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Malicious URLs</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Malicious URLs">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="3">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
         href="../components/scanners/url-allow-list/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">URL allowlist</span></span>
       </a>
@@ -651,34 +584,109 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
         href="../components/scanners/url-deny-list/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">URL denylist</span></span>
       </a>
     </div>
 
   </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/pii/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">PII (Built-in)</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle PII (Built-in)">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="3">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
+        href="../components/scanners/pii-presidio/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">PII with Presidio</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/canary-leak/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Canary leak</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/decisions/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Decisions and SystemOne</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/invisible-text/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Invisible text</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/keyword/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Keyword</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/secrets/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Secrets</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/scanners/xss/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Cross-site scripting</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item">
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../components/score-aggregators/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Score aggregators</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Score aggregators">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="2">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/score-aggregators/max/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Maximum</span></span>
       </a>
@@ -687,7 +695,7 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/score-aggregators/max-with-bonus/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Maximum with bonus</span></span>
       </a>
@@ -696,19 +704,34 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/score-aggregators/mean/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Mean</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item side-menu__item--label">
+</ul>
+  </li>
+  <li class="side-menu__item">
     <div class="side-menu__row">
-      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Additional information</span></span>
-      </span>
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../i18n/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Internationalization</span></span>
+      </a>
     </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../logging/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Logging</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
@@ -718,13 +741,6 @@
       </a>
     </div>
 
-  </li>
-  <li class="side-menu__item side-menu__item--label">
-    <div class="side-menu__row">
-      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Contributing</span></span>
-      </span>
-    </div>
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
@@ -741,7 +757,7 @@
 
 <div class="page-versions">
   <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--latest version-menu-toggle" title="Show other versions of page" aria-expanded="false">
-    <span class="dt-tag__label">0.5.0</span>
+    <span class="dt-tag__label">0.6.0</span>
     <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
   </button>
   <div class="version-menu">
@@ -750,9 +766,12 @@
       <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
     </a>
     <span class="version is-current" aria-current="page">
-      <span class="version__label">0.5.0</span>
+      <span class="version__label">0.6.0</span>
       <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
           </span>
+    <a class="version" href="../../../0.5.0/main/cli/">
+      <span class="version__label">0.5.0</span>
+    </a>
     <a class="version" href="../../../0.4.0/main/cli/">
       <span class="version__label">0.4.0</span>
     </a>
@@ -780,6 +799,7 @@
 
 <nav class="dt-breadcrumbs" aria-label="Breadcrumb">
   <a class="dt-breadcrumb-item dt-breadcrumb-item--link" href="../../"><span class="dt-breadcrumb-item__content">CerbIA</span></a>
+  <a class="dt-breadcrumb-item dt-breadcrumb-item--link" href="../reference-overview/"><span class="dt-breadcrumb-item__content">Reference</span></a>
   <div class="dt-breadcrumb-item dt-breadcrumb-item--active" aria-current="page"><span class="dt-breadcrumb-item__content">CLI</span></div>
 </nav>
         <h1 class="hero__title dt-text dt-text--title-xl">CLI reference</h1>
@@ -826,11 +846,13 @@ executable provides <code>scan</code> and <code>validate</code>.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Validate one YAML configuration file, construct its <code>Runner</code>, and print the
-configured pipeline. This command does not load entries or execute scanners.</p>
+configured pipeline. This command does not load entries or execute scanners,
+but eagerly initializes components, including any configured models. Use only
+trusted configurations; validation is not a sandbox or a model-quality check.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="shiki highlight"><code data-lang="bash"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> validate</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/config.cerbia.yaml</span></span></span></code></pre>
+<pre class="shiki highlight"><code data-lang="bash"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> validate</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/simple.cerbia.yaml</span></span></span></code></pre>
 </div>
 </div>
 <div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
@@ -855,7 +877,7 @@ configured pipeline. This command does not load entries or execute scanners.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--log-file</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Write logs to this path instead of standard error.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Write logs to this path instead of standard error; an existing file is overwritten.</p></td>
 </tr>
 </tbody>
 </table></div></div>
@@ -875,7 +897,7 @@ but cannot construct its pipeline exits <code>1</code> for <code>CerbIAError</co
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="shiki highlight"><code data-lang="bash"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> scan</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> --config</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/config.cerbia.yaml</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> --text</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> "Text to scan"</span></span></span></code></pre>
+<pre class="shiki highlight"><code data-lang="bash"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> scan</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> --config</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/simple.cerbia.yaml</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> --text</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> "Text to scan"</span></span></span></code></pre>
 </div>
 </div>
 <div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
@@ -904,11 +926,11 @@ but cannot construct its pipeline exits <code>1</code> for <code>CerbIAError</co
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--output</code>, <code>-o</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Write JSON results to a path ending in <code>.json</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Write JSON results to a path ending in <code>.json</code>; an existing file is overwritten.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--threshold</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Override the YAML threshold for this invocation.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Override the root threshold for this invocation. Explicit cascade stage thresholds take precedence.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--unsafe-only</code></p></td>
@@ -916,21 +938,39 @@ but cannot construct its pipeline exits <code>1</code> for <code>CerbIAError</co
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--log-level</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DEBUG</code>, <code>INFO</code>, <code>WARNING</code>, <code>ERROR</code>, or <code>CRITICAL</code>. At <code>INFO</code>, scan logs the fixed <code>Starting scan</code> milestone.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DEBUG</code>, <code>INFO</code>, <code>WARNING</code>, <code>ERROR</code>, or <code>CRITICAL</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--log-file</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Write logs to this path instead of standard error.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Write logs to this path instead of standard error; an existing file is overwritten.</p></td>
 </tr>
 </tbody>
 </table></div></div>
 <div class="paragraph">
-<p>The <code>--unsafe-only</code> option filters console output and <code>entry_results</code> in JSON; it does not change scan execution or exit codes.</p>
+<p><code>CerbIA CLI Scan</code> and <code>Running scan&#8230;&#8203;</code> are Rich console progress messages,
+not logging records; <code>--log-level</code> and <code>--log-file</code> do not control them.</p>
+</div>
+<div class="paragraph">
+<p>The <code>--unsafe-only</code> option filters console output and <code>entry_results</code> in JSON;
+it also hides near-zero-risk finding rows and skipped scanners in console panels.
+JSON retains all findings for the selected unsafe entries. Scan execution and
+exit codes are unchanged.</p>
 </div>
 <div class="paragraph">
 <p>Inline text and file options replace every loader configured in YAML. When no
 override is supplied, the configuration&#8217;s loaders are used. The command rejects
 a run with no loaders after this selection.</p>
+</div>
+<div class="paragraph">
+<p>For root <code>type: cascade</code>, <code>--threshold</code> replaces or supplies the root YAML
+threshold before parsing and stage inheritance. Stages without their own
+threshold inherit the CLI value; explicit stage thresholds, including <code>0.0</code>,
+remain unchanged. Invalid root values or resulting defer bands exit <code>2</code> before
+scanner construction. Simple threshold override behavior is unchanged.
+Set <code>defer_above</code> on every
+nonfinal stage and omit it on the final stage in YAML. Use
+<code>cerbia validate CONFIG.yaml</code> to construct and inspect either gate shape without
+loading entries or scanning them.</p>
 </div>
 <div class="paragraph">
 <p><code>FileLoader</code> treats missing paths and extension-filtered paths as no entries,
@@ -951,6 +991,39 @@ effects. Explicit logging options control that CLI invocation.</p>
 <p>The terminal output groups findings by entry. Each scanner row shows its
 outcome; skipped scanners are retained in the entry result so routing and error
 policy decisions remain visible.</p>
+</div>
+<div class="paragraph">
+<p>Simple-gate JSON includes <code>stages: null</code>. Cascade JSON contains ordered stage
+summaries with exactly <code>id</code>, <code>result</code> (<code>allow</code>, <code>block</code>, <code>defer</code>, or
+<code>not_reached</code>), and an optional finite score in <code>[0, 1]</code>. Unreached stages omit
+score. An operational block also omits its stage score; its bounded explanation
+is in the entry rationale and its aggregate score is the fail-closed sentinel
+<code>1.0</code>, not a threat probability.</p>
+</div>
+<div class="paragraph">
+<p>Each cascade finding has <code>stage</code>, assigned by the gate. The flat <code>findings</code>
+list contains all executed stages' completed scanner findings exactly once in
+execution order, including deferred stages. Each stage scores only its own
+outcomes; earlier findings are retained but never rescored. Simple findings omit
+<code>stage</code> when unset. Panels group by this field
+and show <code>✓ SAFE</code>, <code>✗ UNSAFE</code>, <code>◇ DEFER</code>, or <code>⊘ NOT REACHED</code> in
+green/red/yellow/dim panels. Scored panels use a <code>score=</code> subtitle.
+Cascade required scanners fail or block rather than generating skipped records;
+simple gates retain their skipped-scanner rows.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="json"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">{</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">"stages"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:[{</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">"id"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"text"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">,</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">"result"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"defer"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">,</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">"score"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.2</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">},{</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">"id"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"secrets-and-urls"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">,</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">"result"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"block"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">,</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">"score"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.71</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">}]}</span></span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>EntryResult</code>, <code>GateVerdict</code>, and stage summaries
+reject unknown fields. Stage identifiers are plain strings; configured IDs are
+checked for blank values when parsing configuration. Stage results and scores
+are validated, as are terminal routing,
+finding ownership, unique scanner findings, and execution order. Findings
+cannot belong to an unknown or unreached stage. Existing entry text and finding
+rationale remain in the ordinary result and can be sensitive.</p>
 </div>
 <div class="paragraph">
 <p><code>--output</code> serializes a <code>ScanResult</code> with <code>entry_results</code>, <code>is_safe</code>,
@@ -993,16 +1066,16 @@ potentially sensitive and store it accordingly.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="shiki highlight"><code data-lang="bash"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#6A9955;--shiki-dark:#6A9955"># Use loaders from the configuration.</span></span>
-<span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> scan</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> --config</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/config.cerbia.yaml</span></span>
+<span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> scan</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> --config</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/simple.cerbia.yaml</span></span>
 <span class="line"></span>
 <span class="line"><span style="--shiki-light:#6A9955;--shiki-dark:#6A9955"># Scan two inline values instead of configured loaders.</span></span>
-<span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> scan</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> -c</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/config.cerbia.yaml</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> -t</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> "first input"</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> -t</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> "second input"</span></span>
+<span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> scan</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> -c</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/simple.cerbia.yaml</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> -t</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> "first input"</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> -t</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> "second input"</span></span>
 <span class="line"></span>
 <span class="line"><span style="--shiki-light:#6A9955;--shiki-dark:#6A9955"># Scan local files and write only unsafe entry results to JSON.</span></span>
-<span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> scan</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> -c</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/config.cerbia.yaml</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> -f</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> input.txt</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> --unsafe-only</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> -o</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> results.json</span></span>
+<span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> scan</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> -c</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/simple.cerbia.yaml</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> -f</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> input.txt</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> --unsafe-only</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> -o</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> results.json</span></span>
 <span class="line"></span>
 <span class="line"><span style="--shiki-light:#6A9955;--shiki-dark:#6A9955"># Inspect a configuration before running it.</span></span>
-<span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> validate</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/config.cerbia.yaml</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> --log-level</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> DEBUG</span></span></span></code></pre>
+<span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> validate</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/simple.cerbia.yaml</span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6"> --log-level</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> DEBUG</span></span></span></code></pre>
 </div>
 </div>
 </div>
@@ -1019,16 +1092,16 @@ potentially sensitive and store it accordingly.</p>
 <div class="dt-grid-layout dt-grid-layout--with-margin pagination">
   <div class="dt-grid-layout__item dt-grid-layout__item--span-full pagination__row">
     <div class="pagination__buttons">
-    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-icon pagination__prev" href="../logging/">
+    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-icon pagination__prev" href="../configuration/">
       <span class="dt-button__content">
         <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-arrow-left"></use></svg></span>
-        <span class="pagination__label-full">Logging</span>
+        <span class="pagination__label-full">Configuration</span>
         <span class="pagination__label-short">Prev</span>
       </span>
     </a>
     <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action pagination__next" href="../gate/">
       <span class="dt-button__content">
-        <span class="pagination__label-full">Gate behavior</span>
+        <span class="pagination__label-full">Gates</span>
         <span class="pagination__label-short">Next</span>
         <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-arrow-right"></use></svg></span>
       </span>
@@ -1045,7 +1118,7 @@ potentially sensitive and store it accordingly.</p>
       </div>
       <div class="page-footer__contribute-buttons">
 
-<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/blob/docs/v0.5.0/docs/src/modules/main/pages/cli.adoc">
+<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/blob/docs/v0.6.0/docs/src/modules/main/pages/cli.adoc">
   <span class="dt-button__content">
     Propose a change
     <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-external-link"></use></svg></span>

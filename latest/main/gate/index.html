@@ -70,12 +70,12 @@
       })()
     </script>
 
-<title>Gate behavior | CerbIA</title>
+<title>Gates | CerbIA</title>
 
-    <link rel="canonical" href="https://inditextech.github.io/cerbia/0.5.0/main/gate/">
+    <link rel="canonical" href="https://inditextech.github.io/cerbia/0.6.0/main/gate/">
     <link rel="prev" href="../cli/">
     <link rel="next" href="../packages/">
-    <meta name="description" content="Understand how SecurityGate combines scanner findings, actions, scores, and thresholds into a verdict.">
+    <meta name="description" content="Understand how simple and cascade gates turn scanner findings into an allow or block verdict.">
     <meta name="generator" content="Antora 3.2.0">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -117,7 +117,7 @@
 
 <div class="page-versions">
   <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--latest version-menu-toggle" title="Show other versions of page" aria-expanded="false">
-    <span class="dt-tag__label">0.5.0</span>
+    <span class="dt-tag__label">0.6.0</span>
     <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
   </button>
   <div class="version-menu">
@@ -126,9 +126,12 @@
       <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
     </a>
     <span class="version is-current" aria-current="page">
-      <span class="version__label">0.5.0</span>
+      <span class="version__label">0.6.0</span>
       <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
           </span>
+    <a class="version" href="../../../0.5.0/main/gate/">
+      <span class="version__label">0.5.0</span>
+    </a>
     <a class="version" href="../../../0.4.0/main/gate/">
       <span class="version__label">0.4.0</span>
     </a>
@@ -160,7 +163,7 @@
   </div>
 </header>
 
-<dialog id="search-dialog" class="search-dialog" aria-label="Search" data-search-index="ROOT-0.5.0.json">
+<dialog id="search-dialog" class="search-dialog" aria-label="Search" data-search-index="ROOT-0.6.0.json">
   <div class="dt-overlay dt-overlay--visible search-dialog__overlay">
     <div class="dt-overlay__content"></div>
     <div class="dt-modal dt-modal--small search-dialog__panel">
@@ -243,7 +246,7 @@
 
 <div class="body">
 
-<div id="side-menu" class="side-menu" data-component="ROOT" data-version="0.5.0" data-module="main">
+<div id="side-menu" class="side-menu" data-component="ROOT" data-version="0.6.0" data-module="main">
   <div class="side-menu__header">
     <div class="side-menu__header-start">
       <img class="side-menu__header-logo side-menu__header-logo--light" src="../../../cerbia-logo.png" width="24" height="24" alt="">
@@ -342,91 +345,90 @@
 
 
 <ul class="dt-list side-menu__list" data-depth="0">
-  <li class="side-menu__item side-menu__item--label">
-    <div class="side-menu__row">
-      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Overview</span></span>
-      </span>
-    </div>
-  </li>
-  <li class="side-menu__item">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
         href="../about/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">About CerbIA</span></span>
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Overview</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Overview">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="1">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../architecture/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Architecture</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item side-menu__item--label">
-    <div class="side-menu__row">
-      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Getting started</span></span>
-      </span>
-    </div>
+</ul>
   </li>
-  <li class="side-menu__item">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
         href="../prerequisites/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Prerequisites</span></span>
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Getting started</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Getting started">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="1">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../quickstart/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Quickstart</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item side-menu__item--label">
-    <div class="side-menu__row">
-      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Guides</span></span>
-      </span>
-    </div>
+</ul>
   </li>
-  <li class="side-menu__item">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
         href="../guides-overview/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Guides overview</span></span>
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Guides</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Guides">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="1">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../components/custom-components/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Custom components</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item side-menu__item--label">
-    <div class="side-menu__row">
-      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Reference</span></span>
-      </span>
-    </div>
+</ul>
   </li>
-  <li class="side-menu__item">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
       <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
         href="../reference-overview/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Reference overview</span></span>
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Reference</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Reference">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="1">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../configuration/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Configuration</span></span>
       </a>
@@ -435,25 +437,7 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../i18n/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Internationalization</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../logging/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Logging</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../cli/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">CLI</span></span>
       </a>
@@ -462,43 +446,37 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="./" aria-current="page">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Gate behavior</span></span>
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Gates</span></span>
       </a>
     </div>
 
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../packages/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Packages</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/custom-components/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Custom components</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../components/loaders/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Loaders</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Loaders">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="2">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/loaders/text-loader/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Text loader</span></span>
       </a>
@@ -507,25 +485,30 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/loaders/file-loader/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">File loader</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item">
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../components/preprocessors/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Preprocessors</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Preprocessors">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="2">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/preprocessors/speculative-decoding/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Speculative decoding</span></span>
       </a>
@@ -534,115 +517,65 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/preprocessors/whitespace-normalization/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Whitespace normalization</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item">
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../components/scanners/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Scanners</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Scanners">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
-  <li class="side-menu__item">
+<ul class="dt-list side-menu__list" data-depth="2">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/canary-leak/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Canary leak</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/decisions/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Decisions and SystemOne</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/invisible-text/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Invisible text</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/keyword/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Keyword</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/pii/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">PII</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/pii-presidio/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">PII with Presidio</span></span>
-      </a>
-    </div>
-
-  </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/scanners/prompt-injection/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection</span></span>
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection (Built-in)</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Prompt injection (Built-in)">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="3">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
         href="../components/scanners/prompt-injection-protectai/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection with ProtectAI</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item">
-    <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
-        href="../components/scanners/secrets/">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Secrets</span></span>
-      </a>
-    </div>
-
+</ul>
   </li>
-  <li class="side-menu__item">
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/scanners/url-malicious/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Malicious URLs</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Malicious URLs">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="3">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
         href="../components/scanners/url-allow-list/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">URL allowlist</span></span>
       </a>
@@ -651,34 +584,109 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
         href="../components/scanners/url-deny-list/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">URL denylist</span></span>
       </a>
     </div>
 
   </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/pii/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">PII (Built-in)</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle PII (Built-in)">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="3">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
+        href="../components/scanners/pii-presidio/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">PII with Presidio</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/canary-leak/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Canary leak</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/decisions/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Decisions and SystemOne</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/invisible-text/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Invisible text</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/keyword/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Keyword</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/secrets/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Secrets</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/scanners/xss/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Cross-site scripting</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item">
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
         href="../components/score-aggregators/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Score aggregators</span></span>
       </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Score aggregators">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
     </div>
 
-  </li>
+<ul class="dt-list side-menu__list" data-depth="2">
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/score-aggregators/max/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Maximum</span></span>
       </a>
@@ -687,7 +695,7 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/score-aggregators/max-with-bonus/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Maximum with bonus</span></span>
       </a>
@@ -696,19 +704,34 @@
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
-      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
         href="../components/score-aggregators/mean/">
         <span class="dt-list-item__text"><span class="dt-list-item__label">Mean</span></span>
       </a>
     </div>
 
   </li>
-  <li class="side-menu__item side-menu__item--label">
+</ul>
+  </li>
+  <li class="side-menu__item">
     <div class="side-menu__row">
-      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Additional information</span></span>
-      </span>
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../i18n/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Internationalization</span></span>
+      </a>
     </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../logging/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Logging</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
@@ -718,13 +741,6 @@
       </a>
     </div>
 
-  </li>
-  <li class="side-menu__item side-menu__item--label">
-    <div class="side-menu__row">
-      <span class="dt-list-item side-menu__link--label dt-list-item--tree--level-0">
-        <span class="dt-list-item__text"><span class="dt-list-item__label">Contributing</span></span>
-      </span>
-    </div>
   </li>
   <li class="side-menu__item">
     <div class="side-menu__row">
@@ -741,7 +757,7 @@
 
 <div class="page-versions">
   <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--latest version-menu-toggle" title="Show other versions of page" aria-expanded="false">
-    <span class="dt-tag__label">0.5.0</span>
+    <span class="dt-tag__label">0.6.0</span>
     <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
   </button>
   <div class="version-menu">
@@ -750,9 +766,12 @@
       <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
     </a>
     <span class="version is-current" aria-current="page">
-      <span class="version__label">0.5.0</span>
+      <span class="version__label">0.6.0</span>
       <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
           </span>
+    <a class="version" href="../../../0.5.0/main/gate/">
+      <span class="version__label">0.5.0</span>
+    </a>
     <a class="version" href="../../../0.4.0/main/gate/">
       <span class="version__label">0.4.0</span>
     </a>
@@ -780,10 +799,11 @@
 
 <nav class="dt-breadcrumbs" aria-label="Breadcrumb">
   <a class="dt-breadcrumb-item dt-breadcrumb-item--link" href="../../"><span class="dt-breadcrumb-item__content">CerbIA</span></a>
-  <div class="dt-breadcrumb-item dt-breadcrumb-item--active" aria-current="page"><span class="dt-breadcrumb-item__content">Gate behavior</span></div>
+  <a class="dt-breadcrumb-item dt-breadcrumb-item--link" href="../reference-overview/"><span class="dt-breadcrumb-item__content">Reference</span></a>
+  <div class="dt-breadcrumb-item dt-breadcrumb-item--active" aria-current="page"><span class="dt-breadcrumb-item__content">Gates</span></div>
 </nav>
-        <h1 class="hero__title dt-text dt-text--title-xl">Gate behavior</h1>
-        <p class="hero__excerpt dt-text dt-text--body-l">Understand how SecurityGate combines scanner findings, actions, scores, and thresholds into a verdict.</p>
+        <h1 class="hero__title dt-text dt-text--title-xl">Gates</h1>
+        <p class="hero__excerpt dt-text dt-text--body-l">Understand how simple and cascade gates turn scanner findings into an allow or block verdict.</p>
         <div class="hero__tags">
           <div class="dt-label dt-label--grey">
             <span class="dt-label__content">reference</span>
@@ -813,98 +833,177 @@
 </aside>
 
 <article class="doc">
-<div id="preamble">
+<div class="sect1">
+<h2 id="what-are-gates"><a class="anchor" href="#what-are-gates"></a>What are gates</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><code>SecurityGate</code> evaluates one entry with an ordered set of scanners and turns
-their findings into a verdict. It is created by <code>Runner</code> from the configured
-scanners, score aggregator, threshold, fail-fast setting, and scanner-error
-policy.</p>
+<p>A gate checks one entry and returns a verdict: allow it or block it. A simple
+gate checks one scanner list; a cascade checks ordered stages that can allow,
+block, or defer to the next stage. Choose a simple gate for one round of checks
+and a cascade when checks need ordered decision points. An early cascade allow
+ends evaluation, so later stages do not provide checks for that entry.</p>
+</div>
+<div class="paragraph">
+<p>The runner calls the same <code>SecurityGate</code> protocol for either kind of gate and
+gets a <code>GateVerdict</code>. You do not need to implement or configure that protocol
+directly; see <a href="../architecture/" class="xref page">Architecture</a> for where the gate fits in
+the pipeline.</p>
+</div>
+<div class="sect2">
+<h3 id="results"><a class="anchor" href="#results"></a>Results</h3>
+<div class="paragraph">
+<p>A verdict contains <code>is_safe</code>, <code>score</code>, <code>rationale</code>, <code>findings</code>, and any skipped
+scanners. A cascade also returns ordered stage summaries. Each finding appears
+once in the flat findings list; cascade findings identify their owning stage,
+while simple findings have no stage. Simple results serialize <code>stages: null</code>.
+Top-level result data can include entry text and finding rationale.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="errors-shared-by-both-gate-types"><a class="anchor" href="#errors-shared-by-both-gate-types"></a>Errors shared by both gate types</h3>
+<div class="paragraph">
+<p>Scanner errors follow the configured <code>on_scanner_error</code> policy. The available
+policies depend on gate type: simple gates support <code>fail</code>, <code>block</code>, and <code>skip</code>;
+cascades support <code>fail</code> and <code>block</code>. The sections below explain their effects
+on scanning and the verdict. See <a href="../configuration/" class="xref page">Configuration</a> for
+defaults and YAML fields.</p>
+</div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="findings-and-scores"><a class="anchor" href="#findings-and-scores"></a>Findings and scores</h2>
+<h2 id="simple-gates"><a class="anchor" href="#simple-gates"></a>Simple Gates</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>A scanner emits a <code>ScanOutcome</code>: risk score, rationale, and optional match
-spans. The gate adds the scanner ID, display name, severity, and action to make
-a <code>Finding</code>.</p>
+<p>A simple gate runs one ordered scanner list. It records findings, combines
+eligible blocking risk, and returns one verdict for the entry.</p>
+</div>
+<div class="docouture-diagram" data-diagram-type="mermaid"><div class="docouture-diagram__content"><svg id="docouture-diagram-1-container" width="1006.109375" xmlns="http://www.w3.org/2000/svg" class="flowchart" height="211.578125" viewBox="0 0 1006.109375 211.578125" role="graphics-document document" aria-roledescription="flowchart-v2" aria-describedby="chart-desc-container" aria-labelledby="chart-title-container"><title id="docouture-diagram-1-chart-title-container">Simple gate combines one scanner group into one verdict</title><desc id="docouture-diagram-1-chart-desc-container">One scanner group checks the entry and contributes findings to a combined score. The score is compared with the threshold, producing one terminal allow or block decision.</desc><style>#docouture-diagram-1-container{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;fill:#000000;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#docouture-diagram-1-container .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#docouture-diagram-1-container .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#docouture-diagram-1-container .error-icon{fill:hsl(180, 0%, 100%);}#docouture-diagram-1-container .error-text{fill:rgb(0, 0, 0);stroke:rgb(0, 0, 0);}#docouture-diagram-1-container .edge-thickness-normal{stroke-width:1px;}#docouture-diagram-1-container .edge-thickness-thick{stroke-width:3.5px;}#docouture-diagram-1-container .edge-pattern-solid{stroke-dasharray:0;}#docouture-diagram-1-container .edge-thickness-invisible{stroke-width:0;fill:none;}#docouture-diagram-1-container .edge-pattern-dashed{stroke-dasharray:3;}#docouture-diagram-1-container .edge-pattern-dotted{stroke-dasharray:2;}#docouture-diagram-1-container .marker{fill:#000000;stroke:#000000;}#docouture-diagram-1-container .marker.cross{stroke:#000000;}#docouture-diagram-1-container svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;}#docouture-diagram-1-container p{margin:0;}#docouture-diagram-1-container .label{font-family:"trebuchet ms",verdana,arial,sans-serif;color:#000000;}#docouture-diagram-1-container .cluster-label text{fill:rgb(0, 0, 0);}#docouture-diagram-1-container .cluster-label span{color:rgb(0, 0, 0);}#docouture-diagram-1-container .cluster-label span p{background-color:transparent;}#docouture-diagram-1-container .label text,#docouture-diagram-1-container span{fill:#000000;color:#000000;}#docouture-diagram-1-container .node rect,#docouture-diagram-1-container .node circle,#docouture-diagram-1-container .node ellipse,#docouture-diagram-1-container .node polygon,#docouture-diagram-1-container .node path{fill:#ffffff;stroke:#000000;stroke-width:1px;}#docouture-diagram-1-container .rough-node .label text,#docouture-diagram-1-container .node .label text,#docouture-diagram-1-container .image-shape .label,#docouture-diagram-1-container .icon-shape .label{text-anchor:middle;}#docouture-diagram-1-container .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#docouture-diagram-1-container .rough-node .label,#docouture-diagram-1-container .node .label,#docouture-diagram-1-container .image-shape .label,#docouture-diagram-1-container .icon-shape .label{text-align:center;}#docouture-diagram-1-container .node.clickable{cursor:pointer;}#docouture-diagram-1-container .root .anchor path{fill:#000000!important;stroke-width:0;stroke:#000000;}#docouture-diagram-1-container .arrowheadPath{fill:#0b0b0b;}#docouture-diagram-1-container .edgePath .path{stroke:#000000;stroke-width:1px;}#docouture-diagram-1-container .flowchart-link{stroke:#000000;fill:none;}#docouture-diagram-1-container .edgeLabel{background-color:hsl(-120, 0%, 100%);text-align:center;}#docouture-diagram-1-container .edgeLabel p{background-color:hsl(-120, 0%, 100%);}#docouture-diagram-1-container .edgeLabel rect{opacity:0.5;background-color:hsl(-120, 0%, 100%);fill:hsl(-120, 0%, 100%);}#docouture-diagram-1-container .labelBkg{background-color:rgba(255, 255, 255, 0.5);}#docouture-diagram-1-container .cluster rect{fill:hsl(180, 0%, 100%);stroke:hsl(180, 0%, 90%);stroke-width:1px;}#docouture-diagram-1-container .cluster text{fill:rgb(0, 0, 0);}#docouture-diagram-1-container .cluster span{color:rgb(0, 0, 0);}#docouture-diagram-1-container div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:12px;background:hsl(180, 0%, 100%);border:1px solid hsl(180, 0%, 90%);border-radius:2px;pointer-events:none;z-index:100;}#docouture-diagram-1-container .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#000000;}#docouture-diagram-1-container rect.text{fill:none;stroke-width:0;}#docouture-diagram-1-container .icon-shape,#docouture-diagram-1-container .image-shape{background-color:hsl(-120, 0%, 100%);text-align:center;}#docouture-diagram-1-container .icon-shape p,#docouture-diagram-1-container .image-shape p{background-color:hsl(-120, 0%, 100%);padding:2px;}#docouture-diagram-1-container .icon-shape .label rect,#docouture-diagram-1-container .image-shape .label rect{opacity:0.5;background-color:hsl(-120, 0%, 100%);fill:hsl(-120, 0%, 100%);}#docouture-diagram-1-container .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#docouture-diagram-1-container .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#docouture-diagram-1-container .node .neo-node{stroke:#000000;}#docouture-diagram-1-container [data-look="neo"].node rect,#docouture-diagram-1-container [data-look="neo"].cluster rect,#docouture-diagram-1-container [data-look="neo"].node polygon{stroke:url(#docouture-diagram-1-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container [data-look="neo"].swimlane.cluster rect{filter:none;}#docouture-diagram-1-container [data-look="neo"].node path{stroke:url(#docouture-diagram-1-container-gradient);stroke-width:1px;}#docouture-diagram-1-container [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container [data-look="neo"].node .neo-line path{stroke:#000000;filter:none;}#docouture-diagram-1-container [data-look="neo"].node circle{stroke:url(#docouture-diagram-1-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container [data-look="neo"].node circle .state-start{fill:#000000;}#docouture-diagram-1-container [data-look="neo"].icon-shape .icon{fill:url(#docouture-diagram-1-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container [data-look="neo"].icon-shape .icon-neo path{stroke:url(#docouture-diagram-1-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container .node rect,#docouture-diagram-1-container .statediagram-state rect.basic,#docouture-diagram-1-container .statediagram-cluster rect{rx:0!important;ry:0!important;}#docouture-diagram-1-container .transition{stroke:rgb(0, 0, 0)!important;}#docouture-diagram-1-container .marker,#docouture-diagram-1-container .node circle.state-start,#docouture-diagram-1-container [id$="-barbEnd"]{stroke:rgb(0, 0, 0)!important;fill:rgb(0, 0, 0)!important;}#docouture-diagram-1-container .node circle.state-end{fill:rgb(0, 0, 0)!important;stroke:rgb(255, 255, 255)!important;}#docouture-diagram-1-container .nodeLabel,#docouture-diagram-1-container .edgeLabel,#docouture-diagram-1-container .stateLabel,#docouture-diagram-1-container .cluster-label{color:rgb(0, 0, 0)!important;}#docouture-diagram-1-container :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g><marker id="docouture-diagram-1-container_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-1-container_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-1-container_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-1-container_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></polygon></marker><marker id="docouture-diagram-1-container_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-1-container_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-1-container_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-1-container_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-1-container_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-1-container_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-1-container_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"></path></marker><marker id="docouture-diagram-1-container_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"></path></marker><g class="root"><g class="clusters"></g><g class="edgePaths"><path d="M105.609,105.789L109.776,105.789C113.943,105.789,122.276,105.789,129.943,105.789C137.609,105.789,144.609,105.789,148.109,105.789L151.609,105.789" id="docouture-diagram-1-container-L_A_B_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-1-L_A_B_0" data-points="W3sieCI6MTA1LjYwOTM3NSwieSI6MTA1Ljc4OTA2MjV9LHsieCI6MTMwLjYwOTM3NSwieSI6MTA1Ljc4OTA2MjV9LHsieCI6MTU1LjYwOTM3NSwieSI6MTA1Ljc4OTA2MjV9XQ==" data-look="classic" marker-end="url(#docouture-diagram-1-container_flowchart-v2-pointEnd)"></path><path d="M352.75,105.789L356.917,105.789C361.083,105.789,369.417,105.789,377.083,105.789C384.75,105.789,391.75,105.789,395.25,105.789L398.75,105.789" id="docouture-diagram-1-container-L_B_C_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-1-L_B_C_0" data-points="W3sieCI6MzUyLjc1LCJ5IjoxMDUuNzg5MDYyNX0seyJ4IjozNzcuNzUsInkiOjEwNS43ODkwNjI1fSx7IngiOjQwMi43NSwieSI6MTA1Ljc4OTA2MjV9XQ==" data-look="classic" marker-end="url(#docouture-diagram-1-container_flowchart-v2-pointEnd)"></path><path d="M578.938,105.789L583.104,105.789C587.271,105.789,595.604,105.789,603.271,105.789C610.938,105.789,617.938,105.789,621.438,105.789L624.938,105.789" id="docouture-diagram-1-container-L_C_D_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-1-L_C_D_0" data-points="W3sieCI6NTc4LjkzNzUsInkiOjEwNS43ODkwNjI1fSx7IngiOjYwMy45Mzc1LCJ5IjoxMDUuNzg5MDYyNX0seyJ4Ijo2MjguOTM3NSwieSI6MTA1Ljc4OTA2MjV9XQ==" data-look="classic" marker-end="url(#docouture-diagram-1-container_flowchart-v2-pointEnd)"></path><path d="M797.297,78.57L808.005,74.44C818.713,70.31,840.13,62.049,856.344,57.919C872.557,53.789,883.568,53.789,889.073,53.789L894.578,53.789" id="docouture-diagram-1-container-L_D_E_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-1-L_D_E_0" data-points="W3sieCI6Nzk3LjI5Njc5MDA1NjY2MzgsInkiOjc4LjU3MDIyNzU1NjY2Mzc0fSx7IngiOjg2MS41NDY4NzUsInkiOjUzLjc4OTA2MjV9LHsieCI6ODk4LjU3ODEyNSwieSI6NTMuNzg5MDYyNX1d" data-look="classic" marker-end="url(#docouture-diagram-1-container_flowchart-v2-pointEnd)"></path><path d="M797.297,133.008L808.005,137.138C818.713,141.268,840.13,149.529,856.365,153.659C872.599,157.789,883.651,157.789,889.177,157.789L894.703,157.789" id="docouture-diagram-1-container-L_D_F_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-1-L_D_F_0" data-points="W3sieCI6Nzk3LjI5Njc5MDA1NjY2MzgsInkiOjEzMy4wMDc4OTc0NDMzMzYyNX0seyJ4Ijo4NjEuNTQ2ODc1LCJ5IjoxNTcuNzg5MDYyNX0seyJ4Ijo4OTguNzAzMTI1LCJ5IjoxNTcuNzg5MDYyNX1d" data-look="classic" marker-end="url(#docouture-diagram-1-container_flowchart-v2-pointEnd)"></path></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="docouture-diagram-1-L_A_B_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="docouture-diagram-1-L_B_C_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="docouture-diagram-1-L_C_D_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(861.546875, 53.7890625)"><g class="label" data-id="docouture-diagram-1-L_D_E_0" transform="translate(-12.03125, -12)"><foreignObject width="24.0625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Yes</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(861.546875, 157.7890625)"><g class="label" data-id="docouture-diagram-1-L_D_F_0" transform="translate(-10.140625, -12)"><foreignObject width="20.28125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>No</p></span></div></foreignObject></g></g></g><g class="nodes"><g class="node default" id="docouture-diagram-1-container-flowchart-A-0" data-look="classic" transform="translate(56.8046875, 105.7890625)"><rect class="basic label-container" style="" x="-48.8046875" y="-27" width="97.609375" height="54"></rect><g class="label" style="" transform="translate(-18.8046875, -12)"><rect></rect><foreignObject width="37.609375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Entry</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-1-container-flowchart-B-1" data-look="classic" transform="translate(254.1796875, 105.7890625)"><rect class="basic label-container" style="" x="-98.5703125" y="-27" width="197.140625" height="54"></rect><g class="label" style="" transform="translate(-68.5703125, -12)"><rect></rect><foreignObject width="137.140625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>One scanner group</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-1-container-flowchart-C-3" data-look="classic" transform="translate(490.84375, 105.7890625)"><rect class="basic label-container" style="" x="-88.09375" y="-27" width="176.1875" height="54"></rect><g class="label" style="" transform="translate(-58.09375, -12)"><rect></rect><foreignObject width="116.1875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Combined score</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-1-container-flowchart-D-5" data-look="classic" transform="translate(726.7265625, 105.7890625)"><polygon points="97.7890625,0 195.578125,-97.7890625 97.7890625,-195.578125 0,-97.7890625" class="label-container" transform="translate(-97.2890625, 97.7890625)"></polygon><g class="label" style="" transform="translate(-70.7890625, -12)"><rect></rect><foreignObject width="141.578125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Score &gt;= threshold?</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-1-container-flowchart-E-7" data-look="classic" transform="translate(948.34375, 53.7890625)"><rect class="basic label-container" style="" x="-49.765625" y="-27" width="99.53125" height="54"></rect><g class="label" style="" transform="translate(-19.765625, -12)"><rect></rect><foreignObject width="39.53125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Block</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-1-container-flowchart-F-9" data-look="classic" transform="translate(948.34375, 157.7890625)"><rect class="basic label-container" style="" x="-49.640625" y="-27" width="99.28125" height="54"></rect><g class="label" style="" transform="translate(-19.640625, -12)"><rect></rect><foreignObject width="39.28125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Allow</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="docouture-diagram-1-container-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><defs><filter id="docouture-diagram-1-container-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><linearGradient id="docouture-diagram-1-container-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#000000" stop-opacity="1"></stop><stop offset="100%" stop-color="hsl(-120, 0%, 90%)" stop-opacity="1"></stop></linearGradient></svg></div></div>
+<div class="sect2">
+<h3 id="findings-and-score"><a class="anchor" href="#findings-and-score"></a>Findings and score</h3>
+<div class="paragraph">
+<p>A scanner reports its risk score, rationale, and optional match spans. The gate
+adds scanner identity, display name, severity, and action to create a finding.
+Only positive-risk <code>BLOCK</code> findings contribute to the aggregate, using
+<code>risk_score × severity.weight</code>. <code>WARN</code> and <code>PASS</code> findings remain available for
+review but do not affect the score. The configured aggregator combines eligible
+scores.</p>
 </div>
 <div class="paragraph">
-<p>Only findings with action <code>BLOCK</code> contribute to the aggregate. Their input to
-the configured score aggregator is:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="shiki highlight"><code data-lang="text"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span>weighted score = finding.risk_score × finding.severity.weight</span></span></span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The entry is safe when there are no blocking findings or when the aggregate is
-strictly below <code>threshold</code>. <code>WARN</code> and <code>PASS</code> findings are retained for review
-but do not contribute to the aggregate.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="content-type-routing"><a class="anchor" href="#content-type-routing"></a>Content-type routing</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Scanners may restrict their accepted <code>content_types</code>. Before calling a scanner,
-the gate compares the entry&#8217;s type with that restriction. A non-matching scanner
-is recorded as skipped with its reason; it does not produce a finding or affect
-the aggregate.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="fail-fast-behavior"><a class="anchor" href="#fail-fast-behavior"></a>Fail-fast behavior</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>When <code>fail_fast</code> is enabled, the gate stops after the first blocking finding
-whose severity-weighted score reaches the configured threshold. With it disabled,
-the gate runs every compatible scanner and returns all findings.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="scanner-errors"><a class="anchor" href="#scanner-errors"></a>Scanner errors</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p><code>on_scanner_error</code> determines how scanner exceptions affect the result:</p>
-</div>
-<div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Policy</th>
-<th class="tableblock halign-left valign-top">Behavior</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fail</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Re-raises the original error.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>block</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Continues according to fail-fast settings and forces an unsafe verdict.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>skip</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Records a skipped scanner with an execution-failure reason.</p></td>
-</tr>
-</tbody>
-</table></div></div>
-<div class="paragraph">
-<p>The output <code>GateVerdict</code> includes <code>is_safe</code>, aggregate <code>score</code>, rationale,
-findings, and skipped scanners. See
+<p>The entry blocks when the aggregate is greater than or equal to <code>threshold</code>.
+With no eligible positive-risk <code>BLOCK</code> findings, the score is <code>0</code> and the entry
+is allowed, even at threshold <code>0</code>, unless a blocking scanner error occurred. See
 <a href="../components/score-aggregators/" class="xref page">Score aggregators</a> for the available
 combination strategies.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="scanner-routing-and-early-stop"><a class="anchor" href="#scanner-routing-and-early-stop"></a>Scanner routing and early stop</h3>
+<div class="paragraph">
+<p>When an entry&#8217;s known content type is not accepted by a scanner, a simple gate
+skips that scanner and records the reason; it creates no finding and changes no
+score. An <code>unknown</code> entry type is eligible for every scanner.</p>
+</div>
+<div class="paragraph">
+<p>With <code>fail_fast: true</code>, scanning stops when an individual positive-risk <code>BLOCK</code>
+finding reaches the threshold after severity weighting, unless its risk score
+is within <code>1e-9</code> of zero. Those near-zero positive scores still contribute to
+the final aggregate. A blocking scanner error also stops scanning when
+fail-fast is enabled. Otherwise, compatible scanners continue and their
+findings are returned.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="scanner-errors"><a class="anchor" href="#scanner-errors"></a>Scanner errors</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>fail</code> propagates the original scanner error instead of returning a verdict.</p>
+</li>
+<li>
+<p><code>block</code> returns an unsafe verdict; fail-fast determines whether scanning
+continues after the error.</p>
+</li>
+<li>
+<p><code>skip</code> records the failed scanner as skipped and continues.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cascade-gates"><a class="anchor" href="#cascade-gates"></a>Cascade Gates</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A cascade evaluates ordered stages. Each stage makes its decision from its own
+scanners; it does not reuse an earlier stage&#8217;s score.</p>
+</div>
+<div class="paragraph">
+<p>This example shows two stages; a cascade can have more. Only a nonfinal stage
+can defer to the next stage.</p>
+</div>
+<div class="docouture-diagram" data-diagram-type="mermaid"><div class="docouture-diagram__content"><svg id="docouture-diagram-2-container" width="1478.046875" xmlns="http://www.w3.org/2000/svg" class="flowchart" height="342" viewBox="0 0 1478.046875 342" role="graphics-document document" aria-roledescription="flowchart-v2" aria-describedby="chart-desc-container" aria-labelledby="chart-title-container"><title id="docouture-diagram-2-chart-title-container">Cascade gate with two ordered stages</title><desc id="docouture-diagram-2-chart-desc-container">Stage 1 allows or blocks and stops, or defers to the final Stage 2. Stage 2 is final and can only allow or block; it cannot defer.</desc><style>#docouture-diagram-2-container{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;fill:#000000;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#docouture-diagram-2-container .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#docouture-diagram-2-container .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#docouture-diagram-2-container .error-icon{fill:hsl(180, 0%, 100%);}#docouture-diagram-2-container .error-text{fill:rgb(0, 0, 0);stroke:rgb(0, 0, 0);}#docouture-diagram-2-container .edge-thickness-normal{stroke-width:1px;}#docouture-diagram-2-container .edge-thickness-thick{stroke-width:3.5px;}#docouture-diagram-2-container .edge-pattern-solid{stroke-dasharray:0;}#docouture-diagram-2-container .edge-thickness-invisible{stroke-width:0;fill:none;}#docouture-diagram-2-container .edge-pattern-dashed{stroke-dasharray:3;}#docouture-diagram-2-container .edge-pattern-dotted{stroke-dasharray:2;}#docouture-diagram-2-container .marker{fill:#000000;stroke:#000000;}#docouture-diagram-2-container .marker.cross{stroke:#000000;}#docouture-diagram-2-container svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;}#docouture-diagram-2-container p{margin:0;}#docouture-diagram-2-container .label{font-family:"trebuchet ms",verdana,arial,sans-serif;color:#000000;}#docouture-diagram-2-container .cluster-label text{fill:rgb(0, 0, 0);}#docouture-diagram-2-container .cluster-label span{color:rgb(0, 0, 0);}#docouture-diagram-2-container .cluster-label span p{background-color:transparent;}#docouture-diagram-2-container .label text,#docouture-diagram-2-container span{fill:#000000;color:#000000;}#docouture-diagram-2-container .node rect,#docouture-diagram-2-container .node circle,#docouture-diagram-2-container .node ellipse,#docouture-diagram-2-container .node polygon,#docouture-diagram-2-container .node path{fill:#ffffff;stroke:#000000;stroke-width:1px;}#docouture-diagram-2-container .rough-node .label text,#docouture-diagram-2-container .node .label text,#docouture-diagram-2-container .image-shape .label,#docouture-diagram-2-container .icon-shape .label{text-anchor:middle;}#docouture-diagram-2-container .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#docouture-diagram-2-container .rough-node .label,#docouture-diagram-2-container .node .label,#docouture-diagram-2-container .image-shape .label,#docouture-diagram-2-container .icon-shape .label{text-align:center;}#docouture-diagram-2-container .node.clickable{cursor:pointer;}#docouture-diagram-2-container .root .anchor path{fill:#000000!important;stroke-width:0;stroke:#000000;}#docouture-diagram-2-container .arrowheadPath{fill:#0b0b0b;}#docouture-diagram-2-container .edgePath .path{stroke:#000000;stroke-width:1px;}#docouture-diagram-2-container .flowchart-link{stroke:#000000;fill:none;}#docouture-diagram-2-container .edgeLabel{background-color:hsl(-120, 0%, 100%);text-align:center;}#docouture-diagram-2-container .edgeLabel p{background-color:hsl(-120, 0%, 100%);}#docouture-diagram-2-container .edgeLabel rect{opacity:0.5;background-color:hsl(-120, 0%, 100%);fill:hsl(-120, 0%, 100%);}#docouture-diagram-2-container .labelBkg{background-color:rgba(255, 255, 255, 0.5);}#docouture-diagram-2-container .cluster rect{fill:hsl(180, 0%, 100%);stroke:hsl(180, 0%, 90%);stroke-width:1px;}#docouture-diagram-2-container .cluster text{fill:rgb(0, 0, 0);}#docouture-diagram-2-container .cluster span{color:rgb(0, 0, 0);}#docouture-diagram-2-container div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:12px;background:hsl(180, 0%, 100%);border:1px solid hsl(180, 0%, 90%);border-radius:2px;pointer-events:none;z-index:100;}#docouture-diagram-2-container .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#000000;}#docouture-diagram-2-container rect.text{fill:none;stroke-width:0;}#docouture-diagram-2-container .icon-shape,#docouture-diagram-2-container .image-shape{background-color:hsl(-120, 0%, 100%);text-align:center;}#docouture-diagram-2-container .icon-shape p,#docouture-diagram-2-container .image-shape p{background-color:hsl(-120, 0%, 100%);padding:2px;}#docouture-diagram-2-container .icon-shape .label rect,#docouture-diagram-2-container .image-shape .label rect{opacity:0.5;background-color:hsl(-120, 0%, 100%);fill:hsl(-120, 0%, 100%);}#docouture-diagram-2-container .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#docouture-diagram-2-container .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#docouture-diagram-2-container .node .neo-node{stroke:#000000;}#docouture-diagram-2-container [data-look="neo"].node rect,#docouture-diagram-2-container [data-look="neo"].cluster rect,#docouture-diagram-2-container [data-look="neo"].node polygon{stroke:url(#docouture-diagram-2-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-2-container [data-look="neo"].swimlane.cluster rect{filter:none;}#docouture-diagram-2-container [data-look="neo"].node path{stroke:url(#docouture-diagram-2-container-gradient);stroke-width:1px;}#docouture-diagram-2-container [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-2-container [data-look="neo"].node .neo-line path{stroke:#000000;filter:none;}#docouture-diagram-2-container [data-look="neo"].node circle{stroke:url(#docouture-diagram-2-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-2-container [data-look="neo"].node circle .state-start{fill:#000000;}#docouture-diagram-2-container [data-look="neo"].icon-shape .icon{fill:url(#docouture-diagram-2-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-2-container [data-look="neo"].icon-shape .icon-neo path{stroke:url(#docouture-diagram-2-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-2-container .node rect,#docouture-diagram-2-container .statediagram-state rect.basic,#docouture-diagram-2-container .statediagram-cluster rect{rx:0!important;ry:0!important;}#docouture-diagram-2-container .transition{stroke:rgb(0, 0, 0)!important;}#docouture-diagram-2-container .marker,#docouture-diagram-2-container .node circle.state-start,#docouture-diagram-2-container [id$="-barbEnd"]{stroke:rgb(0, 0, 0)!important;fill:rgb(0, 0, 0)!important;}#docouture-diagram-2-container .node circle.state-end{fill:rgb(0, 0, 0)!important;stroke:rgb(255, 255, 255)!important;}#docouture-diagram-2-container .nodeLabel,#docouture-diagram-2-container .edgeLabel,#docouture-diagram-2-container .stateLabel,#docouture-diagram-2-container .cluster-label{color:rgb(0, 0, 0)!important;}#docouture-diagram-2-container :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g><marker id="docouture-diagram-2-container_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-2-container_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-2-container_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-2-container_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></polygon></marker><marker id="docouture-diagram-2-container_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-2-container_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-2-container_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-2-container_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-2-container_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-2-container_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-2-container_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"></path></marker><marker id="docouture-diagram-2-container_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"></path></marker><g class="root"><g class="clusters"></g><g class="edgePaths"><path d="M105.609,139L109.776,139C113.943,139,122.276,139,129.943,139C137.609,139,144.609,139,148.109,139L151.609,139" id="docouture-diagram-2-container-L_A_B_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_A_B_0" data-points="W3sieCI6MTA1LjYwOTM3NSwieSI6MTM5fSx7IngiOjEzMC42MDkzNzUsInkiOjEzOX0seyJ4IjoxNTUuNjA5Mzc1LCJ5IjoxMzl9XQ==" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M382.313,139L386.479,139C390.646,139,398.979,139,406.646,139C414.313,139,421.313,139,424.813,139L428.313,139" id="docouture-diagram-2-container-L_B_C_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_B_C_0" data-points="W3sieCI6MzgyLjMxMjUsInkiOjEzOX0seyJ4Ijo0MDcuMzEyNSwieSI6MTM5fSx7IngiOjQzMi4zMTI1LCJ5IjoxMzl9XQ==" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M570.164,106.57L589.552,94.642C608.94,82.713,647.716,58.857,693.814,46.928C739.911,35,793.331,35,820.04,35L846.75,35" id="docouture-diagram-2-container-L_C_D_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_C_D_0" data-points="W3sieCI6NTcwLjE2Mzg2NjQ1NTQwNjUsInkiOjEwNi41NzAxMTY0NTU0MDY0NX0seyJ4Ijo2ODYuNDkyMTg3NSwieSI6MzV9LHsieCI6ODUwLjc1LCJ5IjozNX1d" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M602.594,139L616.577,139C630.56,139,658.526,139,699.198,139C739.87,139,793.247,139,819.936,139L846.625,139" id="docouture-diagram-2-container-L_C_E_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_C_E_0" data-points="W3sieCI6NjAyLjU5Mzc1LCJ5IjoxMzl9LHsieCI6Njg2LjQ5MjE4NzUsInkiOjEzOX0seyJ4Ijo4NTAuNjI1LCJ5IjoxMzl9XQ==" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M567.945,173.649L587.703,187.207C607.461,200.766,646.976,227.883,680.051,241.441C713.125,255,739.758,255,753.074,255L766.391,255" id="docouture-diagram-2-container-L_C_F_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_C_F_0" data-points="W3sieCI6NTY3Ljk0NDc3MDk2NzUyMDksInkiOjE3My42NDg5NzkwMzI0NzkxfSx7IngiOjY4Ni40OTIxODc1LCJ5IjoyNTV9LHsieCI6NzcwLjM5MDYyNSwieSI6MjU1fV0=" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M1030.391,255L1034.557,255C1038.724,255,1047.057,255,1054.724,255C1062.391,255,1069.391,255,1072.891,255L1076.391,255" id="docouture-diagram-2-container-L_F_G_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_F_G_0" data-points="W3sieCI6MTAzMC4zOTA2MjUsInkiOjI1NX0seyJ4IjoxMDU1LjM5MDYyNSwieSI6MjU1fSx7IngiOjEwODAuMzkwNjI1LCJ5IjoyNTV9XQ==" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M1213.909,234.706L1228.651,229.422C1243.393,224.138,1272.876,213.569,1298.331,208.284C1323.786,203,1345.214,203,1355.927,203L1366.641,203" id="docouture-diagram-2-container-L_G_H_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_G_H_0" data-points="W3sieCI6MTIxMy45MDk0MzY0NDk0MTMzLCJ5IjoyMzQuNzA2MzExNDQ5NDEzMjV9LHsieCI6MTMwMi4zNTkzNzUsInkiOjIwM30seyJ4IjoxMzcwLjY0MDYyNSwieSI6MjAzfV0=" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M1213.909,275.294L1228.651,280.578C1243.393,285.862,1272.876,296.431,1298.31,301.716C1323.745,307,1345.13,307,1355.823,307L1366.516,307" id="docouture-diagram-2-container-L_G_I_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_G_I_0" data-points="W3sieCI6MTIxMy45MDk0MzY0NDk0MTMzLCJ5IjoyNzUuMjkzNjg4NTUwNTg2NzV9LHsieCI6MTMwMi4zNTkzNzUsInkiOjMwN30seyJ4IjoxMzcwLjUxNTYyNSwieSI6MzA3fV0=" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="docouture-diagram-2-L_A_B_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="docouture-diagram-2-L_B_C_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(686.4921875, 35)"><g class="label" data-id="docouture-diagram-2-L_C_D_0" transform="translate(-43.0390625, -12)"><foreignObject width="86.078125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Allow - stop</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(686.4921875, 139)"><g class="label" data-id="docouture-diagram-2-L_C_E_0" transform="translate(-43.15625, -12)"><foreignObject width="86.3125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Block - stop</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(686.4921875, 255)"><g class="label" data-id="docouture-diagram-2-L_C_F_0" transform="translate(-58.8984375, -12)"><foreignObject width="117.796875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Defer - continue</p></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="docouture-diagram-2-L_F_G_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(1302.359375, 203)"><g class="label" data-id="docouture-diagram-2-L_G_H_0" transform="translate(-43.0390625, -12)"><foreignObject width="86.078125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Allow - stop</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(1302.359375, 307)"><g class="label" data-id="docouture-diagram-2-L_G_I_0" transform="translate(-43.15625, -12)"><foreignObject width="86.3125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Block - stop</p></span></div></foreignObject></g></g></g><g class="nodes"><g class="node default" id="docouture-diagram-2-container-flowchart-A-0" data-look="classic" transform="translate(56.8046875, 139)"><rect class="basic label-container" style="" x="-48.8046875" y="-27" width="97.609375" height="54"></rect><g class="label" style="" transform="translate(-18.8046875, -12)"><rect></rect><foreignObject width="37.609375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Entry</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-B-1" data-look="classic" transform="translate(268.9609375, 139)"><rect class="basic label-container" style="" x="-113.3515625" y="-27" width="226.703125" height="54"></rect><g class="label" style="" transform="translate(-83.3515625, -12)"><rect></rect><foreignObject width="166.703125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Stage 1: scan and score</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-C-3" data-look="classic" transform="translate(517.453125, 139)"><polygon points="85.140625,0 170.28125,-85.140625 85.140625,-170.28125 0,-85.140625" class="label-container" transform="translate(-84.640625, 85.140625)"></polygon><g class="label" style="" transform="translate(-58.140625, -12)"><rect></rect><foreignObject width="116.28125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Stage 1 decision</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-D-5" data-look="classic" transform="translate(900.390625, 35)"><rect class="basic label-container" style="" x="-49.640625" y="-27" width="99.28125" height="54"></rect><g class="label" style="" transform="translate(-19.640625, -12)"><rect></rect><foreignObject width="39.28125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Allow</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-E-7" data-look="classic" transform="translate(900.390625, 139)"><rect class="basic label-container" style="" x="-49.765625" y="-27" width="99.53125" height="54"></rect><g class="label" style="" transform="translate(-19.765625, -12)"><rect></rect><foreignObject width="39.53125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Block</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-F-9" data-look="classic" transform="translate(900.390625, 255)"><rect class="basic label-container" style="" x="-130" y="-39" width="260" height="78"></rect><g class="label" style="" transform="translate(-100, -24)"><rect></rect><foreignObject width="200" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>Stage 2 (final): scan and score</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-G-11" data-look="classic" transform="translate(1157.296875, 255)"><polygon points="76.90625,0 153.8125,-76.90625 76.90625,-153.8125 0,-76.90625" class="label-container" transform="translate(-76.40625, 76.90625)"></polygon><g class="label" style="" transform="translate(-49.90625, -12)"><rect></rect><foreignObject width="99.8125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Final decision</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-H-13" data-look="classic" transform="translate(1420.28125, 203)"><rect class="basic label-container" style="" x="-49.640625" y="-27" width="99.28125" height="54"></rect><g class="label" style="" transform="translate(-19.640625, -12)"><rect></rect><foreignObject width="39.28125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Allow</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-I-15" data-look="classic" transform="translate(1420.28125, 307)"><rect class="basic label-container" style="" x="-49.765625" y="-27" width="99.53125" height="54"></rect><g class="label" style="" transform="translate(-19.765625, -12)"><rect></rect><foreignObject width="39.53125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Block</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="docouture-diagram-2-container-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><defs><filter id="docouture-diagram-2-container-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><linearGradient id="docouture-diagram-2-container-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#000000" stop-opacity="1"></stop><stop offset="100%" stop-color="hsl(-120, 0%, 90%)" stop-opacity="1"></stop></linearGradient></svg></div></div>
+<div class="sect2">
+<h3 id="stage-scores-and-decisions"><a class="anchor" href="#stage-scores-and-decisions"></a>Stage scores and decisions</h3>
+<div class="paragraph">
+<p>All compatible scanners in a reached stage run before its score decision, unless
+an operational scanner failure interrupts the stage. A stage scores only its
+own completed positive-risk <code>BLOCK</code> findings, weighted by severity. Earlier
+findings remain visible but are not selected or rescored. With no eligible
+findings the score is <code>0</code>, and the aggregator is not called.</p>
+</div>
+<div class="paragraph">
+<p>Decisions use strict greater-than boundaries:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>A score above <code>threshold</code> blocks; equality does not block.</p>
+</li>
+<li>
+<p>A nonfinal stage defers when its score is above <code>defer_above</code>; equality allows.</p>
+</li>
+<li>
+<p>Otherwise the entry is allowed. The final stage allows every score not blocked.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Every stage is numerical. Each nonfinal stage must have <code>defer_above</code> below its
+resolved threshold; the final stage forbids <code>defer_above</code>, even in a
+single-stage cascade. A stage threshold overrides the optional root default.
+Configuration errors are described in <a href="../configuration/" class="xref page">Configuration</a>.
+An allow is terminal: later stages do not run. Max aggregation does not prove
+scanner independence or probability calibration.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="operational-errors-and-stage-results"><a class="anchor" href="#operational-errors-and-stage-results"></a>Operational errors and stage results</h3>
+<div class="paragraph">
+<p>Cascade <code>on_scanner_error</code> supports <code>fail</code> (the default) and <code>block</code>. A known
+content-type mismatch is an operational fault, not a skipped scanner. On either
+kind of operational fault, the current stage stops and later stages are marked
+<code>not_reached</code>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>fail</code> raises the original scanner or transport error where possible.</p>
+</li>
+<li>
+<p><code>block</code> returns an unsafe operational verdict without inventing a threat
+finding. The entry score <code>1.0</code> is a fail-closed sentinel, not model risk; the
+interrupted stage omits its score.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Stage summaries expose <code>id</code>, <code>result</code>, and an optional diagnostic <code>score</code>.
+Normally reached stages include their score; unreached stages do not. Each
+completed finding appears once, in execution order, and its <code>stage</code> names the
+stage that ran its scanner.</p>
+</div>
 </div>
 </div>
 </div>
@@ -946,7 +1045,7 @@ combination strategies.</p>
       </div>
       <div class="page-footer__contribute-buttons">
 
-<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/blob/docs/v0.5.0/docs/src/modules/main/pages/gate.adoc">
+<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/blob/docs/v0.6.0/docs/src/modules/main/pages/gate.adoc">
   <span class="dt-button__content">
     Propose a change
     <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-external-link"></use></svg></span>

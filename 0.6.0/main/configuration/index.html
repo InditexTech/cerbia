@@ -1,0 +1,1574 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+
+<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script>
+      /*
+       * Theme bootstrap. Runs before first paint so the page never flashes the
+       * wrong theme. Keep it inline, keep it tiny, and keep it in sync with
+       * src/js/08-theme.ts, which owns the same storage key and class names.
+       *
+       * IDS switches theme with a class on <html>, not a data attribute, so an
+       * attribute here would style nothing.
+       */
+      (function () {
+        var stored
+        try { stored = localStorage.getItem('dt-theme') } catch (e) {}
+        var theme = stored === 'light' || stored === 'dark'
+          ? stored
+          : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        var root = document.documentElement
+        root.classList.add('dt-theme-' + theme, 'dt-scale-medium')
+        root.style.colorScheme = theme
+      })()
+    </script>
+    <script>
+      /*
+       * Side-menu collapse bootstrap (GH-8). Runs before first paint so the
+       * 320px column never flashes in and reflows the article on navigation.
+       * Keep it inline, keep it tiny, and keep it in sync with
+       * src/js/01-nav.ts, which owns the same storage key and class name.
+       *
+       * A stored choice always wins; absent one, the menu starts collapsed
+       * on the home/landing page (matching Figma's "State=Home" toolbar
+       * variant, which is the only one that shows the toggle) and open
+       * everywhere else. With JavaScript disabled this script never runs, so
+       * the class is never added and the menu stays open unconditionally —
+       * the toggle that would reopen it is also never unhidden.
+       */
+      (function () {
+        var stored
+        try { stored = localStorage.getItem('docouture-side-menu') } catch (e) {}
+        var collapsed = stored === 'collapsed' || stored === 'open'
+          ? stored === 'collapsed'
+          : document.documentElement.hasAttribute('data-page-home')
+        if (collapsed) document.documentElement.classList.add('is-side-menu-collapsed')
+      })()
+    </script>
+    <script>
+      /*
+       * ToC collapse bootstrap (GH-10). Runs before first paint so a closed
+       * choice never flashes open for an instant. Keep it in sync with
+       * src/js/02-on-this-page.ts, which owns the same storage key and class
+       * name.
+       *
+       * Deliberately does NOT add `has-toc` — only 02-on-this-page.ts knows
+       * whether this page actually has a usable ToC (headings found, page
+       * not `-toc`), and every effect of the class added here is itself
+       * gated behind `has-toc` in toc.css, so there is nothing to flash
+       * either way before that script runs. This one exists only so a
+       * *closed* choice is already in place the moment it does.
+       */
+      (function () {
+        var stored
+        try { stored = localStorage.getItem('docouture-toc') } catch (e) {}
+        if (stored === 'closed') document.documentElement.classList.add('is-toc-closed')
+      })()
+    </script>
+
+<title>Configuration | CerbIA</title>
+
+    <link rel="canonical" href="https://inditextech.github.io/cerbia/0.6.0/main/configuration/">
+    <link rel="prev" href="../reference-overview/">
+    <link rel="next" href="../cli/">
+    <meta name="description" content="Configure a CerbIA security gate in YAML, including component classes, initialization arguments, and validation rules.">
+    <meta name="generator" content="Antora 3.2.0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Mono:wght@100..900&display=swap">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/mobile-content-overflow.css">
+
+
+
+    <link rel="icon" href="../../../favicon.png">
+  </head>
+  <body class="article">
+
+
+
+<header class="header-toolbar">
+  <div class="dt-grid-layout dt-grid-layout--with-margin header-toolbar__grid">
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-6 dt-grid-layout__item--span-xs-3 header-toolbar__left">
+      <button class="dt-button dt-button--ghost dt-button--icon-only side-menu-toggle" type="button" aria-controls="side-menu" hidden>
+        <span class="dt-button__content">
+          <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-menu"></use></svg></span>
+        </span>
+      </button>
+      <a class="header-toolbar__brand" href="../../">
+        <img class="header-toolbar__logo header-toolbar__logo--light" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+        <img class="header-toolbar__logo header-toolbar__logo--dark" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+        <span class="header-toolbar__product-name dt-text dt-text--label-l-high">CerbIA</span>
+      </a>
+    </div>
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-6 dt-grid-layout__item--span-xs-3 header-toolbar__actions">
+      <button type="button" class="dt-button dt-button--ghost header-toolbar__search-trigger">
+        <span class="dt-button__content">
+          <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-search"></use></svg></span>
+          <span class="dt-text dt-text--label-l header-toolbar__search-label">Search</span>
+          <kbd class="header-toolbar__search-shortcut" aria-hidden="true">⌘K</kbd>
+        </span>
+      </button>
+
+<div class="page-versions">
+  <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--latest version-menu-toggle" title="Show other versions of page" aria-expanded="false">
+    <span class="dt-tag__label">0.6.0</span>
+    <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
+  </button>
+  <div class="version-menu">
+    <a class="version" href="../../../prerelease/main/configuration/">
+      <span class="version__label">prerelease</span>
+      <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
+    </a>
+    <span class="version is-current" aria-current="page">
+      <span class="version__label">0.6.0</span>
+      <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
+          </span>
+    <a class="version" href="../../../0.5.0/main/configuration/">
+      <span class="version__label">0.5.0</span>
+    </a>
+    <a class="version" href="../../../0.4.0/main/configuration/">
+      <span class="version__label">0.4.0</span>
+    </a>
+    <a class="version" href="../../../0.3.2/main/configuration/">
+      <span class="version__label">0.3.2</span>
+    </a>
+    <a class="version" href="../../../0.3.1/main/configuration/">
+      <span class="version__label">0.3.1</span>
+    </a>
+    <a class="version" href="../../../0.3.0/main/configuration/">
+      <span class="version__label">0.3.0</span>
+    </a>
+  </div>
+</div>
+
+<a class="dt-button dt-button--ghost dt-button--icon-only header-toolbar__repo" href="https://github.com/InditexTech/cerbia" target="_blank" rel="noopener" aria-label="Repository">
+  <span class="dt-button__content">
+    <span class="dt-button__icon dt-button__icon-icon header-toolbar__repo-icon" aria-hidden="true"></span>
+  </span>
+</a>
+
+<button class="dt-button dt-button--ghost dt-button--icon-only theme-toggle" type="button" hidden>
+  <span class="dt-button__content">
+    <span class="dt-button__icon dt-button__icon-icon theme-toggle-icon theme-toggle-icon--light" aria-hidden="true"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-sun"></use></svg></span>
+    <span class="dt-button__icon dt-button__icon-icon theme-toggle-icon theme-toggle-icon--dark" aria-hidden="true"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-moon"></use></svg></span>
+  </span>
+</button>
+    </div>
+  </div>
+</header>
+
+<dialog id="search-dialog" class="search-dialog" aria-label="Search" data-search-index="ROOT-0.6.0.json">
+  <div class="dt-overlay dt-overlay--visible search-dialog__overlay">
+    <div class="dt-overlay__content"></div>
+    <div class="dt-modal dt-modal--small search-dialog__panel">
+      <div class="dt-modal__container search-dialog__container">
+        <div class="dt-search-field-minimal dt-search-field-minimal--full-width search-dialog__field">
+          <span class="dt-search-field-minimal__icon-start" aria-hidden="true"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-search"></use></svg></span>
+          <div class="dt-search-field-minimal__input-wrapper">
+            <div class="dt-search-field-minimal__input-container">
+              <input type="search" class="dt-search-field-minimal__input" placeholder="Search the docs" aria-label="Search the docs"
+                role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-autocomplete="list"
+                aria-controls="search-dialog-listbox" disabled>
+            </div>
+          </div>
+          <button type="button" class="dt-button dt-button--ghost dt-button--icon-only search-dialog__close" aria-label="Close search" disabled>
+            <span class="dt-button__content">
+              <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-x"></use></svg></span>
+            </span>
+          </button>
+        </div>
+        <div class="search-dialog__chips" role="group" aria-label="Filter results by module">
+          <button type="button" class="dt-tag dt-tag--solid dt-tag--selected search-dialog__chip" data-category="" aria-pressed="true">
+            <span class="dt-tag__label">All</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="Documentation" aria-pressed="false">
+            <span class="dt-tag__label">Documentation</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia" aria-pressed="false">
+            <span class="dt-tag__label">cerbia</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-core" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-core</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-cli" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-cli</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-ml" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-ml</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-presidio" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-presidio</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-protectai" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-protectai</span>
+          </button>
+        </div>
+        <div id="search-dialog-listbox" class="dt-modal__content dt-modal__content--scrollable search-dialog__results" role="listbox" aria-label="Search results"></div>
+        <div class="search-dialog__status" aria-live="polite"></div>
+        <div class="dt-modal__footer dt-modal__footer--horizontal search-dialog__footer">
+          <span class="dt-modal__footer-left dt-text dt-text--detail-m search-dialog__hints">
+            <kbd>&uarr;&darr;</kbd> navigate &middot; <kbd>&crarr;</kbd> select &middot; <kbd>esc</kbd> close
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+<div class="dt-floating-button-wrapper dt-floating-button-wrapper--viewport dt-floating-button-wrapper--end search-fab">
+  <button type="button" class="dt-button dt-button--ghost dt-button--icon-only dt-floating-button search-fab__trigger" aria-label="Search" aria-haspopup="dialog" aria-controls="search-dialog">
+    <span class="dt-button__content">
+      <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-search"></use></svg></span>
+    </span>
+  </button>
+</div>
+
+<dialog id="image-zoom-dialog" class="image-zoom-dialog" aria-label="Zoomed image">
+  <div class="dt-overlay dt-overlay--visible image-zoom-dialog__overlay">
+    <div class="dt-overlay__content"></div>
+    <div class="dt-modal dt-modal--fullscreen image-zoom-dialog__panel">
+      <div class="dt-modal__container image-zoom-dialog__container">
+        <button type="button" class="dt-button dt-button--ghost dt-button--icon-only image-zoom-dialog__close" aria-label="Close zoomed image">
+          <span class="dt-button__content">
+            <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-x"></use></svg></span>
+          </span>
+        </button>
+        <div class="image-zoom-dialog__content"></div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<div class="body">
+
+<div id="side-menu" class="side-menu" data-component="ROOT" data-version="0.6.0" data-module="main">
+  <div class="side-menu__header">
+    <div class="side-menu__header-start">
+      <img class="side-menu__header-logo side-menu__header-logo--light" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+      <img class="side-menu__header-logo side-menu__header-logo--dark" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+      <span class="side-menu__header-title dt-text dt-text--title-s">CerbIA</span>
+    </div>
+    <button class="side-menu__close" type="button" aria-label="Close navigation"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-x"></use></svg></button>
+  </div>
+
+<div class="side-menu__brand">
+  <a class="side-menu__brand-link" href="../../">
+    <img class="side-menu__brand-logo side-menu__brand-logo--light" src="../../../cerbia-logo.png" width="40" height="40" alt="">
+    <img class="side-menu__brand-logo side-menu__brand-logo--dark" src="../../../cerbia-logo.png" width="40" height="40" alt="">
+    <span class="side-menu__brand-title dt-text dt-text--title-m">CerbIA</span>
+  </a>
+</div>
+
+<div class="nav-switcher">
+  <button class="nav-switcher__toggle" type="button" aria-expanded="false" aria-haspopup="true" aria-label="Switch module, currently Documentation">
+    <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+    <span class="nav-switcher__label">
+      <span class="nav-switcher__title dt-text dt-text--body-m-high">Documentation</span>
+      <span class="nav-switcher__description dt-text dt-text--detail-m">Product overview, setup, guides, and component reference.</span>
+    </span>
+    <span class="nav-switcher__chevron"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
+  </button>
+  <div class="nav-switcher__menu" hidden>
+    <ul class="dt-list nav-switcher__list">
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../about/" aria-current="true">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">Documentation</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Product overview, setup, guides, and component reference.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Installation selector and optional capability extras.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-core/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-core</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Core Python pipeline and configurable security gates.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-cli/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-cli</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Command-line interface for validation and scanning.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-ml/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-ml</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Model artifact and text-classification adapters.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-presidio/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-presidio</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Optional Presidio-based PII scanner integration.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-protectai/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-protectai</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Optional ProtectAI prompt-injection scanner integration.</span>
+          </span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+  <nav class="side-menu__nav" aria-label="Site navigation">
+
+
+<ul class="dt-list side-menu__list" data-depth="0">
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../about/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Overview</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Overview">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="1">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../architecture/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Architecture</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../prerequisites/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Getting started</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Getting started">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="1">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../quickstart/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Quickstart</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../guides-overview/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Guides</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Guides">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="1">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../components/custom-components/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Custom components</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../reference-overview/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Reference</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Reference">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="1">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="./" aria-current="page">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Configuration</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../cli/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">CLI</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../gate/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Gates</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../packages/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Packages</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../components/loaders/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Loaders</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Loaders">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="2">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/loaders/text-loader/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Text loader</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/loaders/file-loader/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">File loader</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../components/preprocessors/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Preprocessors</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Preprocessors">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="2">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/preprocessors/speculative-decoding/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Speculative decoding</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/preprocessors/whitespace-normalization/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Whitespace normalization</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../components/scanners/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Scanners</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Scanners">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="2">
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/prompt-injection/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection (Built-in)</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Prompt injection (Built-in)">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="3">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
+        href="../components/scanners/prompt-injection-protectai/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection with ProtectAI</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/url-malicious/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Malicious URLs</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Malicious URLs">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="3">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
+        href="../components/scanners/url-allow-list/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">URL allowlist</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
+        href="../components/scanners/url-deny-list/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">URL denylist</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/pii/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">PII (Built-in)</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle PII (Built-in)">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="3">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
+        href="../components/scanners/pii-presidio/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">PII with Presidio</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/canary-leak/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Canary leak</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/decisions/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Decisions and SystemOne</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/invisible-text/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Invisible text</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/keyword/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Keyword</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/secrets/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Secrets</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/xss/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Cross-site scripting</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../components/score-aggregators/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Score aggregators</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Score aggregators">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="2">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/score-aggregators/max/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Maximum</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/score-aggregators/max-with-bonus/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Maximum with bonus</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/score-aggregators/mean/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Mean</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../i18n/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Internationalization</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../logging/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Logging</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../additional-information/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Additional information</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../contributing/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Contributing</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </nav>
+  <div class="side-menu__version">
+
+<div class="page-versions">
+  <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--latest version-menu-toggle" title="Show other versions of page" aria-expanded="false">
+    <span class="dt-tag__label">0.6.0</span>
+    <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
+  </button>
+  <div class="version-menu">
+    <a class="version" href="../../../prerelease/main/configuration/">
+      <span class="version__label">prerelease</span>
+      <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
+    </a>
+    <span class="version is-current" aria-current="page">
+      <span class="version__label">0.6.0</span>
+      <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
+          </span>
+    <a class="version" href="../../../0.5.0/main/configuration/">
+      <span class="version__label">0.5.0</span>
+    </a>
+    <a class="version" href="../../../0.4.0/main/configuration/">
+      <span class="version__label">0.4.0</span>
+    </a>
+    <a class="version" href="../../../0.3.2/main/configuration/">
+      <span class="version__label">0.3.2</span>
+    </a>
+    <a class="version" href="../../../0.3.1/main/configuration/">
+      <span class="version__label">0.3.1</span>
+    </a>
+    <a class="version" href="../../../0.3.0/main/configuration/">
+      <span class="version__label">0.3.0</span>
+    </a>
+  </div>
+</div>
+  </div>
+</div>
+<div class="side-menu-scrim"></div>
+
+<main class="article">
+
+<div class="hero">
+  <div class="dt-grid-layout dt-grid-layout--with-margin hero__grid">
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-full hero__row">
+      <div class="hero__main">
+
+<nav class="dt-breadcrumbs" aria-label="Breadcrumb">
+  <a class="dt-breadcrumb-item dt-breadcrumb-item--link" href="../../"><span class="dt-breadcrumb-item__content">CerbIA</span></a>
+  <a class="dt-breadcrumb-item dt-breadcrumb-item--link" href="../reference-overview/"><span class="dt-breadcrumb-item__content">Reference</span></a>
+  <div class="dt-breadcrumb-item dt-breadcrumb-item--active" aria-current="page"><span class="dt-breadcrumb-item__content">Configuration</span></div>
+</nav>
+        <h1 class="hero__title dt-text dt-text--title-xl">Configuration</h1>
+        <p class="hero__excerpt dt-text dt-text--body-l">Configure a CerbIA security gate in YAML, including component classes, initialization arguments, and validation rules.</p>
+        <div class="hero__tags">
+          <div class="dt-label dt-label--grey">
+            <span class="dt-label__content">reference</span>
+          </div>
+          <div class="dt-label dt-label--grey">
+            <span class="dt-label__content">configuration</span>
+          </div>
+          <div class="dt-label dt-label--grey">
+            <span class="dt-label__content">yaml</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero__aside">
+        <button class="dt-button dt-button--ghost dt-button--icon-only toc-toggle" type="button" aria-controls="on-this-page" aria-expanded="true" hidden>
+          <span class="dt-button__content">
+            <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-panel-left"></use></svg></span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+  <div class="content dt-grid-layout dt-grid-layout--with-margin">
+
+<aside id="on-this-page" class="toc" data-title="On this page" data-levels="4">
+  <div class="toc-menu"></div>
+</aside>
+
+<article class="doc">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>CerbIA reads one flat YAML mapping for one security gate. Shared pipeline
+fields stay at the root; <code>type: simple</code> or an absent <code>type</code> selects the simple
+scanner-list variant, while <code>type: cascade</code> selects ordered stages. At
+construction, <code>GateFactory</code> dispatches once to <code>SimpleGate</code> or <code>CascadeGate</code>;
+both implement the <code>SecurityGate</code> protocol used by <code>Runner</code> for each entry.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="configuration-lifecycle"><a class="anchor" href="#configuration-lifecycle"></a>Configuration lifecycle</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="schema-validation"><a class="anchor" href="#schema-validation"></a>Schema validation</h3>
+<div class="paragraph">
+<p>All configuration models live in <code>cerbia.core.config</code>: component records,
+<code>SimpleGateConfig</code>, <code>CascadeGateConfig</code>, <code>CascadeStageConfig</code>, and
+<code>GateType</code> (<code>simple</code>/<code>cascade</code>). <code>CerbIAConfig</code> is the discriminated root union.
+Construct or directly validate simple models with <code>SimpleGateConfig</code> or
+<code>SimpleGateConfig.model_validate</code>; validate either variant with the adapter.
+Both root variants constrain <code>type</code> with a literal <code>GateType</code> member.</p>
+</div>
+<div class="paragraph">
+<p><code>CONFIG_ADAPTER</code> is a Pydantic <code>TypeAdapter</code> over the <code>CerbIAConfig</code> discriminated
+union (<code>Field(discriminator="type")</code>). Its outer <code>BeforeValidator</code> copies in
+the simple tag only when <code>type</code> is absent; null or unknown tags are rejected,
+and the caller&#8217;s mapping is not mutated. <code>parse_config</code> is a thin mapping
+entry point to this adapter; it does not dispatch variants itself. Serialized
+configs always include <code>type: simple</code> or <code>type: cascade</code>, including defaulted
+simple configs. The union JSON schema exposes its discriminator and both
+variants. Use the adapter for raw mappings, JSON, or already constructed models.</p>
+</div>
+<div class="paragraph">
+<p><code>parse_config</code> validates the root model before constructing components. Cascade
+roots reject simple-only <code>scanners</code>, <code>score_aggregator</code>, and <code>fail_fast</code>;
+simple roots reject <code>stages</code>. Unknown fields and the old <code>gate</code> wrapper are
+rejected. Component paths remain strings and <code>init_args</code> is forwarded to
+constructors. <code>Runner</code> requires at least one loader; both variants require
+scanners at construction, and each cascade stage requires its own scanners.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="component-construction"><a class="anchor" href="#component-construction"></a>Component construction</h3>
+<div class="paragraph">
+<p><code>Runner</code> requires at least one loader. It imports configured classes, passes
+<code>init_args</code> as constructor keyword arguments, and checks their component
+contracts. An invalid import path or constructor argument can pass schema
+validation but fail during construction. Cascade scanner IDs are also checked
+against constructed scanner instances, so duplicate runtime IDs fail before
+scanning.</p>
+</div>
+<div class="paragraph">
+<p><code>cerbia validate</code> performs both phases without loading entries or running
+scanners.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="flat-configuration-shapes"><a class="anchor" href="#flat-configuration-shapes"></a>Flat configuration shapes</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Both variants keep the pipeline name, loaders, and preprocessors at the root.
+The scanner and scoring fields distinguish their flat shapes:</p>
+</div>
+<div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Variant</th>
+<th class="tableblock halign-left valign-top">Root fields</th>
+<th class="tableblock halign-left valign-top">Evaluation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Simple (<code>type: simple</code> or omitted)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>scanners</code>, <code>score_aggregator</code>, <code>threshold</code>, <code>fail_fast</code>, <code>on_scanner_error</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">One ordered scanner list and one aggregate verdict per entry.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cascade (<code>type: cascade</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>stages</code>, optional root <code>threshold</code>, <code>on_scanner_error</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ordered stages with stage-owned scanners, aggregators, and score decisions.</p></td>
+</tr>
+</tbody>
+</table></div></div>
+<div class="paragraph">
+<p>The simple variant retains its flat shape; see the
+<a href="https://github.com/InditexTech/cerbia/blob/main/examples/cli-usage/simple.cerbia.yaml">canonical simple
+configuration</a>. A cascade replaces the simple-only fields with an ordered
+<code>stages</code> list; see the
+<a href="https://github.com/InditexTech/cerbia/blob/main/examples/cli-usage/cascade.cerbia.yaml">canonical
+cascade configuration</a>. These examples are illustrative, not calibrated
+policy. An early cascade allow can skip checks in later stages, so it does not
+provide the same checks as running every scanner in every stage.</p>
+</div>
+<div class="paragraph">
+<p>These minimal configurations use the same loader and scanners; only the gate
+topology and its scoring fields differ. The cascade&#8217;s first stage defers above
+<code>0.2</code>, and its final stage inherits root threshold <code>0.8</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">name</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">shared-components</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">type</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">simple</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">threshold</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.8</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">on_scanner_error</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">fail</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loaders</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loader</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.loaders.TextLoader</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      texts</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"Example input"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.KeywordScanner</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.SecretScanner</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">  score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.score_aggregators.MaxScoreAggregator</span></span></span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">name</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">shared-components</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">type</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cascade</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">threshold</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.8</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">on_scanner_error</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">fail</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loaders</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loader</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.loaders.TextLoader</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      texts</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"Example input"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">stages</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">id</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">keywords</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    threshold</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.6</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    defer_above</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.2</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">      - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.KeywordScanner</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.score_aggregators.MaxScoreAggregator</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">id</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">secrets</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">      - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.SecretScanner</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.score_aggregators.MaxScoreAggregator</span></span></span></code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="shared-root-fields"><a class="anchor" href="#shared-root-fields"></a>Shared root fields</h3>
+<div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Required</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">—</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Human-readable pipeline identifier.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>type</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>simple</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Root discriminator; serialized configs include the selected type.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>loaders</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No in schema</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ordered loader records; <code>Runner</code> requires at least one.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>preprocessors</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ordered transformation records, applied before gate evaluation.</p></td>
+</tr>
+</tbody>
+</table></div></div>
+</div>
+<div class="sect2">
+<h3 id="simple-variant-fields"><a class="anchor" href="#simple-variant-fields"></a>Simple variant fields</h3>
+<div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Required</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>scanners</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No in schema</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ordered scanner records; construction requires at least one.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>score_aggregator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">—</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Strategy for combining positive, severity-weighted BLOCK scores.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fail_fast</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stops on blocking scanner failure or an individual positive-risk BLOCK finding whose severity-weighted score reaches the threshold.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>threshold</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0.0</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inclusive aggregate blocking boundary in <code>[0, 1]</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>on_scanner_error</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>block</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fail</code>, <code>block</code>, or <code>skip</code>.</p></td>
+</tr>
+</tbody>
+</table></div></div>
+</div>
+<div class="sect2">
+<h3 id="cascade-variant-fields-and-stage-routing"><a class="anchor" href="#cascade-variant-fields-and-stage-routing"></a>Cascade variant fields and stage routing</h3>
+<div class="paragraph">
+<p>The cascade root requires a nonempty <code>stages</code> list and accepts an optional
+default <code>threshold</code> and <code>on_scanner_error</code> (<code>fail</code> by default; <code>block</code> is the
+alternative). It does not
+accept simple-only <code>scanners</code>, <code>score_aggregator</code>, or <code>fail_fast</code>.</p>
+</div>
+<div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Location</th>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Requirement and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Root</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>threshold</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional finite default in <code>[0, 1]</code> for stages without their own threshold.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Root</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>on_scanner_error</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fail</code> or <code>block</code>; <code>skip</code> is unsupported.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Required, nonblank, unique stage identifier.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>scanners</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Required nonempty ordered list; runtime scanner IDs must be nonblank and unique across the cascade.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>score_aggregator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Required; combines this stage&#8217;s eligible findings only.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>threshold</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Required after inheritance; an explicit stage value overrides the root default.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nonfinal stage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>defer_above</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Required and strictly smaller than the resolved threshold.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Final stage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>defer_above</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forbidden, including explicit null; a one-stage cascade is final.</p></td>
+</tr>
+</tbody>
+</table></div></div>
+<div class="paragraph">
+<p>Every stage must have at least one <code>action: block</code> scanner. Scanners with only
+<code>warn</code> or <code>pass</code> actions are not sufficient. All scanners in a reached stage
+complete before its score-based decision, unless an operational fault stops the
+stage. Each stage scores only its own completed findings: earlier outcomes and
+scores are not reused or rescored. Findings from all executed stages remain
+once in one flat output list.</p>
+</div>
+<div class="paragraph">
+<p>For each reached stage, the gate aggregates positive BLOCK findings weighted
+by severity; without eligible findings, its score is <code>0</code> and the aggregator is
+not called. Decisions use strict boundaries, in this order:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Block when <code>score &gt; threshold</code>; equality does not block.</p>
+</li>
+<li>
+<p>On the final stage, allow any score not blocked.</p>
+</li>
+<li>
+<p>On a nonfinal stage, defer when <code>score &gt; defer_above</code>; equality allows.</p>
+</li>
+<li>
+<p>Otherwise allow.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Thresholds and <code>defer_above</code> are finite numbers in <code>[0, 1]</code>, not booleans or
+strings. A nonfinal threshold of <code>0.0</code> is invalid because it cannot have a
+smaller defer boundary; a final stage may use <code>0.0</code>. Omit optional root values
+rather than setting them to null. Root <code>threshold</code> is inherited only by stages
+that omit their own threshold. The CLI <code>--threshold</code> option overrides the root
+default before inheritance; explicitly configured stage thresholds keep
+precedence.</p>
+</div>
+<div class="paragraph">
+<p>Scanner failures and known content-type mismatches are operational faults, not
+stage decisions. <code>fail</code> raises; <code>block</code> produces a terminal unsafe result.
+The interrupted stage stops scanning and later stages are <code>not_reached</code>.
+Cascade output has ordered stage summaries (<code>id</code>, <code>result</code>, optional <code>score</code>)
+and a flat findings list whose <code>stage</code> identifies the owner. Every executed
+finding appears once; unreached stages have no score. Simple output has
+<code>stages: null</code> and omits <code>finding.stage</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="python-configuration"><a class="anchor" href="#python-configuration"></a>Python configuration</h3>
+<div class="paragraph">
+<p>Python callers import <code>CerbIAConfig</code>, <code>SimpleGateConfig</code>, <code>CascadeGateConfig</code>,
+<code>CascadeStageConfig</code>, <code>GateType</code>, and <code>parse_config</code> from <code>cerbia.core.config</code>.
+Results use <code>StageResult</code> summaries (<code>id</code>, <code>result</code>, optional <code>score</code>)
+and flat findings with <code>stage</code>. Simple results include <code>stages: null</code>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="component-records"><a class="anchor" href="#component-records"></a>Component records</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Every component record names an importable class using its collection&#8217;s path key:</p>
+</div>
+<div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Collection</th>
+<th class="tableblock halign-left valign-top">Path key</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>loaders</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>loader</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>preprocessors</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>preprocessor</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>scanners</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>scanner</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>score_aggregator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>score_aggregator</code></p></td>
+</tr>
+</tbody>
+</table></div></div>
+<div class="sect2">
+<h3 id="init_args-contract"><a class="anchor" href="#init_args-contract"></a><code>init_args</code> contract</h3>
+<div class="paragraph">
+<p><code>init_args</code> is optional and defaults to <code>{}</code>. Its keys become keyword argument
+names for the configured class constructor; its values are forwarded without
+component-specific schema validation. Use the selected component&#8217;s reference
+page for accepted arguments, defaults, and validation rules.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loaders</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loader</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.loaders.FileLoader</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      paths</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"src"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"tests"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      extensions</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">".py"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">".yaml"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      recursive</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">true</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.KeywordScanner</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      languages</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"en"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"es"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      match_strategy</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">all</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      redact</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">true</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">  score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.score_aggregators.MaxWithBonusScoreAggregator</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">  init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    bonus</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.05</span></span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Incorrect constructor names or values fail during component construction, not
+when the root YAML mapping is parsed.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="loaders"><a class="anchor" href="#loaders"></a>Loaders</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Loaders run in list order and their entries are combined. Use <code>TextLoader</code> for
+inline values or <code>FileLoader</code> for paths and directories. See the
+<a href="../components/loaders/" class="xref page">loader reference</a> for details.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loaders</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loader</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.loaders.TextLoader</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      texts</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">        - </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"First value to scan"</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">        - </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"Second value to scan"</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">loader</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.loaders.FileLoader</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      paths</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"src"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      extensions</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">".py"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">".md"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      recursive</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">true</span></span></span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="preprocessors"><a class="anchor" href="#preprocessors"></a>Preprocessors</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Preprocessors run in list order after loading and before gate evaluation. They
+can transform entries or produce derived entries. See the
+<a href="../components/preprocessors/" class="xref page">preprocessor reference</a> for available components.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">preprocessors</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">preprocessor</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.preprocessors.WhitespaceNormalizationPreprocessor</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      max_consecutive_spaces</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">6</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      max_consecutive_newlines</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">6</span></span></span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="scanners"><a class="anchor" href="#scanners"></a>Scanners</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Scanners run in <code>SimpleGate</code> or inside <code>CascadeGate</code> stages. Scanner options
+belong in <code>init_args</code> and are specific to the configured scanner; see the
+<a href="../components/scanners/" class="xref page">scanner reference</a> before adding options.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">  - </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.scanners.XssScanner</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      html_context_aware</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">true</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">      content_types</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: [</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">text</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">code</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">]</span></span></span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="content-type-routing-and-error-policy"><a class="anchor" href="#content-type-routing-and-error-policy"></a>Content-type routing and error policy</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>content_types</code> controls whether a scanner is eligible for an entry. Valid
+values are <code>text</code>, <code>url</code>, <code>code</code>, and <code>unknown</code>.</p>
+</div>
+<div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Condition</th>
+<th class="tableblock halign-left valign-top">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scanner <code>content_types</code> is <code>null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scanner accepts every content type.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Entry type is <code>unknown</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Every scanner is eligible; each gate then follows its own decision rules.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A known entry type is listed in <code>content_types</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scanner runs.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A known entry type is not listed</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SimpleGate skips and records the incompatible scanner. CascadeGate treats the mismatch as an operational fault governed by <code>on_scanner_error</code> (<code>fail</code> raises; <code>block</code> returns an unsafe result).</p></td>
+</tr>
+</tbody>
+</table></div></div>
+<div class="paragraph">
+<p>For a cascade, a mismatch stops the reached stage: remaining scanners in that
+stage do not run, and later stages have <code>result: not_reached</code>. A simple gate
+can skip incompatible scanners and continue. Routing controls scanner eligibility,
+not loader selection or preprocessing.
+The core <code>TextLoader</code> and <code>FileLoader</code> currently produce entries with an
+<code>unknown</code> content type, so scanner restrictions do not exclude their entries.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="score-aggregators"><a class="anchor" href="#score-aggregators"></a>Score aggregators</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The score aggregator combines severity-weighted scores from positive <code>BLOCK</code>
+findings. SimpleGate uses one configured aggregator for its eligible findings;
+CascadeGate uses the aggregator configured on each stage for that stage&#8217;s own
+findings. Choose an aggregator record and configure its options with
+<code>init_args</code>; see <a href="../components/score-aggregators/" class="xref page">score aggregators</a> for strategies.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="yaml"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">  score_aggregator</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">cerbia.core.score_aggregators.MaxWithBonusScoreAggregator</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">  init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">:</span></span>
+<span class="line"><span style="--shiki-light:#569CD6;--shiki-dark:#569CD6">    bonus</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#B5CEA8;--shiki-dark:#B5CEA8">0.05</span></span></span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="simple-gate-execution-policies"><a class="anchor" href="#simple-gate-execution-policies"></a>Simple gate execution policies</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Only positive <code>BLOCK</code> findings contribute severity-weighted scores to the
+aggregator. An entry is unsafe when the aggregate reaches or exceeds
+<code>threshold</code>. At <code>threshold: 0.0</code>, a positive-risk BLOCK finding makes the entry
+unsafe; if there are no eligible positive BLOCK findings, the entry is safe
+unless a blocking scanner failure occurred. <code>fail_fast: true</code> stops after an individual blocking finding
+whose risk score is not within <code>1e-9</code> of zero reaches the threshold after
+severity weighting. Near-zero positive scores still contribute to aggregation.</p>
+</div>
+<div class="paragraph">
+<p><code>on_scanner_error</code> controls exceptions raised by scanners:</p>
+</div>
+<div class="tableblock-wrap"><div class="tablecontainer"><table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Propagates the scanner error.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>block</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Marks the entry unsafe and records a scanner-failure rationale.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>skip</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Records the scanner as skipped and continues.</p></td>
+</tr>
+</tbody>
+</table></div></div>
+<div class="paragraph">
+<p>See <a href="../gate/" class="xref page">Gates</a> for verdict rules.</p>
+</div>
+<div class="paragraph">
+<p>Cascade stage execution and routing are described in
+<a href="#cascade-variant-fields-and-stage-routing">Cascade variant fields and stage routing</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="validate-configuration"><a class="anchor" href="#validate-configuration"></a>Validate configuration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Validate either canonical flat configuration before scanning:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="bash"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> validate</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/simple.cerbia.yaml</span></span></span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="shiki highlight"><code data-lang="bash"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#DCDCAA;--shiki-dark:#DCDCAA">cerbia</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> validate</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178"> examples/cli-usage/cascade.cerbia.yaml</span></span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A successful command means the YAML mapping and root schema are valid, required
+runtime loader and scanner presence is checked, component paths can be imported,
+constructors accept their arguments, and the resulting objects satisfy their
+expected contracts. It does not load entries or run scanners, but constructors
+can initialize models or other resources. Validate only trusted configurations.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="related-references"><a class="anchor" href="#related-references"></a>Related references</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>See <a href="../architecture/" class="xref page">Architecture</a>, <a href="../gate/" class="xref page">Gates</a>, and
+<a href="../packages/" class="xref page">Packages</a> for pipeline and package details. See
+<a href="../components/custom-components/" class="xref page">Custom components</a> to configure externally provided
+loaders, preprocessors, scanners, and score aggregators.</p>
+</div>
+</div>
+</div>
+</article>
+  </div>
+</main>
+</div>
+
+
+<footer class="page-footer">
+  <div class="page-footer__nav">
+
+<div class="dt-grid-layout dt-grid-layout--with-margin pagination">
+  <div class="dt-grid-layout__item dt-grid-layout__item--span-full pagination__row">
+    <div class="pagination__buttons">
+    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-icon pagination__prev" href="../reference-overview/">
+      <span class="dt-button__content">
+        <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-arrow-left"></use></svg></span>
+        <span class="pagination__label-full">Reference</span>
+        <span class="pagination__label-short">Prev</span>
+      </span>
+    </a>
+    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action pagination__next" href="../cli/">
+      <span class="dt-button__content">
+        <span class="pagination__label-full">CLI</span>
+        <span class="pagination__label-short">Next</span>
+        <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-arrow-right"></use></svg></span>
+      </span>
+    </a>
+    </div>
+  </div>
+</div>
+  </div>
+  <div class="dt-grid-layout dt-grid-layout--with-margin page-footer__feedback">
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-full page-footer__contribute">
+      <div class="page-footer__contribute-copy">
+        <p class="dt-text dt-text--title-s">Help us make these docs great!</p>
+        <p class="dt-text dt-text--body-m">See something that is wrong or unclear? Collaborate with us! Submit a pull request</p>
+      </div>
+      <div class="page-footer__contribute-buttons">
+
+<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/blob/docs/v0.6.0/docs/src/modules/main/pages/configuration.adoc">
+  <span class="dt-button__content">
+    Propose a change
+    <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-external-link"></use></svg></span>
+  </span>
+</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+
+<footer class="site-footer">
+  <div class="dt-grid-layout dt-grid-layout--with-margin site-footer__grid">
+    <div class="dt-grid-layout__item site-footer__col site-footer__brand">
+      <a class="site-footer__brand-link" href="../../">
+        <img class="site-footer__logo site-footer__logo--light" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+        <img class="site-footer__logo site-footer__logo--dark" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+        <span class="dt-text dt-text--label-l-high">CerbIA</span>
+      </a>
+      <span class="dt-text dt-text--detail-m site-footer__legal">&#169; 2026 InditexTech</span>
+    </div>
+    <div class="dt-grid-layout__item site-footer__col site-footer__links">
+      <span class="dt-text dt-text--label-l site-footer__heading">Documentation</span>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../about/">Overview</a>
+    </div>
+    <div class="dt-grid-layout__item site-footer__col site-footer__links">
+      <span class="dt-text dt-text--label-l site-footer__heading">Modules</span>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../about/">Documentation</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia/">cerbia</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-core/">cerbia-core</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-cli/">cerbia-cli</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-ml/">cerbia-ml</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-presidio/">cerbia-presidio</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-protectai/">cerbia-protectai</a>
+    </div>
+  </div>
+</footer>
+  </body>
+</html>
