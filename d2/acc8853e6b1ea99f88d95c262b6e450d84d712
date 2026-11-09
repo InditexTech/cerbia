@@ -1,0 +1,21 @@
+.sync-exclude
+  s_994fc85ccfcdf6::t_069d9ba42845e1 3
+.tool-versions
+  s_994fc85ccfcdf6::t_cf1c9866f9d808 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "d2acc8853e6b1ea99f88d95c262b6e450d84d712",
+  "prompts": {},
+  "sessions": {
+    "s_994fc85ccfcdf6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c8e10874-e427-4c4b-83d2-ff98c3ace8b0",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Ivan Alvarez Sabin <ivanasabi@inditex.com>"
+    }
+  }
+}
