@@ -72,10 +72,10 @@
 
 <title>cerbia-core | CerbIA</title>
 
-    <link rel="canonical" href="https://inditextech.github.io/cerbia/0.3.2/cerbia-core/">
+    <link rel="canonical" href="https://inditextech.github.io/cerbia/0.5.0/cerbia-core/">
     <link rel="prev" href="../cerbia/">
     <link rel="next" href="../cerbia-cli/">
-    <meta name="description" content="Use the core Python API for entries, pipeline components, configuration models, Runner, and SecurityGate.">
+    <meta name="description" content="Use the core Python API for entries, pipeline components, configuration models, Runner, and SecurityGate implementations.">
     <meta name="generator" content="Antora 3.2.0">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -100,7 +100,7 @@
           <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../_/img/icons.svg#icon-menu"></use></svg></span>
         </span>
       </button>
-      <a class="header-toolbar__brand" href="../../0.3.2/">
+      <a class="header-toolbar__brand" href="../../0.5.0/">
         <img class="header-toolbar__logo header-toolbar__logo--light" src="../../cerbia-logo.png" width="24" height="24" alt="">
         <img class="header-toolbar__logo header-toolbar__logo--dark" src="../../cerbia-logo.png" width="24" height="24" alt="">
         <span class="header-toolbar__product-name dt-text dt-text--label-l-high">CerbIA</span>
@@ -125,10 +125,16 @@
       <span class="version__label">prerelease</span>
       <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
     </span>
-    <a class="version" href="../../0.3.2/cerbia-core/">
-      <span class="version__label">0.3.2</span>
+    <a class="version" href="../../0.5.0/cerbia-core/">
+      <span class="version__label">0.5.0</span>
       <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
           </a>
+    <a class="version" href="../../0.4.0/cerbia-core/">
+      <span class="version__label">0.4.0</span>
+    </a>
+    <a class="version" href="../../0.3.2/cerbia-core/">
+      <span class="version__label">0.3.2</span>
+    </a>
     <a class="version" href="../../0.3.1/cerbia-core/">
       <span class="version__label">0.3.1</span>
     </a>
@@ -248,7 +254,7 @@
   </div>
 
 <div class="side-menu__brand">
-  <a class="side-menu__brand-link" href="../../0.3.2/">
+  <a class="side-menu__brand-link" href="../../0.5.0/">
     <img class="side-menu__brand-logo side-menu__brand-logo--light" src="../../cerbia-logo.png" width="40" height="40" alt="">
     <img class="side-menu__brand-logo side-menu__brand-logo--dark" src="../../cerbia-logo.png" width="40" height="40" alt="">
     <span class="side-menu__brand-title dt-text dt-text--title-m">CerbIA</span>
@@ -359,10 +365,16 @@
       <span class="version__label">prerelease</span>
       <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
     </span>
-    <a class="version" href="../../0.3.2/cerbia-core/">
-      <span class="version__label">0.3.2</span>
+    <a class="version" href="../../0.5.0/cerbia-core/">
+      <span class="version__label">0.5.0</span>
       <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
           </a>
+    <a class="version" href="../../0.4.0/cerbia-core/">
+      <span class="version__label">0.4.0</span>
+    </a>
+    <a class="version" href="../../0.3.2/cerbia-core/">
+      <span class="version__label">0.3.2</span>
+    </a>
     <a class="version" href="../../0.3.1/cerbia-core/">
       <span class="version__label">0.3.1</span>
     </a>
@@ -387,7 +399,7 @@
   <div class="dt-breadcrumb-item dt-breadcrumb-item--active" aria-current="page"><span class="dt-breadcrumb-item__content">cerbia-core</span></div>
 </nav>
         <h1 class="hero__title dt-text dt-text--title-xl">cerbia-core</h1>
-        <p class="hero__excerpt dt-text dt-text--body-l">Use the core Python API for entries, pipeline components, configuration models, Runner, and SecurityGate.</p>
+        <p class="hero__excerpt dt-text dt-text--body-l">Use the core Python API for entries, pipeline components, configuration models, Runner, and SecurityGate implementations.</p>
       </div>
       <div class="hero__aside">
         <button class="dt-button dt-button--ghost dt-button--icon-only toc-toggle" type="button" aria-controls="on-this-page" aria-expanded="true" hidden>
@@ -411,7 +423,8 @@
 <div class="paragraph">
 <p><code>cerbia-core</code> provides <code>cerbia.core</code>, the configurable pipeline used by CerbIA
 integrations. It includes entries, loaders, preprocessors, scanners, score
-aggregators, configuration models, <code>Runner</code>, and <code>SecurityGate</code>.</p>
+aggregators, configuration models, <code>Runner</code>, and the <code>SecurityGate</code> protocol with
+its <code>SimpleGate</code> and <code>CascadeGate</code> implementations.</p>
 </div>
 </div>
 </div>
@@ -440,14 +453,14 @@ aggregator, then scans the configured entry:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="shiki highlight"><code data-lang="python"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4;--shiki-light-bg:#1E1E1E;--shiki-dark-bg:#1E1E1E"><span class="line"><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">from</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> cerbia.core.config </span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">import</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> (</span></span>
-<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">    CerbIAConfig,</span></span>
 <span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">    LoaderConfig,</span></span>
 <span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">    ScannerConfig,</span></span>
 <span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">    ScoreAggregatorConfig,</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">    SimpleGateConfig,</span></span>
 <span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">)</span></span>
 <span class="line"><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">from</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> cerbia.core.runner </span><span style="--shiki-light:#C586C0;--shiki-dark:#C586C0">import</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4"> Runner</span></span>
 <span class="line"></span>
-<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">config = CerbIAConfig(</span></span>
+<span class="line"><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">config = SimpleGateConfig(</span></span>
 <span class="line"><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">    name</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">=</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"inline"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">,</span></span>
 <span class="line"><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">    loaders</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">=[LoaderConfig(</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">loader</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">=</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"cerbia.core.loaders.TextLoader"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">, </span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">init_args</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">={</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"texts"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">: </span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"hello"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">})],</span></span>
 <span class="line"><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">    scanners</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">=[ScannerConfig(</span><span style="--shiki-light:#9CDCFE;--shiki-dark:#9CDCFE">scanner</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">=</span><span style="--shiki-light:#CE9178;--shiki-dark:#CE9178">"cerbia.core.scanners.KeywordScanner"</span><span style="--shiki-light:#D4D4D4;--shiki-dark:#D4D4D4">)],</span></span>
@@ -522,7 +535,7 @@ whether the complete run is safe.</p>
 <footer class="site-footer">
   <div class="dt-grid-layout dt-grid-layout--with-margin site-footer__grid">
     <div class="dt-grid-layout__item site-footer__col site-footer__brand">
-      <a class="site-footer__brand-link" href="../../0.3.2/">
+      <a class="site-footer__brand-link" href="../../0.5.0/">
         <img class="site-footer__logo site-footer__logo--light" src="../../cerbia-logo.png" width="24" height="24" alt="">
         <img class="site-footer__logo site-footer__logo--dark" src="../../cerbia-logo.png" width="24" height="24" alt="">
         <span class="dt-text dt-text--label-l-high">CerbIA</span>
