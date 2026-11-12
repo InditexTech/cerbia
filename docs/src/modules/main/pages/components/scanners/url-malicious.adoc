@@ -28,12 +28,18 @@
 |`BLOCK`
 |Finding action.
 
+|`redact`
+|`true`
+|Cleans URL text in diagnostic details and hides data-URI payloads. Valid URLs retain scheme, host, port, and path; user information, query, and fragment are removed. With redaction enabled, invalid URLs passed through the URL formatter are shown as `[REDACTED URL]`.
+
 |`content_types`
 |`[TEXT, URL, CODE]`
 |Accepted content types.
 |===
 
 The scanner extracts supported URL forms, evaluates its heuristics, and returns the highest observed risk with a rationale describing the detected signals. It returns risk `0.0` when no URL is found or no heuristic is triggered.
+
+For data URIs, redaction hides the payload and adjacent text while retaining the detection reasons. Diagnostic cleanup changes display only; detection and scoring are unchanged. Set `redact: false` to restore legacy diagnostic content. This cleanup protects only diagnostic URL text and data-URI excerpts: retained paths and hosts are not guaranteed to be secret-free, configured labels and identities are treated as trusted configuration, and full results such as `entry.text` and `original_text` are not sanitized.
 
 The replacement lists are complete replacements for the corresponding built-in heuristic data. Use them when the deployment has a known set of trusted popular domains, approved shorteners, or organization-specific risky top-level domains; do not assume an omitted default list is added automatically.
 
