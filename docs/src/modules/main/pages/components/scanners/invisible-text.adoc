@@ -24,12 +24,18 @@
 |`BLOCK`
 |Finding action.
 
+|`redact`
+|`true`
+|Omits exact character/codepoint and Unicode-name samples from diagnostics while retaining counts and categories.
+
 |`content_types`
 |`null`
 |Accepted content types; `null` accepts every type.
 |===
 
 No hidden characters yields risk `0.0`. Counts at or below `threshold` produce risk `0.2`; larger counts begin at `0.7 + count × 0.03`, capped at `1.0`. If the cleaned text matches a suspicious keyword pattern, the score receives an additional `0.15` bonus.
+
+Sample omission changes diagnostic output only; detection and scoring are unchanged. Set `redact: false` to restore legacy character samples. This applies only to scanner diagnostic samples: configured labels and identities are treated as trusted configuration, and full results such as `entry.text` and `original_text` are not sanitized.
 
 [source,yaml]
 ----

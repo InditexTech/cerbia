@@ -20,12 +20,18 @@
 |`BLOCK`
 |Finding action.
 
+|`redact`
+|`true`
+|Replaces matched text excerpts in the rationale with `[REDACTED]`; match categories, count, and offsets remain available.
+
 |`content_types`
 |`[TEXT]`
 |Accepted content types.
 |===
 
 The scanner reports matching spans and a cumulative score derived from its matched patterns. Configure it after preprocessors so encoded instructions are visible to the pattern engine.
+
+Excerpt redaction changes diagnostic output only; detection and scoring are unchanged. Set `redact: false` to restore legacy diagnostics with matched excerpts. Redaction applies only to matched text excerpts: configured labels and identities are treated as trusted configuration, and full results such as `entry.text` and `original_text` are not sanitized.
 
 Language packs provide the human-language pattern families. Restricting `languages` limits those packs; it does not remove the scanner's own common pattern handling. Defensive-context patterns reduce findings when a suspicious phrase appears as an explanation or example rather than an instruction.
 
