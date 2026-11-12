@@ -25,7 +25,7 @@
   "creation_year": 2026,
   "integrity": {
     "algorithm": "hmac-sha256",
-    "signature": "09e955142d62abfe40895862bbec4876b07867c5db6c7aac484070f9ccda2024"
+    "signature": "576672fec879286446570061c852edc2bf21ca3c74a767d561c5e743aad096be"
   },
   "managed_by": "InditexTech CI governance",
   "managed_paths": {
@@ -41,7 +41,7 @@
     ".github/workflows/code-uv_python-build_snapshot.yml": "1dfd945b2f3956094fb9c7d78d290a03323c805ef90ebaad7e15c2bdd832567f",
     ".github/workflows/code-uv_python-release-core.yml": "d1dec9376a784a5625d24d4ee3e04a890817277e65fac4a05cbcbcf2d0be741e",
     ".github/workflows/code-uv_python-release.yml": "4472309bb10f541a17b98434f11a71d50e16dcfeeed617c263d323a28c7a88b5",
-    ".github/workflows/code-uv_python-sonarcloud-analysis.yml": "4e2827970b9024333e2daafd891896eb8ea707848db9701c342bcba635224a28",
+    ".github/workflows/code-uv_python-sonarcloud-analysis.yml": "7480b9c813e15dca61aa7f47cfda26f9e1874938a1a649b0b4d80cce07e38ee7",
     ".github/workflows/codeql.yml": "c8362cd28c2795f1fdf30ec44522701de09b5545c923f06d4db10a4cdf88414c",
     ".github/workflows/pr-verify.yml": "5628d1d93c09cb761602fcfc3857c325e2dc542cadc159a1edad58d1818d0de0",
     ".github/workflows/push-verify.yml": "643f6905fa30284af4a2eabac752293b2e785a5e82449bb6d97950624386829c",
@@ -61,6 +61,6 @@
   "schema_version": 2,
   "source_digests": {
     "base": "b5d5302dc47b88e363dd1b3adb1c043f85923a8480b8ce057928657fe049872c",
-    "python": "75b6939b20e69448f7a2863efb9c2a8790b7c84c1ca13390d6a3b07a9082178a"
+    "python": "844c1b911fc1e03620a0dfcb63dcca55ae8ff7d527c125087c138cfbf246d346"
   }
 }
