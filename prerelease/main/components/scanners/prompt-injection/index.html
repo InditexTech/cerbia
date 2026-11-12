@@ -864,6 +864,11 @@
 <td class="tableblock halign-left valign-top"><p class="tableblock">Finding action.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>redact</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Replaces matched text excerpts in the rationale with <code>[REDACTED]</code>; match categories, count, and offsets remain available.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>content_types</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[TEXT]</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Accepted content types.</p></td>
@@ -872,6 +877,9 @@
 </table></div></div>
 <div class="paragraph">
 <p>The scanner reports matching spans and a cumulative score derived from its matched patterns. Configure it after preprocessors so encoded instructions are visible to the pattern engine.</p>
+</div>
+<div class="paragraph">
+<p>Excerpt redaction changes diagnostic output only; detection and scoring are unchanged. Set <code>redact: false</code> to restore legacy diagnostics with matched excerpts. Redaction applies only to matched text excerpts: configured labels and identities are treated as trusted configuration, and full results such as <code>entry.text</code> and <code>original_text</code> are not sanitized.</p>
 </div>
 <div class="paragraph">
 <p>Language packs provide the human-language pattern families. Restricting <code>languages</code> limits those packs; it does not remove the scanner&#8217;s own common pattern handling. Defensive-context patterns reduce findings when a suspicious phrase appears as an explanation or example rather than an instruction.</p>

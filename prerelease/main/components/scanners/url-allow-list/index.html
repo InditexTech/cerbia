@@ -872,6 +872,11 @@
 <td class="tableblock halign-left valign-top"><p class="tableblock">Finding action.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>redact</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cleans the display of URLs returned in the rationale. Valid URLs retain scheme, host, port, and path; user information, query, and fragment are removed. With <code>redact: true</code>, invalid URLs that reach the formatter are shown as <code>[REDACTED URL]</code>.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>content_types</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[TEXT, URL, CODE]</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Accepted content types.</p></td>
@@ -904,6 +909,9 @@
 </div>
 <div class="paragraph">
 <p>To configure inline rules, pass <code>allowed_domains: ["https://example.com/*"]</code>. When text contains no URL, the scanner returns risk <code>0.0</code>. When every extracted URL matches a pattern, it also returns risk <code>0.0</code>; otherwise it returns <code>0.95</code> and a rationale listing up to five non-allowlisted URLs.</p>
+</div>
+<div class="paragraph">
+<p>URL display cleanup changes diagnostic output only; detection and scoring are unchanged. Set <code>redact: false</code> to restore legacy diagnostics. Valid URLs are still normalized. This cleanup applies only to diagnostic URL text: retained paths and hosts are not guaranteed to be secret-free, configured labels and identities are treated as trusted configuration, and full results such as <code>entry.text</code> and <code>original_text</code> are not sanitized.</p>
 </div>
 <div class="paragraph">
 <p><code>Runner</code> creates one <code>UrlRegistry</code> per runner and shares it with allowlist, denylist, and malicious-URL scanners. The registry keeps allow and deny rules separately; an explicit deny makes <code>is_allowed</code> false and cannot be overridden by an allow rule, regardless of registration source or order. Standalone scanners can share a registry through <code>url_registry</code>.</p>

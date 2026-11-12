@@ -869,6 +869,11 @@
 <td class="tableblock halign-left valign-top"><p class="tableblock">Finding action.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>redact</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Omits exact character/codepoint and Unicode-name samples from diagnostics while retaining counts and categories.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>content_types</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>null</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Accepted content types; <code>null</code> accepts every type.</p></td>
@@ -877,6 +882,9 @@
 </table></div></div>
 <div class="paragraph">
 <p>No hidden characters yields risk <code>0.0</code>. Counts at or below <code>threshold</code> produce risk <code>0.2</code>; larger counts begin at <code>0.7 + count × 0.03</code>, capped at <code>1.0</code>. If the cleaned text matches a suspicious keyword pattern, the score receives an additional <code>0.15</code> bonus.</p>
+</div>
+<div class="paragraph">
+<p>Sample omission changes diagnostic output only; detection and scoring are unchanged. Set <code>redact: false</code> to restore legacy character samples. This applies only to scanner diagnostic samples: configured labels and identities are treated as trusted configuration, and full results such as <code>entry.text</code> and <code>original_text</code> are not sanitized.</p>
 </div>
 <div class="listingblock">
 <div class="content">

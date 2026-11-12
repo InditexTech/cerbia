@@ -865,8 +865,8 @@
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>redact</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Replaces matched snippets in the rationale with <code>[REDACTED]</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Replaces matched text snippets in the rationale with <code>[REDACTED]</code>; match labels, counts, and rationale structure remain.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>severity</code></p></td>
@@ -887,6 +887,9 @@
 </table></div></div>
 <div class="paragraph">
 <p>The score starts at <code>0.80</code> and increases by <code>0.05</code> per match, capped at <code>1.0</code>. For <code>SEARCH</code> and <code>ALL</code>, matches found in registered defensive context are excluded. <code>FULL_MATCH</code> does not apply the defensive-context exclusion.</p>
+</div>
+<div class="paragraph">
+<p>Snippet redaction changes diagnostic output only; detection and scoring are unchanged. Set <code>redact: false</code> to restore legacy diagnostics with matched snippets. Redaction applies only to matched text snippets: configured labels and identities are treated as trusted configuration, and full results such as <code>entry.text</code> and <code>original_text</code> are not sanitized.</p>
 </div>
 <div class="listingblock">
 <div class="content">

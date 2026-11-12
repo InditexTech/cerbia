@@ -872,6 +872,11 @@
 <td class="tableblock halign-left valign-top"><p class="tableblock">Finding action. A matching URL produces a blocking finding by default.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>redact</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cleans the display of URLs returned in the rationale. Valid URLs retain scheme, host, port, and path; user information, query, and fragment are removed. With <code>redact: true</code>, invalid URLs that reach the formatter are shown as <code>[REDACTED URL]</code>; the stock deny registry does not flag URLs that fail normalization.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>content_types</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[TEXT, URL, CODE]</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Accepted content types.</p></td>
@@ -883,6 +888,9 @@
 </div>
 <div class="paragraph">
 <p>An empty or comment-only file adds no deny rules; any findings can only come from other deny rules already in the shared registry. Explicit deny rules win over matching allow rules regardless of source or registration order. <code>UrlRegistry.is_denied</code> checks the deny store directly; <code>is_allowed</code> also returns false for explicitly denied URLs.</p>
+</div>
+<div class="paragraph">
+<p>Redaction changes diagnostic display only; detection and scoring are unchanged. Set <code>redact: false</code> to restore legacy diagnostics. Valid URLs are still normalized. Redaction protects only diagnostic URL text: retained paths and hosts are not guaranteed to be secret-free, configured labels and identities are treated as trusted configuration, and full results such as <code>entry.text</code> and <code>original_text</code> are not sanitized.</p>
 </div>
 </div>
 </div>
