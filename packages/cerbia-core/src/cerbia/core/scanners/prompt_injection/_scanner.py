@@ -20,6 +20,8 @@ class PromptInjectionScanner:
         languages (list[str] | None): ISO-639-1 codes to load patterns for. Defaults to all supported languages.
         severity (Severity): Severity level for produced findings.
         action (Action): Action to take when injection is detected.
+        content_types (tuple[ContentType, ...] | list[str] | None): Content types to scan.
+        redact (bool): Redact matching snippets in the rationale. Defaults to True; set False to include them.
 
     Attributes:
         scanner_id (str): Unique identifier for the scanner.
@@ -45,12 +47,14 @@ class PromptInjectionScanner:
         severity: Severity = Severity.CRITICAL,
         action: Action = Action.BLOCK,
         content_types: tuple[ContentType, ...] | list[str] | None = (ContentType.TEXT,),
+        redact: bool = True,
     ) -> None:
         self.scanner_id = "prompt_injection"
         self.scanner_name = "Prompt Injection"
         self.severity = severity
         self.action = action
         self.content_types = tuple(content_types) if content_types is not None else None
+        self._redact = redact
         self._patterns = get_patterns(languages=languages, keys=self.i18n_keys)
         defensive = get_patterns(languages=languages, keys=["defensive_context"])
         self._defensive_patterns: list[re.Pattern[str]] = defensive.get("defensive_context", [])
@@ -96,7 +100,7 @@ class PromptInjectionScanner:
             BASE_RISK_SCORE + MATCH_INCREMENT * (len(hits) - 1) + CATEGORY_BONUS * (len(unique_categories) - 1),
         )
 
-        snippets = "; ".join(f"[{cat}] '{snip}'" for cat, snip in hits)
+        snippets = "; ".join(f"[{cat}] '{'[REDACTED]' if self._redact else snip}'" for cat, snip in hits)
         rationale = f"Injection detected ({len(hits)} match(es)): {snippets}"
 
         outcome = ScanOutcome(risk_score=risk_score, rationale=rationale, matches=matches)

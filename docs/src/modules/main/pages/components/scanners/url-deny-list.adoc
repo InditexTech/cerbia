@@ -22,6 +22,10 @@
 |`BLOCK`
 |Finding action. A matching URL produces a blocking finding by default.
 
+|`redact`
+|`true`
+|Cleans the display of URLs returned in the rationale. Valid URLs retain scheme, host, port, and path; user information, query, and fragment are removed. With `redact: true`, invalid URLs that reach the formatter are shown as `[REDACTED URL]`; the stock deny registry does not flag URLs that fail normalization.
+
 |`content_types`
 |`[TEXT, URL, CODE]`
 |Accepted content types.
@@ -30,6 +34,8 @@
 Pass either a list of inline patterns or a file path; the two forms are not combined. The file is read once when the scanner is constructed. Each nonblank line is one pattern; surrounding whitespace is stripped and lines whose first non-whitespace character is `#` are comments. Inline comments are not supported, and `#` in a rule is retained. Only `*` is a wildcard; the matcher does not validate strict URL grammar. Relative paths resolve from the process working directory, not the configuration file's directory. Files must have a `.txt` suffix. Missing, unreadable, invalid-encoding, or invalid-rule files raise `CerbIAConfigError` with path context.
 
 An empty or comment-only file adds no deny rules; any findings can only come from other deny rules already in the shared registry. Explicit deny rules win over matching allow rules regardless of source or registration order. `UrlRegistry.is_denied` checks the deny store directly; `is_allowed` also returns false for explicitly denied URLs.
+
+Redaction changes diagnostic display only; detection and scoring are unchanged. Set `redact: false` to restore legacy diagnostics. Valid URLs are still normalized. Redaction protects only diagnostic URL text: retained paths and hosts are not guaranteed to be secret-free, configured labels and identities are treated as trusted configuration, and full results such as `entry.text` and `original_text` are not sanitized.
 
 == Configuration
 

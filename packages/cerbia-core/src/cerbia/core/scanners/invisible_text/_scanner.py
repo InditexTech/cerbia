@@ -20,6 +20,8 @@ class InvisibleTextScanner:
         languages (list[str] | None): ISO-639-1 codes to load patterns for. Defaults to all supported languages.
         severity (Severity): Severity level for produced findings.
         action (Action): Action to take when invisible text is detected.
+        redact (bool): Hide exact codepoints and Unicode-name samples in rationale. Defaults to ``True``.
+            Set to ``False`` for legacy diagnostic samples; this does not redact the original input.
 
     Attributes:
         scanner_id (str): Unique identifier for the scanner.
@@ -35,6 +37,7 @@ class InvisibleTextScanner:
         severity: Severity = Severity.CRITICAL,
         action: Action = Action.BLOCK,
         content_types: tuple[ContentType, ...] | list[str] | None = None,
+        redact: bool = True,
     ) -> None:
         self.scanner_id = "invisible_text"
         self.scanner_name = "Invisible Text"
@@ -42,6 +45,7 @@ class InvisibleTextScanner:
         self.action = action
         self.content_types = tuple(content_types) if content_types is not None else None
         self._threshold = threshold
+        self._redact = redact
         suspicious = get_patterns(languages=languages, keys=["keyword_suspicious_keywords"])
         self._suspicious_patterns: list[re.Pattern[str]] = suspicious.get("keyword_suspicious_keywords", [])
 
@@ -74,9 +78,13 @@ class InvisibleTextScanner:
             return outcome
 
         if total <= self._threshold:
+            rationale = f"Minor invisible chars ({total})"
+            if not self._redact:
+                rationale += f": {', '.join(found_chars)}"
+
             outcome = ScanOutcome(
                 risk_score=0.2,
-                rationale=f"Minor invisible chars ({total}): {', '.join(found_chars)}",
+                rationale=rationale,
             )
             logger.debug(
                 "%s minor matches found",
@@ -114,11 +122,14 @@ class InvisibleTextScanner:
             parts.append(f"{co_cn_count} private-use/unassigned")
 
         detail = ", ".join(parts)
-        samples = ", ".join(found_chars[:5])
+        rationale = f"Suspicious invisible characters ({total}): {detail}."
+        if not self._redact:
+            samples = ", ".join(found_chars[:5])
+            rationale += f" Samples: {samples}"
 
         outcome = ScanOutcome(
             risk_score=risk_score,
-            rationale=f"Suspicious invisible characters ({total}): {detail}. Samples: {samples}",
+            rationale=rationale,
         )
         match_count = len(found_chars)
         logger.debug(

@@ -1,7 +1,8 @@
 from logging import getLogger
+from re import Match
 from urllib.parse import parse_qs, urlparse
 
-from ..._utils.url import extract_urls
+from ..._utils.url import extract_urls, format_url_finding
 from ...models.scans import MatchSpan, ScanOutcome
 from ...registries.url import UrlRegistry
 from ...types import Action, ContentType, Severity
@@ -18,6 +19,18 @@ from ._validations import check_typosquatting, is_ip_url
 logger = getLogger(__name__)
 
 
+def _data_uri_display_ranges(text: str) -> list[tuple[int, int]]:
+    ranges: list[tuple[int, int]] = []
+    for header in DATA_URI_PATTERN.finditer(text):
+        end = header.end()
+        while end < len(text) and not text[end].isspace() and text[end] not in "\"'<>":
+            end += 1
+
+        ranges.append((header.start(), end))
+
+    return ranges
+
+
 class MaliciousUrlScanner:
     """Detects potentially malicious URLs via heuristic analysis.
 
@@ -31,6 +44,9 @@ class MaliciousUrlScanner:
         shortener_domains (list[str] | None): URL shortener domains to flag. Defaults to a built-in set.
         popular_domains (list[str] | None): Domains to check for typosquatting against. Defaults to a built-in set.
         url_registry (UrlRegistry | None): Optional registry of allowed URLs to skip scanning. Defaults to None.
+        redact (bool): Remove URL credentials, query, and fragment from rationale and hide data URI payloads.
+            Defaults to True. False preserves raw legacy diagnostic snippets. Hosts, paths, ports, and detection
+            reasons remain visible; redirect parameter names use canonical lowercase spelling when redacted.
 
     Attributes:
         scanner_id (str): Unique identifier for the scanner.
@@ -53,6 +69,7 @@ class MaliciousUrlScanner:
             ContentType.URL,
             ContentType.CODE,
         ),
+        redact: bool = True,
     ) -> None:
         self.scanner_id = "url_malicious"
         self.scanner_name = "Malicious URL"
@@ -65,6 +82,7 @@ class MaliciousUrlScanner:
         )
         self._popular_domains = frozenset(popular_domains) if popular_domains is not None else DEFAULT_POPULAR_DOMAINS
         self._url_registry = url_registry
+        self._redact = redact
 
     def scan(self, text: str) -> ScanOutcome:
         """Scan text for malicious URL indicators.
@@ -114,12 +132,15 @@ class MaliciousUrlScanner:
         matches: list[MatchSpan] = []
 
         if data_uri_match is not None:
-            data_uri_snippet = text[data_uri_match.start() : data_uri_match.start() + 60]
+            data_uri_snippet = (
+                "[REDACTED]" if self._redact else text[data_uri_match.start() : data_uri_match.start() + 60]
+            )
             flags.append(("Data URI", data_uri_snippet, 0.9))
             matches.append(MatchSpan(start=data_uri_match.start(), end=data_uri_match.end()))
 
+        display_ranges = _data_uri_display_ranges(text) if self._redact else []
         for url in urls:
-            url_flags = self._check_url(url.group())
+            url_flags = self._check_url_match(url, display_ranges)
             flags.extend(url_flags)
             if url_flags:
                 matches.append(MatchSpan(start=url.start(), end=url.end()))
@@ -157,9 +178,16 @@ class MaliciousUrlScanner:
         )
         return ScanOutcome(risk_score=max_risk_score, rationale=rationale, matches=matches)
 
+    def _check_url_match(self, url: Match[str], display_ranges: list[tuple[int, int]]) -> list[tuple[str, str, float]]:
+        flags = self._check_url(url.group())
+        if any(url.start() < end and start < url.end() for start, end in display_ranges):
+            return [(reason, "[REDACTED]", score) for reason, _, score in flags]
+
+        return flags
+
     def _check_url(self, url: str) -> list[tuple[str, str, float]]:
         flags: list[tuple[str, str, float]] = []
-        snip = url[:60]
+        snip = format_url_finding(url) if self._redact else url[:60]
 
         try:
             parsed = urlparse(url)
@@ -179,11 +207,7 @@ class MaliciousUrlScanner:
         if hostname in self._shortener_domains or any(hostname.endswith("." + d) for d in self._shortener_domains):
             flags.append(("URL shortener", snip, 0.7))
 
-        params = parse_qs(parsed.query)
-        for param_name in params:
-            if param_name.lower() in REDIRECT_PARAMS:
-                flags.append((f"Redirect param '{param_name}'", snip, 0.8))
-                break
+        flags.extend(self._check_redirect_query(parsed.query, snip))
 
         if PUNYCODE_PATTERN.search(hostname):
             flags.append(("Punycode/IDN domain", snip, 0.85))
@@ -199,3 +223,11 @@ class MaliciousUrlScanner:
             flags.append((f"Possible typosquatting of {typosquat_target}", snip, 0.85))
 
         return flags
+
+    def _check_redirect_query(self, query: str, snip: str) -> list[tuple[str, str, float]]:
+        for param_name in parse_qs(query):
+            if param_name.lower() in REDIRECT_PARAMS:
+                display_param = param_name.lower() if self._redact else param_name
+                return [(f"Redirect param '{display_param}'", snip, 0.8)]
+
+        return []

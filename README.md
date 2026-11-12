@@ -62,13 +62,13 @@ inline[1]
 │ Scanner                        ┃     ┃ Rationale                                                                  │
 │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
 │ Invisible Text                 │  ✓  │ No invisible characters found                                              │
-│ Keyword                        │  ✗  │ Suspicious keyword(s) (3): Instruction Override ('Ignore all'); Suspicious │
-│                                │     │ Keywords ('Ignore'); Suspicious Keywords ('instructions')                  │
+│ Keyword                        │  ✗  │ Suspicious keyword(s) (3): Instruction Override ('[REDACTED]');            │
+│                                │     │ Suspicious Keywords ('[REDACTED]'); Suspicious Keywords ('[REDACTED]')     │
 │ Prompt Injection               │  ✓  │ No injection patterns found                                                │
 │ Secrets                        │  ✓  │ No secrets detected                                                        │
 │ Malicious URL                  │  ✓  │ No URLs found                                                              │
 │ URL Allowlist                  │  ✓  │ No URLs found                                                              │
-╰─ score=0.71 · Keyword: Suspicious keyword(s) (3): Instruction Override ('Ignore all'); Suspicious Keywords ('Igno─╯
+╰─ score=0.71 · Keyword: Suspicious keyword(s) (3) ─────────────────────────────────────────────────────────────────╯
 
 ```
 

@@ -2,11 +2,10 @@ from logging import getLogger
 from pathlib import Path
 from typing import assert_never
 
-from ..._utils.url import extract_urls
+from ..._utils.url import extract_urls, format_url_finding
 from ...models.scans import MatchSpan, ScanOutcome
 from ...registries.url import UrlRegistry
 from ...types import Action, ContentType, Severity
-from ._format import format_url_finding
 
 logger = getLogger(__name__)
 
@@ -20,6 +19,7 @@ class UrlAllowListScanner:
         action (Action): Action to take when non-allowlisted URLs are detected.
         url_registry (UrlRegistry | None): Optional shared registry.
         content_types: Optional list/tuple of content types supported by the scanner.
+        redact (bool): Redact invalid URLs in findings; valid URLs remain normalized. Defaults to True.
 
     Attributes:
         scanner_id (str): Unique identifier for the scanner.
@@ -40,11 +40,13 @@ class UrlAllowListScanner:
             ContentType.URL,
             ContentType.CODE,
         ),
+        redact: bool = True,
     ) -> None:
         self.scanner_id: str = "url_allowlist"
         self.scanner_name: str = "URL Allowlist"
         self.severity: Severity = severity
         self.action: Action = action
+        self.redact: bool = redact
         self.content_types: tuple[ContentType | str, ...] | None = (
             tuple(content_types) if content_types is not None else None
         )
@@ -85,7 +87,7 @@ class UrlAllowListScanner:
 
         candidate_count = len(urls)
         rejected = [match for match in urls if not self._url_registry.is_allowed(match.group())]
-        findings = [format_url_finding(match.group()) for match in rejected]
+        findings = [format_url_finding(match.group(), redact=self.redact) for match in rejected]
 
         if not findings:
             logger.debug(
