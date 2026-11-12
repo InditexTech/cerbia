@@ -114,3 +114,34 @@ def test_allowlist_preserves_original_spans_for_normalized_repeated_unicode_urls
 
     assert [text[span.start : span.end] for span in result.matches] == [url, url]
     assert "https://xn--bcher-kva.example/docs" in result.rationale
+
+
+@pytest.mark.parametrize("redact", [None, True, False], ids=["omitted", "enabled", "disabled"])
+def test_allowlist_formats_invalid_url_when_redaction_is_configured(redact: bool | None) -> None:
+    # Given
+    url = "https://user:password@bad_host/path?token=secret#fragment"
+    scanner = UrlAllowListScanner([]) if redact is None else UrlAllowListScanner([], redact=redact)
+
+    # When
+    result = scanner.scan(f"See {url}")
+
+    # Then
+    expected = url if redact is False else "[REDACTED URL]"
+    assert result.rationale == f"URL(s) not on allowlist (1): {expected}"
+    assert result.risk_score == 0.95
+    assert result.matches == [MatchSpan(start=4, end=4 + len(url))]
+
+
+@pytest.mark.parametrize("redact", [None, True, False], ids=["omitted", "enabled", "disabled"])
+def test_allowlist_preserves_normalized_diagnostics_when_redaction_is_configured(redact: bool | None) -> None:
+    # Given
+    url = "HTTPS://user:password@EXAMPLE.COM:8443/path/../docs?token=secret#fragment"
+    scanner = UrlAllowListScanner([]) if redact is None else UrlAllowListScanner([], redact=redact)
+
+    # When
+    result = scanner.scan(url)
+
+    # Then
+    assert result.rationale == "URL(s) not on allowlist (1): https://example.com:8443/docs"
+    assert result.risk_score == 0.95
+    assert result.matches == [MatchSpan(start=0, end=len(url))]

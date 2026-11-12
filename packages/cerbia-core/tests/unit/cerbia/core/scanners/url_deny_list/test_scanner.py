@@ -4,7 +4,9 @@ import pytest
 from cerbia.core.models.scans import MatchSpan
 from cerbia.core.registries.url import UrlRegistry
 from cerbia.core.scanners import UrlDenyListScanner
+from cerbia.core.scanners.url_deny_list import _scanner
 from cerbia.core.types import Action, Severity
+from pytest_mock import MockerFixture
 
 pytestmark = pytest.mark.unit
 
@@ -69,3 +71,23 @@ def test_empty_deny_policy_is_safe(text: str) -> None:
 
     assert result.risk_score == 0.0
     assert result.matches == []
+
+
+@pytest.mark.parametrize("redact", [None, True, False], ids=["omitted", "enabled", "disabled"])
+def test_denylist_preserves_normalized_diagnostics_when_redaction_is_configured(
+    redact: bool | None, mocker: MockerFixture
+) -> None:
+    # Given
+    url = "HTTPS://user:password@EXAMPLE.COM:8443/path/../docs?token=secret#fragment"
+    rules = ["https://example.com:8443/docs"]
+    scanner = UrlDenyListScanner(rules) if redact is None else UrlDenyListScanner(rules, redact=redact)
+    formatter = mocker.spy(_scanner, "format_url_finding")
+
+    # When
+    result = scanner.scan(f"See {url}")
+
+    # Then
+    assert result.rationale == "URL(s) on denylist (1): https://example.com:8443/docs"
+    assert result.risk_score == 0.95
+    assert result.matches == [MatchSpan(start=4, end=4 + len(url))]
+    formatter.assert_called_once_with(url, redact=True if redact is None else redact)

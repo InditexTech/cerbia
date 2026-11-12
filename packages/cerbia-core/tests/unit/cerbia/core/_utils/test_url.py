@@ -1,6 +1,6 @@
 import pytest
 from cerbia.core._utils import url as url_utils
-from cerbia.core._utils.url import extract_urls, normalize_for_matching
+from cerbia.core._utils.url import extract_urls, format_url_finding, normalize_for_matching
 
 pytestmark = pytest.mark.unit
 
@@ -92,6 +92,29 @@ def test_normalize_for_matching_returns_none_when_url_is_invalid(url: str) -> No
     result = normalize_for_matching(url)
 
     assert result is None
+
+
+def test_normalize_for_matching_returns_none_when_port_exceeds_integer_conversion_limit() -> None:
+    # Given
+    url = f"https://evil.xyz:{'9' * 5000}/path?token=private"
+
+    # When
+    result = normalize_for_matching(url)
+
+    # Then
+    assert result is None
+
+
+@pytest.mark.parametrize("port", ["000443", "0" * 1000 + "443", "0", "65535"])
+def test_normalize_for_matching_preserves_port_format_when_port_is_valid(port: str) -> None:
+    # Given
+    url = f"https://example.com:{port}/path?token=private"
+
+    # When
+    result = normalize_for_matching(url)
+
+    # Then
+    assert result == f"https://example.com:{port}/path"
 
 
 @pytest.mark.parametrize(
@@ -192,3 +215,77 @@ def test_normalize_path_for_matching_returns_expected_path_when_path_is_provided
     result = url_utils._normalize_path_for_matching(path)
 
     assert result == expected_path
+
+
+def test_url_allowlist_format_returns_normalized_url_when_valid_url_is_provided() -> None:
+    result = format_url_finding("HTTPS://User:pass@EXAMPLE.COM/path/../docs?query=value#fragment")
+
+    assert result == "https://example.com/docs"
+
+
+def test_url_allowlist_format_returns_original_value_when_url_cannot_be_normalized() -> None:
+    url = "not a valid URL"
+
+    result = format_url_finding(url, redact=False)
+
+    assert result == url
+
+
+def test_url_format_redacts_invalid_url_when_redaction_is_omitted() -> None:
+    # Given
+    url = "https://user:password@bad_host/path?token=secret#fragment"
+
+    # When
+    result = format_url_finding(url)
+
+    # Then
+    assert result == "[REDACTED URL]"
+
+
+@pytest.mark.parametrize("url", ["not a valid URL", "https://user:password@bad_host/path?token=secret#fragment"])
+def test_url_format_redacts_invalid_url_when_redaction_is_enabled(url: str) -> None:
+    # Given / When
+    result = format_url_finding(url, redact=True)
+
+    # Then
+    assert result == "[REDACTED URL]"
+
+
+@pytest.mark.parametrize("redact", [True, False])
+def test_url_format_normalizes_before_truncation_when_url_contains_secrets(redact: bool) -> None:
+    # Given
+    url = f"HTTPS://user:{'secret' * 20}@EXAMPLE.COM:8443/path/../docs?token=secret#fragment"
+
+    # When
+    result = format_url_finding(url, 32, redact)
+
+    # Then
+    assert result == "https://example.com:8443/docs"
+
+
+def test_url_format_truncates_raw_fallback_when_redaction_is_disabled() -> None:
+    # Given
+    url = "invalid URL containing a secret"
+
+    # When
+    result = format_url_finding(url, 10, False)
+
+    # Then
+    assert result == "invalid..."
+
+
+@pytest.mark.parametrize(
+    ("url", "display_limit", "expected_result"),
+    [
+        ("https://example.com/abc", 23, "https://example.com/abc"),
+        ("https://example.com/abcdef", 23, "https://example.com/..."),
+        ("https://example.com/abcdef", 10, "https:/..."),
+    ],
+    ids=["exact_limit", "default_truncation", "custom_limit"],
+)
+def test_url_allowlist_format_truncates_url_when_display_limit_is_exceeded(
+    url: str, display_limit: int, expected_result: str
+) -> None:
+    result = format_url_finding(url, display_limit)
+
+    assert result == expected_result

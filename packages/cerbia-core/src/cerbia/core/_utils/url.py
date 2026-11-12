@@ -119,7 +119,10 @@ def _normalize_port_for_matching(port: str | None) -> str | None:
     if not port.isascii() or not port.isdigit():
         return None
 
-    port_number = int(port)
+    try:
+        port_number = int(port)
+    except ValueError:
+        return None
     if port_number < 0 or port_number > 65535:
         return None
 
@@ -200,3 +203,26 @@ def normalize_for_matching(url: str) -> str | None:
 
     path = _normalize_path_for_matching(parsed.path)
     return urlunsplit((scheme, authority, path, "", ""))
+
+
+def format_url_finding(url: str, display_limit: int = 60, redact: bool = True) -> str:
+    """Generates a formatted string for a URL finding, ensuring it is normalized and truncated if necessary.
+
+    Args:
+        url (str): The URL to format.
+        display_limit (int): Maximum length of the formatted string. Defaults to 60.
+        redact (bool): Replace invalid URLs with a placeholder instead of raw input. Defaults to True.
+
+    Returns:
+        str: A formatted string representing the URL finding, truncated if it exceeds the display limit.
+    """
+    normalized = normalize_for_matching(url)
+    if normalized is None and redact:
+        return "[REDACTED URL]"
+
+    display = normalized if normalized is not None else url
+
+    if len(display) <= display_limit:
+        return display
+
+    return f"{display[: display_limit - 3]}..."

@@ -2,11 +2,10 @@ from logging import getLogger
 from pathlib import Path
 from typing import assert_never
 
-from ..._utils.url import extract_urls
+from ..._utils.url import extract_urls, format_url_finding
 from ...models.scans import MatchSpan, ScanOutcome
 from ...registries.url import UrlRegistry
 from ...types import Action, ContentType, Severity
-from ..url_allow_list._format import format_url_finding
 
 logger = getLogger(__name__)
 
@@ -20,6 +19,7 @@ class UrlDenyListScanner:
         action (Action): Action to take when a denylisted URL is detected.
         content_types: Optional list/tuple of content types supported by the scanner.
         url_registry (UrlRegistry | None): Optional shared allow/deny registry.
+        redact (bool): Redact invalid URLs in findings; valid URLs remain normalized. Defaults to True.
 
     Attributes:
         scanner_id (str): Unique identifier for the scanner.
@@ -40,11 +40,13 @@ class UrlDenyListScanner:
             ContentType.URL,
             ContentType.CODE,
         ),
+        redact: bool = True,
     ) -> None:
         self.scanner_id: str = "url_denylist"
         self.scanner_name: str = "URL Denylist"
         self.severity: Severity = severity
         self.action: Action = action
+        self.redact: bool = redact
         self.content_types: tuple[ContentType | str, ...] | None = (
             tuple(content_types) if content_types is not None else None
         )
@@ -85,7 +87,7 @@ class UrlDenyListScanner:
 
         candidate_count = len(urls)
         blocked = [match for match in urls if self._url_registry.is_denied(match.group())]
-        findings = [format_url_finding(match.group()) for match in blocked]
+        findings = [format_url_finding(match.group(), redact=self.redact) for match in blocked]
 
         if not findings:
             logger.debug(
