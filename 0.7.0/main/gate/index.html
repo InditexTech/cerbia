@@ -1,0 +1,1095 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+
+<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script>
+      /*
+       * Theme bootstrap. Runs before first paint so the page never flashes the
+       * wrong theme. Keep it inline, keep it tiny, and keep it in sync with
+       * src/js/08-theme.ts, which owns the same storage key and class names.
+       *
+       * IDS switches theme with a class on <html>, not a data attribute, so an
+       * attribute here would style nothing.
+       */
+      (function () {
+        var stored
+        try { stored = localStorage.getItem('dt-theme') } catch (e) {}
+        var theme = stored === 'light' || stored === 'dark'
+          ? stored
+          : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        var root = document.documentElement
+        root.classList.add('dt-theme-' + theme, 'dt-scale-medium')
+        root.style.colorScheme = theme
+      })()
+    </script>
+    <script>
+      /*
+       * Side-menu collapse bootstrap (GH-8). Runs before first paint so the
+       * 320px column never flashes in and reflows the article on navigation.
+       * Keep it inline, keep it tiny, and keep it in sync with
+       * src/js/01-nav.ts, which owns the same storage key and class name.
+       *
+       * A stored choice always wins; absent one, the menu starts collapsed
+       * on the home/landing page (matching Figma's "State=Home" toolbar
+       * variant, which is the only one that shows the toggle) and open
+       * everywhere else. With JavaScript disabled this script never runs, so
+       * the class is never added and the menu stays open unconditionally —
+       * the toggle that would reopen it is also never unhidden.
+       */
+      (function () {
+        var stored
+        try { stored = localStorage.getItem('docouture-side-menu') } catch (e) {}
+        var collapsed = stored === 'collapsed' || stored === 'open'
+          ? stored === 'collapsed'
+          : document.documentElement.hasAttribute('data-page-home')
+        if (collapsed) document.documentElement.classList.add('is-side-menu-collapsed')
+      })()
+    </script>
+    <script>
+      /*
+       * ToC collapse bootstrap (GH-10). Runs before first paint so a closed
+       * choice never flashes open for an instant. Keep it in sync with
+       * src/js/02-on-this-page.ts, which owns the same storage key and class
+       * name.
+       *
+       * Deliberately does NOT add `has-toc` — only 02-on-this-page.ts knows
+       * whether this page actually has a usable ToC (headings found, page
+       * not `-toc`), and every effect of the class added here is itself
+       * gated behind `has-toc` in toc.css, so there is nothing to flash
+       * either way before that script runs. This one exists only so a
+       * *closed* choice is already in place the moment it does.
+       */
+      (function () {
+        var stored
+        try { stored = localStorage.getItem('docouture-toc') } catch (e) {}
+        if (stored === 'closed') document.documentElement.classList.add('is-toc-closed')
+      })()
+    </script>
+
+<title>Gates | CerbIA</title>
+
+    <link rel="canonical" href="https://inditextech.github.io/cerbia/0.7.0/main/gate/">
+    <link rel="prev" href="../cli/">
+    <link rel="next" href="../packages/">
+    <meta name="description" content="Understand how simple and cascade gates turn scanner findings into an allow or block verdict.">
+    <meta name="generator" content="Antora 3.2.0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Mono:wght@100..900&display=swap">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/mobile-content-overflow.css">
+
+
+
+    <link rel="icon" href="../../../favicon.png">
+  </head>
+  <body class="article">
+
+
+
+<header class="header-toolbar">
+  <div class="dt-grid-layout dt-grid-layout--with-margin header-toolbar__grid">
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-6 dt-grid-layout__item--span-xs-3 header-toolbar__left">
+      <button class="dt-button dt-button--ghost dt-button--icon-only side-menu-toggle" type="button" aria-controls="side-menu" hidden>
+        <span class="dt-button__content">
+          <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-menu"></use></svg></span>
+        </span>
+      </button>
+      <a class="header-toolbar__brand" href="../../">
+        <img class="header-toolbar__logo header-toolbar__logo--light" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+        <img class="header-toolbar__logo header-toolbar__logo--dark" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+        <span class="header-toolbar__product-name dt-text dt-text--label-l-high">CerbIA</span>
+      </a>
+    </div>
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-6 dt-grid-layout__item--span-xs-3 header-toolbar__actions">
+      <button type="button" class="dt-button dt-button--ghost header-toolbar__search-trigger">
+        <span class="dt-button__content">
+          <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-search"></use></svg></span>
+          <span class="dt-text dt-text--label-l header-toolbar__search-label">Search</span>
+          <kbd class="header-toolbar__search-shortcut" aria-hidden="true">⌘K</kbd>
+        </span>
+      </button>
+
+<div class="page-versions">
+  <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--latest version-menu-toggle" title="Show other versions of page" aria-expanded="false">
+    <span class="dt-tag__label">0.7.0</span>
+    <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
+  </button>
+  <div class="version-menu">
+    <a class="version" href="../../../prerelease/main/gate/">
+      <span class="version__label">prerelease</span>
+      <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
+    </a>
+    <span class="version is-current" aria-current="page">
+      <span class="version__label">0.7.0</span>
+      <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
+          </span>
+    <a class="version" href="../../../0.6.0/main/gate/">
+      <span class="version__label">0.6.0</span>
+    </a>
+    <a class="version" href="../../../0.5.0/main/gate/">
+      <span class="version__label">0.5.0</span>
+    </a>
+    <a class="version" href="../../../0.4.0/main/gate/">
+      <span class="version__label">0.4.0</span>
+    </a>
+    <a class="version" href="../../../0.3.2/main/gate/">
+      <span class="version__label">0.3.2</span>
+    </a>
+    <a class="version" href="../../../0.3.1/main/gate/">
+      <span class="version__label">0.3.1</span>
+    </a>
+    <a class="version" href="../../../0.3.0/main/gate/">
+      <span class="version__label">0.3.0</span>
+    </a>
+  </div>
+</div>
+
+<a class="dt-button dt-button--ghost dt-button--icon-only header-toolbar__repo" href="https://github.com/InditexTech/cerbia" target="_blank" rel="noopener" aria-label="Repository">
+  <span class="dt-button__content">
+    <span class="dt-button__icon dt-button__icon-icon header-toolbar__repo-icon" aria-hidden="true"></span>
+  </span>
+</a>
+
+<button class="dt-button dt-button--ghost dt-button--icon-only theme-toggle" type="button" hidden>
+  <span class="dt-button__content">
+    <span class="dt-button__icon dt-button__icon-icon theme-toggle-icon theme-toggle-icon--light" aria-hidden="true"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-sun"></use></svg></span>
+    <span class="dt-button__icon dt-button__icon-icon theme-toggle-icon theme-toggle-icon--dark" aria-hidden="true"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-moon"></use></svg></span>
+  </span>
+</button>
+    </div>
+  </div>
+</header>
+
+<dialog id="search-dialog" class="search-dialog" aria-label="Search" data-search-index="ROOT-0.7.0.json">
+  <div class="dt-overlay dt-overlay--visible search-dialog__overlay">
+    <div class="dt-overlay__content"></div>
+    <div class="dt-modal dt-modal--small search-dialog__panel">
+      <div class="dt-modal__container search-dialog__container">
+        <div class="dt-search-field-minimal dt-search-field-minimal--full-width search-dialog__field">
+          <span class="dt-search-field-minimal__icon-start" aria-hidden="true"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-search"></use></svg></span>
+          <div class="dt-search-field-minimal__input-wrapper">
+            <div class="dt-search-field-minimal__input-container">
+              <input type="search" class="dt-search-field-minimal__input" placeholder="Search the docs" aria-label="Search the docs"
+                role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-autocomplete="list"
+                aria-controls="search-dialog-listbox" disabled>
+            </div>
+          </div>
+          <button type="button" class="dt-button dt-button--ghost dt-button--icon-only search-dialog__close" aria-label="Close search" disabled>
+            <span class="dt-button__content">
+              <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-x"></use></svg></span>
+            </span>
+          </button>
+        </div>
+        <div class="search-dialog__chips" role="group" aria-label="Filter results by module">
+          <button type="button" class="dt-tag dt-tag--solid dt-tag--selected search-dialog__chip" data-category="" aria-pressed="true">
+            <span class="dt-tag__label">All</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="Documentation" aria-pressed="false">
+            <span class="dt-tag__label">Documentation</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia" aria-pressed="false">
+            <span class="dt-tag__label">cerbia</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-core" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-core</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-cli" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-cli</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-ml" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-ml</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-presidio" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-presidio</span>
+          </button>
+          <button type="button" class="dt-tag dt-tag--solid search-dialog__chip" data-category="cerbia-protectai" aria-pressed="false">
+            <span class="dt-tag__label">cerbia-protectai</span>
+          </button>
+        </div>
+        <div id="search-dialog-listbox" class="dt-modal__content dt-modal__content--scrollable search-dialog__results" role="listbox" aria-label="Search results"></div>
+        <div class="search-dialog__status" aria-live="polite"></div>
+        <div class="dt-modal__footer dt-modal__footer--horizontal search-dialog__footer">
+          <span class="dt-modal__footer-left dt-text dt-text--detail-m search-dialog__hints">
+            <kbd>&uarr;&darr;</kbd> navigate &middot; <kbd>&crarr;</kbd> select &middot; <kbd>esc</kbd> close
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+<div class="dt-floating-button-wrapper dt-floating-button-wrapper--viewport dt-floating-button-wrapper--end search-fab">
+  <button type="button" class="dt-button dt-button--ghost dt-button--icon-only dt-floating-button search-fab__trigger" aria-label="Search" aria-haspopup="dialog" aria-controls="search-dialog">
+    <span class="dt-button__content">
+      <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-search"></use></svg></span>
+    </span>
+  </button>
+</div>
+
+<dialog id="image-zoom-dialog" class="image-zoom-dialog" aria-label="Zoomed image">
+  <div class="dt-overlay dt-overlay--visible image-zoom-dialog__overlay">
+    <div class="dt-overlay__content"></div>
+    <div class="dt-modal dt-modal--fullscreen image-zoom-dialog__panel">
+      <div class="dt-modal__container image-zoom-dialog__container">
+        <button type="button" class="dt-button dt-button--ghost dt-button--icon-only image-zoom-dialog__close" aria-label="Close zoomed image">
+          <span class="dt-button__content">
+            <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-x"></use></svg></span>
+          </span>
+        </button>
+        <div class="image-zoom-dialog__content"></div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<div class="body">
+
+<div id="side-menu" class="side-menu" data-component="ROOT" data-version="0.7.0" data-module="main">
+  <div class="side-menu__header">
+    <div class="side-menu__header-start">
+      <img class="side-menu__header-logo side-menu__header-logo--light" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+      <img class="side-menu__header-logo side-menu__header-logo--dark" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+      <span class="side-menu__header-title dt-text dt-text--title-s">CerbIA</span>
+    </div>
+    <button class="side-menu__close" type="button" aria-label="Close navigation"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-x"></use></svg></button>
+  </div>
+
+<div class="side-menu__brand">
+  <a class="side-menu__brand-link" href="../../">
+    <img class="side-menu__brand-logo side-menu__brand-logo--light" src="../../../cerbia-logo.png" width="40" height="40" alt="">
+    <img class="side-menu__brand-logo side-menu__brand-logo--dark" src="../../../cerbia-logo.png" width="40" height="40" alt="">
+    <span class="side-menu__brand-title dt-text dt-text--title-m">CerbIA</span>
+  </a>
+</div>
+
+<div class="nav-switcher">
+  <button class="nav-switcher__toggle" type="button" aria-expanded="false" aria-haspopup="true" aria-label="Switch module, currently Documentation">
+    <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+    <span class="nav-switcher__label">
+      <span class="nav-switcher__title dt-text dt-text--body-m-high">Documentation</span>
+      <span class="nav-switcher__description dt-text dt-text--detail-m">Product overview, setup, guides, and component reference.</span>
+    </span>
+    <span class="nav-switcher__chevron"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
+  </button>
+  <div class="nav-switcher__menu" hidden>
+    <ul class="dt-list nav-switcher__list">
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../about/" aria-current="true">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">Documentation</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Product overview, setup, guides, and component reference.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Installation selector and optional capability extras.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-core/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-core</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Core Python pipeline and configurable security gates.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-cli/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-cli</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Command-line interface for validation and scanning.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-ml/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-ml</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Model artifact and text-classification adapters.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-presidio/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-presidio</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Optional Presidio-based PII scanner integration.</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-switcher__item">
+        <a class="nav-switcher__option" href="../../cerbia-protectai/">
+          <span class="nav-switcher__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-grid-3x3"></use></svg></span>
+          <span class="nav-switcher__label">
+            <span class="nav-switcher__title dt-text dt-text--body-m-high">cerbia-protectai</span>
+            <span class="nav-switcher__description dt-text dt-text--detail-m">Optional ProtectAI prompt-injection scanner integration.</span>
+          </span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+  <nav class="side-menu__nav" aria-label="Site navigation">
+
+
+<ul class="dt-list side-menu__list" data-depth="0">
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../about/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Overview</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Overview">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="1">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../architecture/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Architecture</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../prerequisites/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Getting started</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Getting started">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="1">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../quickstart/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Quickstart</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../guides-overview/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Guides</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Guides">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="1">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../components/custom-components/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Custom components</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../reference-overview/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Reference</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Reference">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="1">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../configuration/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Configuration</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../cli/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">CLI</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="./" aria-current="page">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Gates</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../packages/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Packages</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../components/loaders/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Loaders</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Loaders">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="2">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/loaders/text-loader/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Text loader</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/loaders/file-loader/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">File loader</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../components/preprocessors/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Preprocessors</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Preprocessors">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="2">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/preprocessors/speculative-decoding/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Speculative decoding</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/preprocessors/whitespace-normalization/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Whitespace normalization</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../components/scanners/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Scanners</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Scanners">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="2">
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/prompt-injection/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection (Built-in)</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Prompt injection (Built-in)">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="3">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
+        href="../components/scanners/prompt-injection-protectai/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Prompt injection with ProtectAI</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/url-malicious/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Malicious URLs</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Malicious URLs">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="3">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
+        href="../components/scanners/url-allow-list/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">URL allowlist</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
+        href="../components/scanners/url-deny-list/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">URL denylist</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/pii/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">PII (Built-in)</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle PII (Built-in)">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="3">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-3"
+        href="../components/scanners/pii-presidio/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">PII with Presidio</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/canary-leak/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Canary leak</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/decisions/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Decisions and SystemOne</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/invisible-text/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Invisible text</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/keyword/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Keyword</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/secrets/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Secrets</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/scanners/xss/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Cross-site scripting</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item side-menu__item--branch">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../components/score-aggregators/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Score aggregators</span></span>
+      </a>
+      <button class="side-menu__toggle" type="button" aria-expanded="true" aria-label="Toggle Score aggregators">
+        <svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg>
+      </button>
+    </div>
+
+<ul class="dt-list side-menu__list" data-depth="2">
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/score-aggregators/max/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Maximum</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/score-aggregators/max-with-bonus/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Maximum with bonus</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-2"
+        href="../components/score-aggregators/mean/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Mean</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../i18n/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Internationalization</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-1"
+        href="../logging/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Logging</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../additional-information/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Additional information</span></span>
+      </a>
+    </div>
+
+  </li>
+  <li class="side-menu__item">
+    <div class="side-menu__row">
+      <a class="dt-list-item side-menu__link dt-list-item--tree--level-0"
+        href="../contributing/">
+        <span class="dt-list-item__text"><span class="dt-list-item__label">Contributing</span></span>
+      </a>
+    </div>
+
+  </li>
+</ul>
+  </nav>
+  <div class="side-menu__version">
+
+<div class="page-versions">
+  <button type="button" class="dt-tag dt-tag--solid dt-tag--selected header-toolbar__version header-toolbar__version--latest version-menu-toggle" title="Show other versions of page" aria-expanded="false">
+    <span class="dt-tag__label">0.7.0</span>
+    <span class="dt-tag__icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-chevron-down"></use></svg></span>
+  </button>
+  <div class="version-menu">
+    <a class="version" href="../../../prerelease/main/gate/">
+      <span class="version__label">prerelease</span>
+      <span class="dt-label dt-label--orange"><span class="dt-label__content">Prerelease</span></span>
+    </a>
+    <span class="version is-current" aria-current="page">
+      <span class="version__label">0.7.0</span>
+      <span class="dt-label dt-label--green"><span class="dt-label__content">Latest</span></span>
+          </span>
+    <a class="version" href="../../../0.6.0/main/gate/">
+      <span class="version__label">0.6.0</span>
+    </a>
+    <a class="version" href="../../../0.5.0/main/gate/">
+      <span class="version__label">0.5.0</span>
+    </a>
+    <a class="version" href="../../../0.4.0/main/gate/">
+      <span class="version__label">0.4.0</span>
+    </a>
+    <a class="version" href="../../../0.3.2/main/gate/">
+      <span class="version__label">0.3.2</span>
+    </a>
+    <a class="version" href="../../../0.3.1/main/gate/">
+      <span class="version__label">0.3.1</span>
+    </a>
+    <a class="version" href="../../../0.3.0/main/gate/">
+      <span class="version__label">0.3.0</span>
+    </a>
+  </div>
+</div>
+  </div>
+</div>
+<div class="side-menu-scrim"></div>
+
+<main class="article">
+
+<div class="hero">
+  <div class="dt-grid-layout dt-grid-layout--with-margin hero__grid">
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-full hero__row">
+      <div class="hero__main">
+
+<nav class="dt-breadcrumbs" aria-label="Breadcrumb">
+  <a class="dt-breadcrumb-item dt-breadcrumb-item--link" href="../../"><span class="dt-breadcrumb-item__content">CerbIA</span></a>
+  <a class="dt-breadcrumb-item dt-breadcrumb-item--link" href="../reference-overview/"><span class="dt-breadcrumb-item__content">Reference</span></a>
+  <div class="dt-breadcrumb-item dt-breadcrumb-item--active" aria-current="page"><span class="dt-breadcrumb-item__content">Gates</span></div>
+</nav>
+        <h1 class="hero__title dt-text dt-text--title-xl">Gates</h1>
+        <p class="hero__excerpt dt-text dt-text--body-l">Understand how simple and cascade gates turn scanner findings into an allow or block verdict.</p>
+        <div class="hero__tags">
+          <div class="dt-label dt-label--grey">
+            <span class="dt-label__content">reference</span>
+          </div>
+          <div class="dt-label dt-label--grey">
+            <span class="dt-label__content">gate</span>
+          </div>
+          <div class="dt-label dt-label--grey">
+            <span class="dt-label__content">verdict</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero__aside">
+        <button class="dt-button dt-button--ghost dt-button--icon-only toc-toggle" type="button" aria-controls="on-this-page" aria-expanded="true" hidden>
+          <span class="dt-button__content">
+            <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-panel-left"></use></svg></span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+  <div class="content dt-grid-layout dt-grid-layout--with-margin">
+
+<aside id="on-this-page" class="toc" data-title="On this page" data-levels="4">
+  <div class="toc-menu"></div>
+</aside>
+
+<article class="doc">
+<div class="sect1">
+<h2 id="what-are-gates"><a class="anchor" href="#what-are-gates"></a>What are gates</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A gate checks one entry and returns a verdict: allow it or block it. A simple
+gate checks one scanner list; a cascade checks ordered stages that can allow,
+block, or defer to the next stage. Choose a simple gate for one round of checks
+and a cascade when checks need ordered decision points. An early cascade allow
+ends evaluation, so later stages do not provide checks for that entry.</p>
+</div>
+<div class="paragraph">
+<p>The runner calls the same <code>SecurityGate</code> protocol for either kind of gate and
+gets a <code>GateVerdict</code>. You do not need to implement or configure that protocol
+directly; see <a href="../architecture/" class="xref page">Architecture</a> for where the gate fits in
+the pipeline.</p>
+</div>
+<div class="sect2">
+<h3 id="results"><a class="anchor" href="#results"></a>Results</h3>
+<div class="paragraph">
+<p>A verdict contains <code>is_safe</code>, <code>score</code>, <code>rationale</code>, <code>findings</code>, and any skipped
+scanners. A cascade also returns ordered stage summaries. Each finding appears
+once in the flat findings list; cascade findings identify their owning stage,
+while simple findings have no stage. Simple results serialize <code>stages: null</code>.
+Top-level result data can include entry text and finding rationale.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="errors-shared-by-both-gate-types"><a class="anchor" href="#errors-shared-by-both-gate-types"></a>Errors shared by both gate types</h3>
+<div class="paragraph">
+<p>Scanner errors follow the configured <code>on_scanner_error</code> policy. The available
+policies depend on gate type: simple gates support <code>fail</code>, <code>block</code>, and <code>skip</code>;
+cascades support <code>fail</code> and <code>block</code>. The sections below explain their effects
+on scanning and the verdict. See <a href="../configuration/" class="xref page">Configuration</a> for
+defaults and YAML fields.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="simple-gates"><a class="anchor" href="#simple-gates"></a>Simple Gates</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A simple gate runs one ordered scanner list. It records findings, combines
+eligible blocking risk, and returns one verdict for the entry.</p>
+</div>
+<div class="docouture-diagram" data-diagram-type="mermaid"><div class="docouture-diagram__content"><svg id="docouture-diagram-1-container" width="1006.109375" xmlns="http://www.w3.org/2000/svg" class="flowchart" height="211.578125" viewBox="0 0 1006.109375 211.578125" role="graphics-document document" aria-roledescription="flowchart-v2" aria-describedby="chart-desc-container" aria-labelledby="chart-title-container"><title id="docouture-diagram-1-chart-title-container">Simple gate combines one scanner group into one verdict</title><desc id="docouture-diagram-1-chart-desc-container">One scanner group checks the entry and contributes findings to a combined score. The score is compared with the threshold, producing one terminal allow or block decision.</desc><style>#docouture-diagram-1-container{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;fill:#000000;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#docouture-diagram-1-container .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#docouture-diagram-1-container .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#docouture-diagram-1-container .error-icon{fill:hsl(180, 0%, 100%);}#docouture-diagram-1-container .error-text{fill:rgb(0, 0, 0);stroke:rgb(0, 0, 0);}#docouture-diagram-1-container .edge-thickness-normal{stroke-width:1px;}#docouture-diagram-1-container .edge-thickness-thick{stroke-width:3.5px;}#docouture-diagram-1-container .edge-pattern-solid{stroke-dasharray:0;}#docouture-diagram-1-container .edge-thickness-invisible{stroke-width:0;fill:none;}#docouture-diagram-1-container .edge-pattern-dashed{stroke-dasharray:3;}#docouture-diagram-1-container .edge-pattern-dotted{stroke-dasharray:2;}#docouture-diagram-1-container .marker{fill:#000000;stroke:#000000;}#docouture-diagram-1-container .marker.cross{stroke:#000000;}#docouture-diagram-1-container svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;}#docouture-diagram-1-container p{margin:0;}#docouture-diagram-1-container .label{font-family:"trebuchet ms",verdana,arial,sans-serif;color:#000000;}#docouture-diagram-1-container .cluster-label text{fill:rgb(0, 0, 0);}#docouture-diagram-1-container .cluster-label span{color:rgb(0, 0, 0);}#docouture-diagram-1-container .cluster-label span p{background-color:transparent;}#docouture-diagram-1-container .label text,#docouture-diagram-1-container span{fill:#000000;color:#000000;}#docouture-diagram-1-container .node rect,#docouture-diagram-1-container .node circle,#docouture-diagram-1-container .node ellipse,#docouture-diagram-1-container .node polygon,#docouture-diagram-1-container .node path{fill:#ffffff;stroke:#000000;stroke-width:1px;}#docouture-diagram-1-container .rough-node .label text,#docouture-diagram-1-container .node .label text,#docouture-diagram-1-container .image-shape .label,#docouture-diagram-1-container .icon-shape .label{text-anchor:middle;}#docouture-diagram-1-container .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#docouture-diagram-1-container .rough-node .label,#docouture-diagram-1-container .node .label,#docouture-diagram-1-container .image-shape .label,#docouture-diagram-1-container .icon-shape .label{text-align:center;}#docouture-diagram-1-container .node.clickable{cursor:pointer;}#docouture-diagram-1-container .root .anchor path{fill:#000000!important;stroke-width:0;stroke:#000000;}#docouture-diagram-1-container .arrowheadPath{fill:#0b0b0b;}#docouture-diagram-1-container .edgePath .path{stroke:#000000;stroke-width:1px;}#docouture-diagram-1-container .flowchart-link{stroke:#000000;fill:none;}#docouture-diagram-1-container .edgeLabel{background-color:hsl(-120, 0%, 100%);text-align:center;}#docouture-diagram-1-container .edgeLabel p{background-color:hsl(-120, 0%, 100%);}#docouture-diagram-1-container .edgeLabel rect{opacity:0.5;background-color:hsl(-120, 0%, 100%);fill:hsl(-120, 0%, 100%);}#docouture-diagram-1-container .labelBkg{background-color:rgba(255, 255, 255, 0.5);}#docouture-diagram-1-container .cluster rect{fill:hsl(180, 0%, 100%);stroke:hsl(180, 0%, 90%);stroke-width:1px;}#docouture-diagram-1-container .cluster text{fill:rgb(0, 0, 0);}#docouture-diagram-1-container .cluster span{color:rgb(0, 0, 0);}#docouture-diagram-1-container div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:12px;background:hsl(180, 0%, 100%);border:1px solid hsl(180, 0%, 90%);border-radius:2px;pointer-events:none;z-index:100;}#docouture-diagram-1-container .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#000000;}#docouture-diagram-1-container rect.text{fill:none;stroke-width:0;}#docouture-diagram-1-container .icon-shape,#docouture-diagram-1-container .image-shape{background-color:hsl(-120, 0%, 100%);text-align:center;}#docouture-diagram-1-container .icon-shape p,#docouture-diagram-1-container .image-shape p{background-color:hsl(-120, 0%, 100%);padding:2px;}#docouture-diagram-1-container .icon-shape .label rect,#docouture-diagram-1-container .image-shape .label rect{opacity:0.5;background-color:hsl(-120, 0%, 100%);fill:hsl(-120, 0%, 100%);}#docouture-diagram-1-container .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#docouture-diagram-1-container .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#docouture-diagram-1-container .node .neo-node{stroke:#000000;}#docouture-diagram-1-container [data-look="neo"].node rect,#docouture-diagram-1-container [data-look="neo"].cluster rect,#docouture-diagram-1-container [data-look="neo"].node polygon{stroke:url(#docouture-diagram-1-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container [data-look="neo"].swimlane.cluster rect{filter:none;}#docouture-diagram-1-container [data-look="neo"].node path{stroke:url(#docouture-diagram-1-container-gradient);stroke-width:1px;}#docouture-diagram-1-container [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container [data-look="neo"].node .neo-line path{stroke:#000000;filter:none;}#docouture-diagram-1-container [data-look="neo"].node circle{stroke:url(#docouture-diagram-1-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container [data-look="neo"].node circle .state-start{fill:#000000;}#docouture-diagram-1-container [data-look="neo"].icon-shape .icon{fill:url(#docouture-diagram-1-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container [data-look="neo"].icon-shape .icon-neo path{stroke:url(#docouture-diagram-1-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-1-container .node rect,#docouture-diagram-1-container .statediagram-state rect.basic,#docouture-diagram-1-container .statediagram-cluster rect{rx:0!important;ry:0!important;}#docouture-diagram-1-container .transition{stroke:rgb(0, 0, 0)!important;}#docouture-diagram-1-container .marker,#docouture-diagram-1-container .node circle.state-start,#docouture-diagram-1-container [id$="-barbEnd"]{stroke:rgb(0, 0, 0)!important;fill:rgb(0, 0, 0)!important;}#docouture-diagram-1-container .node circle.state-end{fill:rgb(0, 0, 0)!important;stroke:rgb(255, 255, 255)!important;}#docouture-diagram-1-container .nodeLabel,#docouture-diagram-1-container .edgeLabel,#docouture-diagram-1-container .stateLabel,#docouture-diagram-1-container .cluster-label{color:rgb(0, 0, 0)!important;}#docouture-diagram-1-container :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g><marker id="docouture-diagram-1-container_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-1-container_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-1-container_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-1-container_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></polygon></marker><marker id="docouture-diagram-1-container_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-1-container_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-1-container_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-1-container_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-1-container_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-1-container_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-1-container_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"></path></marker><marker id="docouture-diagram-1-container_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"></path></marker><g class="root"><g class="clusters"></g><g class="edgePaths"><path d="M105.609,105.789L109.776,105.789C113.943,105.789,122.276,105.789,129.943,105.789C137.609,105.789,144.609,105.789,148.109,105.789L151.609,105.789" id="docouture-diagram-1-container-L_A_B_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-1-L_A_B_0" data-points="W3sieCI6MTA1LjYwOTM3NSwieSI6MTA1Ljc4OTA2MjV9LHsieCI6MTMwLjYwOTM3NSwieSI6MTA1Ljc4OTA2MjV9LHsieCI6MTU1LjYwOTM3NSwieSI6MTA1Ljc4OTA2MjV9XQ==" data-look="classic" marker-end="url(#docouture-diagram-1-container_flowchart-v2-pointEnd)"></path><path d="M352.75,105.789L356.917,105.789C361.083,105.789,369.417,105.789,377.083,105.789C384.75,105.789,391.75,105.789,395.25,105.789L398.75,105.789" id="docouture-diagram-1-container-L_B_C_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-1-L_B_C_0" data-points="W3sieCI6MzUyLjc1LCJ5IjoxMDUuNzg5MDYyNX0seyJ4IjozNzcuNzUsInkiOjEwNS43ODkwNjI1fSx7IngiOjQwMi43NSwieSI6MTA1Ljc4OTA2MjV9XQ==" data-look="classic" marker-end="url(#docouture-diagram-1-container_flowchart-v2-pointEnd)"></path><path d="M578.938,105.789L583.104,105.789C587.271,105.789,595.604,105.789,603.271,105.789C610.938,105.789,617.938,105.789,621.438,105.789L624.938,105.789" id="docouture-diagram-1-container-L_C_D_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-1-L_C_D_0" data-points="W3sieCI6NTc4LjkzNzUsInkiOjEwNS43ODkwNjI1fSx7IngiOjYwMy45Mzc1LCJ5IjoxMDUuNzg5MDYyNX0seyJ4Ijo2MjguOTM3NSwieSI6MTA1Ljc4OTA2MjV9XQ==" data-look="classic" marker-end="url(#docouture-diagram-1-container_flowchart-v2-pointEnd)"></path><path d="M797.297,78.57L808.005,74.44C818.713,70.31,840.13,62.049,856.344,57.919C872.557,53.789,883.568,53.789,889.073,53.789L894.578,53.789" id="docouture-diagram-1-container-L_D_E_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-1-L_D_E_0" data-points="W3sieCI6Nzk3LjI5Njc5MDA1NjY2MzgsInkiOjc4LjU3MDIyNzU1NjY2Mzc0fSx7IngiOjg2MS41NDY4NzUsInkiOjUzLjc4OTA2MjV9LHsieCI6ODk4LjU3ODEyNSwieSI6NTMuNzg5MDYyNX1d" data-look="classic" marker-end="url(#docouture-diagram-1-container_flowchart-v2-pointEnd)"></path><path d="M797.297,133.008L808.005,137.138C818.713,141.268,840.13,149.529,856.365,153.659C872.599,157.789,883.651,157.789,889.177,157.789L894.703,157.789" id="docouture-diagram-1-container-L_D_F_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-1-L_D_F_0" data-points="W3sieCI6Nzk3LjI5Njc5MDA1NjY2MzgsInkiOjEzMy4wMDc4OTc0NDMzMzYyNX0seyJ4Ijo4NjEuNTQ2ODc1LCJ5IjoxNTcuNzg5MDYyNX0seyJ4Ijo4OTguNzAzMTI1LCJ5IjoxNTcuNzg5MDYyNX1d" data-look="classic" marker-end="url(#docouture-diagram-1-container_flowchart-v2-pointEnd)"></path></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="docouture-diagram-1-L_A_B_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="docouture-diagram-1-L_B_C_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="docouture-diagram-1-L_C_D_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(861.546875, 53.7890625)"><g class="label" data-id="docouture-diagram-1-L_D_E_0" transform="translate(-12.03125, -12)"><foreignObject width="24.0625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Yes</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(861.546875, 157.7890625)"><g class="label" data-id="docouture-diagram-1-L_D_F_0" transform="translate(-10.140625, -12)"><foreignObject width="20.28125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>No</p></span></div></foreignObject></g></g></g><g class="nodes"><g class="node default" id="docouture-diagram-1-container-flowchart-A-0" data-look="classic" transform="translate(56.8046875, 105.7890625)"><rect class="basic label-container" style="" x="-48.8046875" y="-27" width="97.609375" height="54"></rect><g class="label" style="" transform="translate(-18.8046875, -12)"><rect></rect><foreignObject width="37.609375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Entry</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-1-container-flowchart-B-1" data-look="classic" transform="translate(254.1796875, 105.7890625)"><rect class="basic label-container" style="" x="-98.5703125" y="-27" width="197.140625" height="54"></rect><g class="label" style="" transform="translate(-68.5703125, -12)"><rect></rect><foreignObject width="137.140625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>One scanner group</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-1-container-flowchart-C-3" data-look="classic" transform="translate(490.84375, 105.7890625)"><rect class="basic label-container" style="" x="-88.09375" y="-27" width="176.1875" height="54"></rect><g class="label" style="" transform="translate(-58.09375, -12)"><rect></rect><foreignObject width="116.1875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Combined score</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-1-container-flowchart-D-5" data-look="classic" transform="translate(726.7265625, 105.7890625)"><polygon points="97.7890625,0 195.578125,-97.7890625 97.7890625,-195.578125 0,-97.7890625" class="label-container" transform="translate(-97.2890625, 97.7890625)"></polygon><g class="label" style="" transform="translate(-70.7890625, -12)"><rect></rect><foreignObject width="141.578125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Score &gt;= threshold?</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-1-container-flowchart-E-7" data-look="classic" transform="translate(948.34375, 53.7890625)"><rect class="basic label-container" style="" x="-49.765625" y="-27" width="99.53125" height="54"></rect><g class="label" style="" transform="translate(-19.765625, -12)"><rect></rect><foreignObject width="39.53125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Block</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-1-container-flowchart-F-9" data-look="classic" transform="translate(948.34375, 157.7890625)"><rect class="basic label-container" style="" x="-49.640625" y="-27" width="99.28125" height="54"></rect><g class="label" style="" transform="translate(-19.640625, -12)"><rect></rect><foreignObject width="39.28125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Allow</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="docouture-diagram-1-container-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><defs><filter id="docouture-diagram-1-container-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><linearGradient id="docouture-diagram-1-container-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#000000" stop-opacity="1"></stop><stop offset="100%" stop-color="hsl(-120, 0%, 90%)" stop-opacity="1"></stop></linearGradient></svg></div></div>
+<div class="sect2">
+<h3 id="findings-and-score"><a class="anchor" href="#findings-and-score"></a>Findings and score</h3>
+<div class="paragraph">
+<p>A scanner reports its risk score, rationale, and optional match spans. The gate
+adds scanner identity, display name, severity, and action to create a finding.
+Only positive-risk <code>BLOCK</code> findings contribute to the aggregate, using
+<code>risk_score × severity.weight</code>. <code>WARN</code> and <code>PASS</code> findings remain available for
+review but do not affect the score. The configured aggregator combines eligible
+scores.</p>
+</div>
+<div class="paragraph">
+<p>The entry blocks when the aggregate is greater than or equal to <code>threshold</code>.
+With no eligible positive-risk <code>BLOCK</code> findings, the score is <code>0</code> and the entry
+is allowed, even at threshold <code>0</code>, unless a blocking scanner error occurred. See
+<a href="../components/score-aggregators/" class="xref page">Score aggregators</a> for the available
+combination strategies.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="scanner-routing-and-early-stop"><a class="anchor" href="#scanner-routing-and-early-stop"></a>Scanner routing and early stop</h3>
+<div class="paragraph">
+<p>When an entry&#8217;s known content type is not accepted by a scanner, a simple gate
+skips that scanner and records the reason; it creates no finding and changes no
+score. An <code>unknown</code> entry type is eligible for every scanner.</p>
+</div>
+<div class="paragraph">
+<p>With <code>fail_fast: true</code>, scanning stops when an individual positive-risk <code>BLOCK</code>
+finding reaches the threshold after severity weighting, unless its risk score
+is within <code>1e-9</code> of zero. Those near-zero positive scores still contribute to
+the final aggregate. A blocking scanner error also stops scanning when
+fail-fast is enabled. Otherwise, compatible scanners continue and their
+findings are returned.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="scanner-errors"><a class="anchor" href="#scanner-errors"></a>Scanner errors</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>fail</code> propagates the original scanner error instead of returning a verdict.</p>
+</li>
+<li>
+<p><code>block</code> returns an unsafe verdict; fail-fast determines whether scanning
+continues after the error.</p>
+</li>
+<li>
+<p><code>skip</code> records the failed scanner as skipped and continues.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cascade-gates"><a class="anchor" href="#cascade-gates"></a>Cascade Gates</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A cascade evaluates ordered stages. Each stage makes its decision from its own
+scanners; it does not reuse an earlier stage&#8217;s score.</p>
+</div>
+<div class="paragraph">
+<p>This example shows two stages; a cascade can have more. Only a nonfinal stage
+can defer to the next stage.</p>
+</div>
+<div class="docouture-diagram" data-diagram-type="mermaid"><div class="docouture-diagram__content"><svg id="docouture-diagram-2-container" width="1478.046875" xmlns="http://www.w3.org/2000/svg" class="flowchart" height="342" viewBox="0 0 1478.046875 342" role="graphics-document document" aria-roledescription="flowchart-v2" aria-describedby="chart-desc-container" aria-labelledby="chart-title-container"><title id="docouture-diagram-2-chart-title-container">Cascade gate with two ordered stages</title><desc id="docouture-diagram-2-chart-desc-container">Stage 1 allows or blocks and stops, or defers to the final Stage 2. Stage 2 is final and can only allow or block; it cannot defer.</desc><style>#docouture-diagram-2-container{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;fill:#000000;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#docouture-diagram-2-container .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#docouture-diagram-2-container .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#docouture-diagram-2-container .error-icon{fill:hsl(180, 0%, 100%);}#docouture-diagram-2-container .error-text{fill:rgb(0, 0, 0);stroke:rgb(0, 0, 0);}#docouture-diagram-2-container .edge-thickness-normal{stroke-width:1px;}#docouture-diagram-2-container .edge-thickness-thick{stroke-width:3.5px;}#docouture-diagram-2-container .edge-pattern-solid{stroke-dasharray:0;}#docouture-diagram-2-container .edge-thickness-invisible{stroke-width:0;fill:none;}#docouture-diagram-2-container .edge-pattern-dashed{stroke-dasharray:3;}#docouture-diagram-2-container .edge-pattern-dotted{stroke-dasharray:2;}#docouture-diagram-2-container .marker{fill:#000000;stroke:#000000;}#docouture-diagram-2-container .marker.cross{stroke:#000000;}#docouture-diagram-2-container svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;}#docouture-diagram-2-container p{margin:0;}#docouture-diagram-2-container .label{font-family:"trebuchet ms",verdana,arial,sans-serif;color:#000000;}#docouture-diagram-2-container .cluster-label text{fill:rgb(0, 0, 0);}#docouture-diagram-2-container .cluster-label span{color:rgb(0, 0, 0);}#docouture-diagram-2-container .cluster-label span p{background-color:transparent;}#docouture-diagram-2-container .label text,#docouture-diagram-2-container span{fill:#000000;color:#000000;}#docouture-diagram-2-container .node rect,#docouture-diagram-2-container .node circle,#docouture-diagram-2-container .node ellipse,#docouture-diagram-2-container .node polygon,#docouture-diagram-2-container .node path{fill:#ffffff;stroke:#000000;stroke-width:1px;}#docouture-diagram-2-container .rough-node .label text,#docouture-diagram-2-container .node .label text,#docouture-diagram-2-container .image-shape .label,#docouture-diagram-2-container .icon-shape .label{text-anchor:middle;}#docouture-diagram-2-container .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#docouture-diagram-2-container .rough-node .label,#docouture-diagram-2-container .node .label,#docouture-diagram-2-container .image-shape .label,#docouture-diagram-2-container .icon-shape .label{text-align:center;}#docouture-diagram-2-container .node.clickable{cursor:pointer;}#docouture-diagram-2-container .root .anchor path{fill:#000000!important;stroke-width:0;stroke:#000000;}#docouture-diagram-2-container .arrowheadPath{fill:#0b0b0b;}#docouture-diagram-2-container .edgePath .path{stroke:#000000;stroke-width:1px;}#docouture-diagram-2-container .flowchart-link{stroke:#000000;fill:none;}#docouture-diagram-2-container .edgeLabel{background-color:hsl(-120, 0%, 100%);text-align:center;}#docouture-diagram-2-container .edgeLabel p{background-color:hsl(-120, 0%, 100%);}#docouture-diagram-2-container .edgeLabel rect{opacity:0.5;background-color:hsl(-120, 0%, 100%);fill:hsl(-120, 0%, 100%);}#docouture-diagram-2-container .labelBkg{background-color:rgba(255, 255, 255, 0.5);}#docouture-diagram-2-container .cluster rect{fill:hsl(180, 0%, 100%);stroke:hsl(180, 0%, 90%);stroke-width:1px;}#docouture-diagram-2-container .cluster text{fill:rgb(0, 0, 0);}#docouture-diagram-2-container .cluster span{color:rgb(0, 0, 0);}#docouture-diagram-2-container div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:12px;background:hsl(180, 0%, 100%);border:1px solid hsl(180, 0%, 90%);border-radius:2px;pointer-events:none;z-index:100;}#docouture-diagram-2-container .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#000000;}#docouture-diagram-2-container rect.text{fill:none;stroke-width:0;}#docouture-diagram-2-container .icon-shape,#docouture-diagram-2-container .image-shape{background-color:hsl(-120, 0%, 100%);text-align:center;}#docouture-diagram-2-container .icon-shape p,#docouture-diagram-2-container .image-shape p{background-color:hsl(-120, 0%, 100%);padding:2px;}#docouture-diagram-2-container .icon-shape .label rect,#docouture-diagram-2-container .image-shape .label rect{opacity:0.5;background-color:hsl(-120, 0%, 100%);fill:hsl(-120, 0%, 100%);}#docouture-diagram-2-container .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#docouture-diagram-2-container .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#docouture-diagram-2-container .node .neo-node{stroke:#000000;}#docouture-diagram-2-container [data-look="neo"].node rect,#docouture-diagram-2-container [data-look="neo"].cluster rect,#docouture-diagram-2-container [data-look="neo"].node polygon{stroke:url(#docouture-diagram-2-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-2-container [data-look="neo"].swimlane.cluster rect{filter:none;}#docouture-diagram-2-container [data-look="neo"].node path{stroke:url(#docouture-diagram-2-container-gradient);stroke-width:1px;}#docouture-diagram-2-container [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-2-container [data-look="neo"].node .neo-line path{stroke:#000000;filter:none;}#docouture-diagram-2-container [data-look="neo"].node circle{stroke:url(#docouture-diagram-2-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-2-container [data-look="neo"].node circle .state-start{fill:#000000;}#docouture-diagram-2-container [data-look="neo"].icon-shape .icon{fill:url(#docouture-diagram-2-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-2-container [data-look="neo"].icon-shape .icon-neo path{stroke:url(#docouture-diagram-2-container-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#docouture-diagram-2-container .node rect,#docouture-diagram-2-container .statediagram-state rect.basic,#docouture-diagram-2-container .statediagram-cluster rect{rx:0!important;ry:0!important;}#docouture-diagram-2-container .transition{stroke:rgb(0, 0, 0)!important;}#docouture-diagram-2-container .marker,#docouture-diagram-2-container .node circle.state-start,#docouture-diagram-2-container [id$="-barbEnd"]{stroke:rgb(0, 0, 0)!important;fill:rgb(0, 0, 0)!important;}#docouture-diagram-2-container .node circle.state-end{fill:rgb(0, 0, 0)!important;stroke:rgb(255, 255, 255)!important;}#docouture-diagram-2-container .nodeLabel,#docouture-diagram-2-container .edgeLabel,#docouture-diagram-2-container .stateLabel,#docouture-diagram-2-container .cluster-label{color:rgb(0, 0, 0)!important;}#docouture-diagram-2-container :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g><marker id="docouture-diagram-2-container_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-2-container_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-2-container_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-2-container_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></polygon></marker><marker id="docouture-diagram-2-container_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-2-container_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-2-container_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-2-container_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="docouture-diagram-2-container_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-2-container_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="docouture-diagram-2-container_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"></path></marker><marker id="docouture-diagram-2-container_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"></path></marker><g class="root"><g class="clusters"></g><g class="edgePaths"><path d="M105.609,139L109.776,139C113.943,139,122.276,139,129.943,139C137.609,139,144.609,139,148.109,139L151.609,139" id="docouture-diagram-2-container-L_A_B_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_A_B_0" data-points="W3sieCI6MTA1LjYwOTM3NSwieSI6MTM5fSx7IngiOjEzMC42MDkzNzUsInkiOjEzOX0seyJ4IjoxNTUuNjA5Mzc1LCJ5IjoxMzl9XQ==" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M382.313,139L386.479,139C390.646,139,398.979,139,406.646,139C414.313,139,421.313,139,424.813,139L428.313,139" id="docouture-diagram-2-container-L_B_C_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_B_C_0" data-points="W3sieCI6MzgyLjMxMjUsInkiOjEzOX0seyJ4Ijo0MDcuMzEyNSwieSI6MTM5fSx7IngiOjQzMi4zMTI1LCJ5IjoxMzl9XQ==" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M570.164,106.57L589.552,94.642C608.94,82.713,647.716,58.857,693.814,46.928C739.911,35,793.331,35,820.04,35L846.75,35" id="docouture-diagram-2-container-L_C_D_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_C_D_0" data-points="W3sieCI6NTcwLjE2Mzg2NjQ1NTQwNjUsInkiOjEwNi41NzAxMTY0NTU0MDY0NX0seyJ4Ijo2ODYuNDkyMTg3NSwieSI6MzV9LHsieCI6ODUwLjc1LCJ5IjozNX1d" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M602.594,139L616.577,139C630.56,139,658.526,139,699.198,139C739.87,139,793.247,139,819.936,139L846.625,139" id="docouture-diagram-2-container-L_C_E_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_C_E_0" data-points="W3sieCI6NjAyLjU5Mzc1LCJ5IjoxMzl9LHsieCI6Njg2LjQ5MjE4NzUsInkiOjEzOX0seyJ4Ijo4NTAuNjI1LCJ5IjoxMzl9XQ==" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M567.945,173.649L587.703,187.207C607.461,200.766,646.976,227.883,680.051,241.441C713.125,255,739.758,255,753.074,255L766.391,255" id="docouture-diagram-2-container-L_C_F_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_C_F_0" data-points="W3sieCI6NTY3Ljk0NDc3MDk2NzUyMDksInkiOjE3My42NDg5NzkwMzI0NzkxfSx7IngiOjY4Ni40OTIxODc1LCJ5IjoyNTV9LHsieCI6NzcwLjM5MDYyNSwieSI6MjU1fV0=" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M1030.391,255L1034.557,255C1038.724,255,1047.057,255,1054.724,255C1062.391,255,1069.391,255,1072.891,255L1076.391,255" id="docouture-diagram-2-container-L_F_G_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_F_G_0" data-points="W3sieCI6MTAzMC4zOTA2MjUsInkiOjI1NX0seyJ4IjoxMDU1LjM5MDYyNSwieSI6MjU1fSx7IngiOjEwODAuMzkwNjI1LCJ5IjoyNTV9XQ==" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M1213.909,234.706L1228.651,229.422C1243.393,224.138,1272.876,213.569,1298.331,208.284C1323.786,203,1345.214,203,1355.927,203L1366.641,203" id="docouture-diagram-2-container-L_G_H_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_G_H_0" data-points="W3sieCI6MTIxMy45MDk0MzY0NDk0MTMzLCJ5IjoyMzQuNzA2MzExNDQ5NDEzMjV9LHsieCI6MTMwMi4zNTkzNzUsInkiOjIwM30seyJ4IjoxMzcwLjY0MDYyNSwieSI6MjAzfV0=" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path><path d="M1213.909,275.294L1228.651,280.578C1243.393,285.862,1272.876,296.431,1298.31,301.716C1323.745,307,1345.13,307,1355.823,307L1366.516,307" id="docouture-diagram-2-container-L_G_I_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="docouture-diagram-2-L_G_I_0" data-points="W3sieCI6MTIxMy45MDk0MzY0NDk0MTMzLCJ5IjoyNzUuMjkzNjg4NTUwNTg2NzV9LHsieCI6MTMwMi4zNTkzNzUsInkiOjMwN30seyJ4IjoxMzcwLjUxNTYyNSwieSI6MzA3fV0=" data-look="classic" marker-end="url(#docouture-diagram-2-container_flowchart-v2-pointEnd)"></path></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="docouture-diagram-2-L_A_B_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="docouture-diagram-2-L_B_C_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(686.4921875, 35)"><g class="label" data-id="docouture-diagram-2-L_C_D_0" transform="translate(-43.0390625, -12)"><foreignObject width="86.078125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Allow - stop</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(686.4921875, 139)"><g class="label" data-id="docouture-diagram-2-L_C_E_0" transform="translate(-43.15625, -12)"><foreignObject width="86.3125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Block - stop</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(686.4921875, 255)"><g class="label" data-id="docouture-diagram-2-L_C_F_0" transform="translate(-58.8984375, -12)"><foreignObject width="117.796875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Defer - continue</p></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="docouture-diagram-2-L_F_G_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(1302.359375, 203)"><g class="label" data-id="docouture-diagram-2-L_G_H_0" transform="translate(-43.0390625, -12)"><foreignObject width="86.078125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Allow - stop</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(1302.359375, 307)"><g class="label" data-id="docouture-diagram-2-L_G_I_0" transform="translate(-43.15625, -12)"><foreignObject width="86.3125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Block - stop</p></span></div></foreignObject></g></g></g><g class="nodes"><g class="node default" id="docouture-diagram-2-container-flowchart-A-0" data-look="classic" transform="translate(56.8046875, 139)"><rect class="basic label-container" style="" x="-48.8046875" y="-27" width="97.609375" height="54"></rect><g class="label" style="" transform="translate(-18.8046875, -12)"><rect></rect><foreignObject width="37.609375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Entry</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-B-1" data-look="classic" transform="translate(268.9609375, 139)"><rect class="basic label-container" style="" x="-113.3515625" y="-27" width="226.703125" height="54"></rect><g class="label" style="" transform="translate(-83.3515625, -12)"><rect></rect><foreignObject width="166.703125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Stage 1: scan and score</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-C-3" data-look="classic" transform="translate(517.453125, 139)"><polygon points="85.140625,0 170.28125,-85.140625 85.140625,-170.28125 0,-85.140625" class="label-container" transform="translate(-84.640625, 85.140625)"></polygon><g class="label" style="" transform="translate(-58.140625, -12)"><rect></rect><foreignObject width="116.28125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Stage 1 decision</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-D-5" data-look="classic" transform="translate(900.390625, 35)"><rect class="basic label-container" style="" x="-49.640625" y="-27" width="99.28125" height="54"></rect><g class="label" style="" transform="translate(-19.640625, -12)"><rect></rect><foreignObject width="39.28125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Allow</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-E-7" data-look="classic" transform="translate(900.390625, 139)"><rect class="basic label-container" style="" x="-49.765625" y="-27" width="99.53125" height="54"></rect><g class="label" style="" transform="translate(-19.765625, -12)"><rect></rect><foreignObject width="39.53125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Block</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-F-9" data-look="classic" transform="translate(900.390625, 255)"><rect class="basic label-container" style="" x="-130" y="-39" width="260" height="78"></rect><g class="label" style="" transform="translate(-100, -24)"><rect></rect><foreignObject width="200" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>Stage 2 (final): scan and score</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-G-11" data-look="classic" transform="translate(1157.296875, 255)"><polygon points="76.90625,0 153.8125,-76.90625 76.90625,-153.8125 0,-76.90625" class="label-container" transform="translate(-76.40625, 76.90625)"></polygon><g class="label" style="" transform="translate(-49.90625, -12)"><rect></rect><foreignObject width="99.8125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Final decision</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-H-13" data-look="classic" transform="translate(1420.28125, 203)"><rect class="basic label-container" style="" x="-49.640625" y="-27" width="99.28125" height="54"></rect><g class="label" style="" transform="translate(-19.640625, -12)"><rect></rect><foreignObject width="39.28125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Allow</p></span></div></foreignObject></g></g><g class="node default" id="docouture-diagram-2-container-flowchart-I-15" data-look="classic" transform="translate(1420.28125, 307)"><rect class="basic label-container" style="" x="-49.765625" y="-27" width="99.53125" height="54"></rect><g class="label" style="" transform="translate(-19.765625, -12)"><rect></rect><foreignObject width="39.53125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Block</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="docouture-diagram-2-container-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><defs><filter id="docouture-diagram-2-container-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><linearGradient id="docouture-diagram-2-container-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#000000" stop-opacity="1"></stop><stop offset="100%" stop-color="hsl(-120, 0%, 90%)" stop-opacity="1"></stop></linearGradient></svg></div></div>
+<div class="sect2">
+<h3 id="stage-scores-and-decisions"><a class="anchor" href="#stage-scores-and-decisions"></a>Stage scores and decisions</h3>
+<div class="paragraph">
+<p>All compatible scanners in a reached stage run before its score decision, unless
+an operational scanner failure interrupts the stage. A stage scores only its
+own completed positive-risk <code>BLOCK</code> findings, weighted by severity. Earlier
+findings remain visible but are not selected or rescored. With no eligible
+findings the score is <code>0</code>, and the aggregator is not called.</p>
+</div>
+<div class="paragraph">
+<p>Decisions use strict greater-than boundaries:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>A score above <code>threshold</code> blocks; equality does not block.</p>
+</li>
+<li>
+<p>A nonfinal stage defers when its score is above <code>defer_above</code>; equality allows.</p>
+</li>
+<li>
+<p>Otherwise the entry is allowed. The final stage allows every score not blocked.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Every stage is numerical. Each nonfinal stage must have <code>defer_above</code> below its
+resolved threshold; the final stage forbids <code>defer_above</code>, even in a
+single-stage cascade. A stage threshold overrides the optional root default.
+Configuration errors are described in <a href="../configuration/" class="xref page">Configuration</a>.
+An allow is terminal: later stages do not run. Max aggregation does not prove
+scanner independence or probability calibration.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="operational-errors-and-stage-results"><a class="anchor" href="#operational-errors-and-stage-results"></a>Operational errors and stage results</h3>
+<div class="paragraph">
+<p>Cascade <code>on_scanner_error</code> supports <code>fail</code> (the default) and <code>block</code>. A known
+content-type mismatch is an operational fault, not a skipped scanner. On either
+kind of operational fault, the current stage stops and later stages are marked
+<code>not_reached</code>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>fail</code> raises the original scanner or transport error where possible.</p>
+</li>
+<li>
+<p><code>block</code> returns an unsafe operational verdict without inventing a threat
+finding. The entry score <code>1.0</code> is a fail-closed sentinel, not model risk; the
+interrupted stage omits its score.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Stage summaries expose <code>id</code>, <code>result</code>, and an optional diagnostic <code>score</code>.
+Normally reached stages include their score; unreached stages do not. Each
+completed finding appears once, in execution order, and its <code>stage</code> names the
+stage that ran its scanner.</p>
+</div>
+</div>
+</div>
+</div>
+</article>
+  </div>
+</main>
+</div>
+
+
+<footer class="page-footer">
+  <div class="page-footer__nav">
+
+<div class="dt-grid-layout dt-grid-layout--with-margin pagination">
+  <div class="dt-grid-layout__item dt-grid-layout__item--span-full pagination__row">
+    <div class="pagination__buttons">
+    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-icon pagination__prev" href="../cli/">
+      <span class="dt-button__content">
+        <span class="dt-button__icon dt-button__icon-icon"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-arrow-left"></use></svg></span>
+        <span class="pagination__label-full">CLI</span>
+        <span class="pagination__label-short">Prev</span>
+      </span>
+    </a>
+    <a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action pagination__next" href="../packages/">
+      <span class="dt-button__content">
+        <span class="pagination__label-full">Packages</span>
+        <span class="pagination__label-short">Next</span>
+        <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-arrow-right"></use></svg></span>
+      </span>
+    </a>
+    </div>
+  </div>
+</div>
+  </div>
+  <div class="dt-grid-layout dt-grid-layout--with-margin page-footer__feedback">
+    <div class="dt-grid-layout__item dt-grid-layout__item--span-full page-footer__contribute">
+      <div class="page-footer__contribute-copy">
+        <p class="dt-text dt-text--title-s">Help us make these docs great!</p>
+        <p class="dt-text dt-text--body-m">See something that is wrong or unclear? Collaborate with us! Submit a pull request</p>
+      </div>
+      <div class="page-footer__contribute-buttons">
+
+<a class="dt-button dt-button--ghost dt-button--icon-and-label dt-button--icon-action page-footer__propose-change" href="https://github.com/InditexTech/cerbia/blob/docs/v0.7.0/docs/src/modules/main/pages/gate.adoc">
+  <span class="dt-button__content">
+    Propose a change
+    <span class="dt-button__icon dt-button__icon-action"><svg class="dt-icon" aria-hidden="true" focusable="false"><use href="../../../_/img/icons.svg#icon-external-link"></use></svg></span>
+  </span>
+</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+
+<footer class="site-footer">
+  <div class="dt-grid-layout dt-grid-layout--with-margin site-footer__grid">
+    <div class="dt-grid-layout__item site-footer__col site-footer__brand">
+      <a class="site-footer__brand-link" href="../../">
+        <img class="site-footer__logo site-footer__logo--light" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+        <img class="site-footer__logo site-footer__logo--dark" src="../../../cerbia-logo.png" width="24" height="24" alt="">
+        <span class="dt-text dt-text--label-l-high">CerbIA</span>
+      </a>
+      <span class="dt-text dt-text--detail-m site-footer__legal">&#169; 2026 InditexTech</span>
+    </div>
+    <div class="dt-grid-layout__item site-footer__col site-footer__links">
+      <span class="dt-text dt-text--label-l site-footer__heading">Documentation</span>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../about/">Overview</a>
+    </div>
+    <div class="dt-grid-layout__item site-footer__col site-footer__links">
+      <span class="dt-text dt-text--label-l site-footer__heading">Modules</span>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../about/">Documentation</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia/">cerbia</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-core/">cerbia-core</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-cli/">cerbia-cli</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-ml/">cerbia-ml</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-presidio/">cerbia-presidio</a>
+      <a class="dt-text dt-text--body-l site-footer__link" href="../../cerbia-protectai/">cerbia-protectai</a>
+    </div>
+  </div>
+</footer>
+  </body>
+</html>
