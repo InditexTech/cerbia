@@ -23,7 +23,7 @@ class KeywordScanner:
         languages (list[str] | None): ISO-639-1 codes to load patterns for. Defaults to all supported languages.
         extra_patterns (list[tuple[str, str]] | None): Additional ``(name, regex)`` pairs appended to the pattern set.
         match_strategy (MatchStrategy): Strategy for matching patterns against the input text.
-        redact (bool): Whether to redact matching snippets in the rationale.
+        redact (bool): Redact matching snippets in the rationale. Defaults to True; set False to include them.
         severity (Severity): Severity level for produced findings.
         action (Action): Action to take when keywords are found.
         content_types (tuple[ContentType, ...] | list[str] | None): Content types to scan. Defaults to
@@ -49,7 +49,7 @@ class KeywordScanner:
         languages: list[str] | None = None,
         extra_patterns: list[tuple[str, str]] | None = None,
         match_strategy: MatchStrategy = MatchStrategy.SEARCH,
-        redact: bool = False,
+        redact: bool = True,
         severity: Severity = Severity.HIGH,
         action: Action = Action.BLOCK,
         content_types: tuple[ContentType, ...] | list[str] | None = (ContentType.TEXT,),
