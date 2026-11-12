@@ -2,6 +2,8 @@ import pytest
 from cerbia.core.models.scans import MatchSpan
 from cerbia.core.registries.url import UrlRegistry
 from cerbia.core.scanners.malicious_url import MaliciousUrlScanner
+from cerbia.core.score_aggregators import MeanScoreAggregator
+from cerbia.core.security_gate import SimpleGate
 from cerbia.core.types import Action, ContentType, Severity
 
 pytestmark = pytest.mark.unit
@@ -324,3 +326,95 @@ def test_preserves_positional_arguments_when_redact_is_appended() -> None:
     assert scanner.action is Action.WARN
     assert scanner.content_types == (ContentType.URL,)
     assert result.rationale == f"Suspicious URL(s) (1 flag(s)): Suspicious TLD (.xyz) ({url[:60]})"
+
+
+@pytest.mark.parametrize("redact", [None, True, False], ids=["default", "enabled", "legacy"])
+@pytest.mark.parametrize(
+    ("text", "candidates"),
+    [
+        ("data:text/html,https://evil.xyz/privatepayload", [("https://evil.xyz/privatepayload", True)]),
+        (
+            "data:text/html,first data:image/svg+xml,https://evil.xyz/privatepayload",
+            [("https://evil.xyz/privatepayload", True)],
+        ),
+        (
+            "data:text/html,https://evil.xyz/first data:text/html,https://evil.xyz/second",
+            [("https://evil.xyz/first", True), ("https://evil.xyz/second", True)],
+        ),
+        (
+            "data:text/html,https://evil.xyz/privatepayload https://evil.xyz/public",
+            [("https://evil.xyz/privatepayload", True), ("https://evil.xyz/public", False)],
+        ),
+        *[
+            (
+                f"<a href={quote}data:text/html,https://evil.xyz/privatepayload{quote}>https://evil.xyz/public</a>",
+                [("https://evil.xyz/privatepayload", True), ("https://evil.xyz/public", False)],
+            )
+            for quote in ["'", '"']
+        ],
+        *[
+            (
+                f"data: text/html,payload{boundary}https://evil.xyz/public",
+                [("https://evil.xyz/public", False)],
+            )
+            for boundary in [" ", "\t", "\n", "<", ">"]
+        ],
+        (
+            "https://evil.xyz/data:text/html,privatepayload",
+            [("https://evil.xyz/data:text/html,privatepayload", True)],
+        ),
+        (
+            "data:text/html,data:image/svg+xml,https://evil.xyz/privatepayload",
+            [("https://evil.xyz/privatepayload", True)],
+        ),
+        (
+            " ".join(f"data:text/html,https://evil.xyz/private{i}" for i in range(6)),
+            [(f"https://evil.xyz/private{i}", True) for i in range(6)],
+        ),
+    ],
+)
+def test_masks_intersecting_url_displays_when_data_uri_contains_urls(
+    redact: bool | None, text: str, candidates: list[tuple[str, bool]]
+) -> None:
+    # Given
+    scanner = MaliciousUrlScanner() if redact is None else MaliciousUrlScanner(redact=redact)
+    legacy = MaliciousUrlScanner(redact=False).scan(text)
+    start = text.index("data:")
+    displays = ["[REDACTED]" if hidden and redact is not False else url[:60] for url, hidden in candidates]
+    data_display = text[start : start + 60] if redact is False else "[REDACTED]"
+    details = [f"Data URI ({data_display})", *[f"Suspicious TLD (.xyz) ({display})" for display in displays]]
+    # When
+    result = scanner.scan(text)
+    # Then
+    assert result.rationale == f"Suspicious URL(s) ({len(details)} flag(s)): " + "; ".join(details[:5])
+    assert result.model_dump(exclude={"rationale"}) == legacy.model_dump(exclude={"rationale"})
+    assert legacy.rationale == (
+        f"Suspicious URL(s) ({len(details)} flag(s)): Data URI ({text[start : start + 60]}); "
+        + "; ".join(f"Suspicious TLD (.xyz) ({url[:60]})" for url, _ in candidates[:4])
+    )
+
+
+@pytest.mark.parametrize("redact", [None, True, False], ids=["default", "enabled", "legacy"])
+def test_promotes_private_data_uri_display_to_public_finding_and_summary(redact: bool | None) -> None:
+    # Given
+    scanner = MaliciousUrlScanner() if redact is None else MaliciousUrlScanner(redact=redact)
+    text = "data:text/html,https://evil.xyz/privatepayload https://evil.xyz/public"
+    gate = SimpleGate("privacy", [scanner], MeanScoreAggregator())
+    display = "https://evil.xyz/privatepayload" if redact is False else "[REDACTED]"
+    data_display = text[:60] if redact is False else "[REDACTED]"
+    expected = (
+        f"Suspicious URL(s) (3 flag(s)): Data URI ({data_display}); "
+        f"Suspicious TLD (.xyz) ({display}); Suspicious TLD (.xyz) (https://evil.xyz/public)"
+    )
+    # When
+    verdict = gate.scan(text)
+    # Then
+    assert not verdict.is_safe
+    assert len(verdict.findings) == 1
+    assert verdict.findings[0].rationale == expected
+    assert verdict.rationale == f"Malicious URL: {expected}"
+    assert verdict.findings[0].matches == [
+        MatchSpan(start=0, end=14),
+        MatchSpan(start=15, end=46),
+        MatchSpan(start=47, end=len(text)),
+    ]

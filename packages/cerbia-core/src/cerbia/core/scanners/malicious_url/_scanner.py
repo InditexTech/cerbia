@@ -1,4 +1,5 @@
 from logging import getLogger
+from re import Match
 from urllib.parse import parse_qs, urlparse
 
 from ..._utils.url import extract_urls, format_url_finding
@@ -16,6 +17,18 @@ from ._defaults import DEFAULT_POPULAR_DOMAINS, DEFAULT_SHORTENER_DOMAINS, DEFAU
 from ._validations import check_typosquatting, is_ip_url
 
 logger = getLogger(__name__)
+
+
+def _data_uri_display_ranges(text: str) -> list[tuple[int, int]]:
+    ranges: list[tuple[int, int]] = []
+    for header in DATA_URI_PATTERN.finditer(text):
+        end = header.end()
+        while end < len(text) and not text[end].isspace() and text[end] not in "\"'<>":
+            end += 1
+
+        ranges.append((header.start(), end))
+
+    return ranges
 
 
 class MaliciousUrlScanner:
@@ -125,8 +138,9 @@ class MaliciousUrlScanner:
             flags.append(("Data URI", data_uri_snippet, 0.9))
             matches.append(MatchSpan(start=data_uri_match.start(), end=data_uri_match.end()))
 
+        display_ranges = _data_uri_display_ranges(text) if self._redact else []
         for url in urls:
-            url_flags = self._check_url(url.group())
+            url_flags = self._check_url_match(url, display_ranges)
             flags.extend(url_flags)
             if url_flags:
                 matches.append(MatchSpan(start=url.start(), end=url.end()))
@@ -163,6 +177,13 @@ class MaliciousUrlScanner:
             },
         )
         return ScanOutcome(risk_score=max_risk_score, rationale=rationale, matches=matches)
+
+    def _check_url_match(self, url: Match[str], display_ranges: list[tuple[int, int]]) -> list[tuple[str, str, float]]:
+        flags = self._check_url(url.group())
+        if any(url.start() < end and start < url.end() for start, end in display_ranges):
+            return [(reason, "[REDACTED]", score) for reason, _, score in flags]
+
+        return flags
 
     def _check_url(self, url: str) -> list[tuple[str, str, float]]:
         flags: list[tuple[str, str, float]] = []

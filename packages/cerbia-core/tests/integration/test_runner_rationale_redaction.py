@@ -1,9 +1,11 @@
-from typing import Final
+import sys
+from typing import Final, Literal, assert_never
 
 import pytest
 from cerbia.core.config import LoaderConfig, ScannerConfig, ScoreAggregatorConfig, parse_config
 from cerbia.core.models.scans import Finding
 from cerbia.core.runner import Runner
+from cerbia.core.types import ScannerErrorPolicy
 
 pytestmark = pytest.mark.integration
 
@@ -139,3 +141,63 @@ def test_runner_redacts_serialized_findings_without_changing_detection(
     assert default.entry.text == text
     if "blocked.xyz" in text:
         assert all(secret not in serialized for secret in ("usr", "pwd", "token=secret", "frag"))
+
+
+@pytest.mark.parametrize("cascade", [False, True], ids=["simple", "cascade"])
+@pytest.mark.parametrize("redact", [True, False])
+@pytest.mark.parametrize("policy", [ScannerErrorPolicy.BLOCK, ScannerErrorPolicy.FAIL])
+@pytest.mark.parametrize(
+    "scanner",
+    [
+        ScannerConfig(scanner="cerbia.core.scanners.UrlAllowListScanner", init_args={"allowed_domains": []}),
+        ScannerConfig(
+            scanner="cerbia.core.scanners.UrlDenyListScanner",
+            init_args={"blocked_domains": ["https://blocked.xyz/*"]},
+        ),
+    ],
+    ids=["allowlist", "denylist"],
+)
+def test_runner_preserves_error_policy_when_url_port_exceeds_integer_conversion_limit(
+    scanner: ScannerConfig,
+    cascade: bool,
+    redact: bool,
+    policy: Literal[ScannerErrorPolicy.BLOCK, ScannerErrorPolicy.FAIL],
+) -> None:
+    # Given: real registry matching must fail before diagnostic formatting.
+    limit = sys.get_int_max_str_digits()
+    if limit == 0:
+        pytest.skip("Integer conversion digit limit is disabled")
+    text = f"https://blocked.xyz:{'9' * (limit + 1)}/path?token=private"
+    gate = {
+        "scanners": [scanner.model_copy(update={"init_args": {**scanner.init_args, "redact": redact}}).model_dump()],
+        "score_aggregator": {"score_aggregator": "cerbia.core.score_aggregators.MaxScoreAggregator"},
+        "threshold": 0.0,
+    }
+    topology = {"type": "cascade", "stages": [{"id": "guard", **gate}]} if cascade else gate
+    runner = Runner(
+        parse_config(
+            {
+                "name": "oversized-port",
+                "on_scanner_error": policy,
+                "loaders": [{"loader": "cerbia.core.loaders.TextLoader", "init_args": {"texts": text}}],
+                **topology,
+            }
+        )
+    )
+    # When / Then
+    match policy:
+        case ScannerErrorPolicy.FAIL:
+            with pytest.raises(ValueError, match="integer string conversion"):
+                _ = runner.scan()
+        case ScannerErrorPolicy.BLOCK:
+            result = runner.scan()
+            assert not result.is_safe
+            entry = result.entry_results[0]
+            assert not entry.is_safe
+            assert entry.findings == []
+            assert entry.entry.text == text
+            if cascade:
+                assert entry.stages is not None
+                assert entry.stages[0].result == "block"
+        case unreachable:
+            assert_never(unreachable)

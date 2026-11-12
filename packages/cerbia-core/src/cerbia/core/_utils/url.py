@@ -119,10 +119,7 @@ def _normalize_port_for_matching(port: str | None) -> str | None:
     if not port.isascii() or not port.isdigit():
         return None
 
-    try:
-        port_number = int(port)
-    except ValueError:
-        return None
+    port_number = int(port)
     if port_number < 0 or port_number > 65535:
         return None
 
@@ -216,7 +213,13 @@ def format_url_finding(url: str, display_limit: int = 60, redact: bool = True) -
     Returns:
         str: A formatted string representing the URL finding, truncated if it exceeds the display limit.
     """
-    normalized = normalize_for_matching(url)
+    try:
+        normalized = normalize_for_matching(url)
+    except ValueError:
+        if redact:
+            return "[REDACTED URL]"
+
+        raise
     if normalized is None and redact:
         return "[REDACTED URL]"
 

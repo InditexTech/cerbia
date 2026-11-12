@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 from cerbia.core._utils import url as url_utils
 from cerbia.core._utils.url import extract_urls, format_url_finding, normalize_for_matching
@@ -94,15 +96,36 @@ def test_normalize_for_matching_returns_none_when_url_is_invalid(url: str) -> No
     assert result is None
 
 
-def test_normalize_for_matching_returns_none_when_port_exceeds_integer_conversion_limit() -> None:
+@pytest.fixture
+def oversized_port_url() -> str:
+    limit = sys.get_int_max_str_digits()
+    if limit == 0:
+        pytest.skip("Integer conversion digit limit is disabled")
+    return f"https://evil.xyz:{'9' * (limit + 1)}/path?token=private"
+
+
+def test_normalize_for_matching_raises_when_port_exceeds_integer_conversion_limit(oversized_port_url: str) -> None:
     # Given
-    url = f"https://evil.xyz:{'9' * 5000}/path?token=private"
+    url = oversized_port_url
 
-    # When
-    result = normalize_for_matching(url)
+    # When / Then
+    with pytest.raises(ValueError, match="integer string conversion"):
+        _ = normalize_for_matching(url)
 
+
+def test_url_format_redacts_when_port_exceeds_integer_conversion_limit(oversized_port_url: str) -> None:
+    # Given / When
+    result = format_url_finding(oversized_port_url, redact=True)
     # Then
-    assert result is None
+    assert result == "[REDACTED URL]"
+
+
+def test_url_format_raises_when_port_exceeds_integer_conversion_limit_and_redaction_is_disabled(
+    oversized_port_url: str,
+) -> None:
+    # Given / When / Then
+    with pytest.raises(ValueError, match="integer string conversion"):
+        _ = format_url_finding(oversized_port_url, redact=False)
 
 
 @pytest.mark.parametrize("port", ["000443", "0" * 1000 + "443", "0", "65535"])
