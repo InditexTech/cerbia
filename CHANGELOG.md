@@ -14,6 +14,15 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- URL denylist and allowlist diagnostics remove user information, query, and
+  fragment from valid URLs in findings by default while retaining scheme, host,
+  port, and path. Malicious URL diagnostics also hide data-URI payloads. Prompt
+  injection and Keyword diagnostics redact matched text excerpts, and Invisible
+  Text diagnostics omit character samples by default. Set `redact: false` for
+  legacy diagnostic content (#63).
+
 ## [0.6.0] - 2026-11-09
 
 ### Added
