@@ -1,4 +1,16 @@
 import re
+from typing import Final
+
+GENERIC_SECRET_RULE: Final = (
+    "Generic Secret",
+    re.compile(r"(?i)(secret|password|passwd|pwd)\s*[=:]\s*['\"]?[^\s'\"]{8,}"),
+    0.75,
+)
+CONNECTION_STRING_RULE: Final = (
+    "Connection String",
+    re.compile(r"(?i)(mongodb|postgres|mysql|redis)://[^\s]{10,}"),
+    0.85,
+)
 
 DEFAULT_SECRET_PATTERNS: list[tuple[str, re.Pattern[str], float]] = [
     ("AWS Access Key", re.compile(r"AKIA[0-9A-Z]{16}"), 0.95),
@@ -24,13 +36,13 @@ DEFAULT_SECRET_PATTERNS: list[tuple[str, re.Pattern[str], float]] = [
     ("Bearer Token", re.compile(r"(?i)bearer\s+[a-z0-9\-._~+/]+=*"), 0.70),
     ("Authorization Header", re.compile(r"(?i)authorization\s*[=:]\s*['\"]?Bearer\s+[a-z0-9\-._~+/]+=*"), 0.80),
     ("Generic API Key", re.compile(r"(?i)api[_-]?key\s*[=:]\s*['\"]?[a-z0-9\-._]{20,}"), 0.80),
-    ("Generic Secret", re.compile(r"(?i)(secret|password|passwd|pwd)\s*[=:]\s*['\"]?[^\s'\"]{8,}"), 0.75),
+    GENERIC_SECRET_RULE,
     ("Azure Key", re.compile(r"(?i)(azure|az)[_-]?(key|secret|token)\s*[=:]\s*['\"]?[a-z0-9+/=]{20,}"), 0.85),
     ("GCP API Key", re.compile(r"AIza[\w-]{35}"), 0.90),
     ("Private Key", re.compile(r"-----BEGIN\s+(RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY-----"), 0.99),
     ("SSH Public Key", re.compile(r"ssh-(rsa|ed25519|dss)\s+[A-Za-z0-9+/=]{20,}"), 0.85),
     ("Certificate", re.compile(r"-----BEGIN\s+CERTIFICATE-----"), 0.85),
     ("PGP Key", re.compile(r"-----BEGIN\s+PGP\s+(PUBLIC|PRIVATE)\s+KEY\s+BLOCK-----"), 0.90),
-    ("Connection String", re.compile(r"(?i)(mongodb|postgres|mysql|redis)://[^\s]{10,}"), 0.85),
+    CONNECTION_STRING_RULE,
     ("JWT Token", re.compile(r"eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}"), 0.80),
 ]
