@@ -12,6 +12,7 @@ from ._constants import (
     HIGH_ENTROPY_PATTERN,
 )
 from ._defaults import DEFAULT_SECRET_PATTERNS
+from ._filters import suppress_builtin_match
 from ._math import charset_entropy
 
 logger = logging.getLogger(__name__)
@@ -123,8 +124,12 @@ class SecretScanner:
         hits: list[tuple[str, float]] = []
         matches: list[MatchSpan] = []
 
-        for name, pattern, risk_score in self._patterns:
+        for rule in self._patterns:
+            name, pattern, risk_score = rule
             for match in pattern.finditer(text):
+                if suppress_builtin_match(rule, match):
+                    continue
+
                 hits.append((name, risk_score))
                 matches.append(MatchSpan(start=match.start(), end=match.end()))
 
