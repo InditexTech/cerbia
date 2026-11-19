@@ -14,6 +14,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Avoided false positives for credential-free MongoDB, PostgreSQL, MySQL, and
+  Redis URLs and supported unresolved configuration references, while continuing
+  to detect literal credentials (#67).
+
 ## [0.7.0] - 2026-11-12
 
 ### Changed
