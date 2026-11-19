@@ -14,6 +14,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-19
+
 ### Fixed
 
 - Avoided false positives for credential-free MongoDB, PostgreSQL, MySQL, and
@@ -158,7 +160,9 @@ and this project adheres to
 - Normalized the trailing newline when reading `.tool-versions` inside release
   heredocs (#11).
 
-[Unreleased]: https://github.com/InditexTech/cerbia/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/InditexTech/cerbia/compare/v0.7.1...HEAD
+
+[0.7.1]: https://github.com/InditexTech/cerbia/compare/v0.7.0...v0.7.1
 
 [0.7.0]: https://github.com/InditexTech/cerbia/compare/v0.6.0...v0.7.0
 
